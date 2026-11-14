@@ -354,7 +354,7 @@
     var empty = $('#emptyState');
     if (!grid) return;
     var list = currentList();
-    grid.innerHTML = list.map(cardMarkup).join('') + (list.length === CASES.length && !state.query ? ctaTileMarkup() : '');
+    grid.innerHTML = list.map(cardMarkup).join('');
     if (empty) empty.classList.toggle('show', list.length === 0);
     observeReveals();
     if (window.CaseEditor) window.CaseEditor.refresh();
