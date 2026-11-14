@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OPC 出摊工作台</title>
+<style>
+  :root{
+    --bg:#f5f6fa;
+    --card:#ffffff;
+    --ink:#1a202c;
+    --muted:#718096;
+    --line:#e2e8f0;
+    --brand:#7c3aed;
+    --brand-soft:#f3e8ff;
+    --green:#059669;
+    --risk:#dc2626;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;
+  }
+
+  /* top bar */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:var(--card);border-bottom:1px solid var(--line);
+    padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .topbar h1{font-size:18px;margin:0;font-weight:700}
+
+  /* panels */
+  .screen{display:none;padding:18px 18px 90px;max-width:560px;margin:0 auto}
+  .screen.active{display:block}
+  .screen-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .screen-head h2{margin:0;font-size:20px}
+  .add-btn{
+    border:none;background:var(--brand);color:#fff;font-size:14px;font-weight:600;
+    padding:9px 16px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .08s;
+  }
+  .add-btn:active{transform:scale(.96)}
+
+  .empty{
+    background:var(--card);border:1px dashed var(--line);border-radius:16px;
+    padding:32px 18px;text-align:center;color:var(--muted);font-size:14px;
+  }
+  .empty .big{font-size:34px;display:block;margin-bottom:8px}
+
+  .list{display:flex;flex-direction:column;gap:10px}
+  .item{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;box-shadow:var(--shadow);position:relative;
+  }
+  .item h3{margin:0 0 6px;font-size:16px;font-weight:700;padding-right:30px}
+  .item p{margin:0;font-size:13.5px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+  .item .cat{display:inline-block;font-size:11px;color:var(--brand);background:var(--brand-soft);padding:2px 9px;border-radius:99px;margin-bottom:8px;font-weight:600}
+  .item .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+ .item .t{font-size:11px;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:99px;border:1px solid var(--line)}
+  .note-date{display:inline-block;margin-top:10px;font-size:11px;color:var(--muted);background:var(--bg);padding:2px 9px;border-radius:99px;border:1px solid var(--line)}
+  .subtitle{font-size:18px;font-weight:800;color:var(--ink);line-height:1.4;margin:4px 0 2px}
+  .del{position:absolute;top:12px;right:12px;border:none;background:transparent;color:var(--muted);font-size:16px;cursor:pointer;line-height:1}
+  .del:hover{color:var(--risk)}
+  .meta{font-size:12px;color:var(--muted);margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+  .shelf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+  .shelf-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .shelf-top .drag{color:var(--muted);font-size:14px;cursor:grab;line-height:1;padding:2px 4px}
+  .shelf-top .del-inline{border:none;background:transparent;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:2px}
+  .shelf-top .del-inline:hover{color:var(--risk)}
+  .item.item-mine{border-left:4px solid var(--brand);background:linear-gradient(180deg,#faf7ff,#ffffff)}
+  .item.item-ext{border-left:4px solid #0ea5e9;background:linear-gradient(180deg,#f8fbff,#ffffff)}
+  .item-ext .cat{color:#0369a1;background:#e0f2fe}
+  .shelf-grid .item.dragging{opacity:.45}
+  .shelf-grid .item.drag-over{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+
+  /* bottom nav */
+  .nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:30;
+    background:var(--card);border-top:1px solid var(--line);display:flex;box-shadow:0 -2px 12px rgba(0,0,0,.05);
+  }
+  .nav button{flex:1;border:1px solid transparent;background:transparent;cursor:pointer;padding:9px 6px 12px;margin:8px 7px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:11px;font-weight:600;transition:color .15s,border-color .15s,background .15s}
+  .nav button .ico{font-size:20px}
+  .nav button.on{color:var(--brand);border-color:rgba(124,58,237,.35);background:rgba(124,58,237,.08)}
+
+  /* modal */
+  .mask{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.42);display:none;align-items:flex-start;justify-content:center;padding-top:40px;overflow-y:auto}
+  .mask.show{display:flex}
+  .sheet{
+    background:var(--card);width:100%;max-width:560px;border-radius:22px;
+    padding:16px 20px 24px;animation:down .22s ease;
+    max-height:calc(100vh - 64px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  }
+  @keyframes down{from{transform:translateY(-30px);opacity:.4}to{transform:none;opacity:1}}
+  .sheet .grab{width:40px;height:4px;background:var(--line);border-radius:99px;margin:0 auto 14px}
+  .sheet h3{margin:0 0 4px;font-size:18px}
+  .sheet .sub{font-size:13px;color:var(--muted);margin:0 0 16px}
+  .sheet-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .tpl-edit-btn{flex:none;border:1px solid var(--line);background:#fff;color:var(--brand);font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:10px;cursor:pointer;white-space:nowrap}
+  .tpl-edit-btn:active{transform:scale(.96)}
+  .tpl-edit-wrap{margin-top:4px}
+  .tpl-edit-wrap textarea{width:100%;min-height:220px;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;font-family:inherit;line-height:1.7;resize:vertical;white-space:pre-wrap}
+  .tpl-edit-wrap textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  .tpl-hint{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.7;word-break:break-word}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+  .field input,.field textarea,.field select{
+    width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+    font-size:14px;font-family:inherit;background:#fff;color:var(--ink);
+  }
+  .field textarea{min-height:84px;resize:vertical}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  .actions{display:flex;gap:10px;margin-top:8px}
+  .btn{flex:1;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:700;cursor:pointer}
+  .btn.ghost{background:var(--bg);color:var(--muted)}
+  .btn.primary{background:var(--brand);color:#fff}
+  .btn.danger{background:var(--risk);color:#fff}
+  #mt-del{display:none;margin-top:10px}
+  .btn:active{transform:scale(.98)}
+  .tip{font-size:11.5px;color:var(--muted);margin-top:10px}
+  .gd-progress{display:flex;gap:6px;margin:0 0 14px}
+  .gd-progress span{flex:1;height:4px;border-radius:99px;background:var(--line);transition:background .2s}
+  .gd-progress span.on{background:var(--brand)}
+  .gd-item{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+  .gd-item-name{font-size:14px;font-weight:600;color:var(--ink)}
+  .gd-item-desc{font-size:12.5px;color:var(--muted);margin-top:4px;white-space:pre-wrap;word-break:break-word}
+  .gd-cat{display:inline-block;font-size:11px;color:var(--brand);background:var(--brand-soft);border:1px solid var(--brand);padding:1px 8px;border-radius:99px;font-weight:600;margin-left:6px;vertical-align:middle}
+  .cat-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .cat-chip{
+    font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);
+    border-radius:99px;padding:6px 14px;cursor:pointer;transition:all .12s;
+  }
+ .cat-chip.on{color:var(--brand);border-color:var(--brand);background:var(--brand-soft);font-weight:600}
+  .cat-chips .cat-custom-toggle{font-size:13px;color:var(--brand);background:#fff;border:1px dashed var(--brand);border-radius:99px;padding:6px 14px;cursor:pointer;white-space:nowrap;font-weight:600;transition:all .12s}
+  .cat-chips .cat-custom-toggle:active{transform:scale(.96)}
+  .cat-custom{display:flex;gap:8px;margin-top:10px;align-items:center}
+  .cat-custom a{
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12.5px;font-weight:600;color:var(--brand);
+    background:#fff;border:1px solid var(--line);border-radius:10px;
+    padding:7px 14px;cursor:pointer;white-space:nowrap;transition:background .12s;
+  }
+  .cat-custom a:active{transform:scale(.96)}
+  .cat-input{margin-top:10px}
+  .cat-input input{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink)}
+  .cat-input input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+
+  .top-actions{display:flex;gap:8px;align-items:center}
+  .ghost-btn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:13px;font-weight:600;padding:9px 14px;border-radius:12px;cursor:pointer}
+  .ghost-btn:active{transform:scale(.96)}
+
+  .mini-btn{border:1px solid var(--brand);background:var(--brand-soft);color:var(--brand);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:10px;cursor:pointer;margin-top:12px}
+  .mini-btn:active{transform:scale(.96)}
+  #cp-mode{margin-bottom:2px}
+  .attach-thumb{position:relative;display:inline-block;width:76px;height:76px;margin:4px 6px 0 0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .attach-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .attach-rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:12px;line-height:18px;cursor:pointer;text-align:center;padding:0}
+  .item-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+  .icon-btn{width:34px;height:34px;border:1px solid var(--line);background:#fff;color:var(--brand);border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1}
+  .icon-btn:active{transform:scale(.94)}
+  .backup{margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+  .backup h3{margin:0 0 6px;font-size:16px}
+  .viewer-body{font-size:13.5px;line-height:1.7;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px;max-height:52vh;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  .copy-btn{margin-top:8px;width:100%;border:none;background:var(--brand);color:#fff;border-radius:12px;padding:12px;font-size:15px;font-weight:700;cursor:pointer}
+  .copy-btn:active{transform:scale(.98)}
+
+  /* 模板库视图 */
+  .tpl{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+  .tpl .head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+  .tpl .head .drag{color:var(--muted);font-size:14px;cursor:grab;line-height:1;padding:2px 4px}
+  .tpl h3{flex:1;min-width:0;margin:0;font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tpl .default{font-size:11px;color:#fff;background:var(--brand);padding:2px 8px;border-radius:99px;font-weight:600}
+  .tpl .blocks{display:flex;flex-wrap:wrap;gap:6px}
+  .tpl .b{font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);padding:3px 9px;border-radius:99px}
+  .tpl-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .mini{border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:13px;font-weight:600;padding:7px 14px;border-radius:10px;cursor:pointer}
+  .mini.use{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .mini.del{color:#b91c1c;background:#fee2e2;border-color:#fca5a5}
+  .mini:active{transform:scale(.97)}
+  .tpl.dragging{opacity:.45}
+  .tpl.drag-over{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+  .hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
+  .blocklist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+  .brow{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+  .brow .bt{flex:1;font-size:14px;font-weight:600}
+  .brow .bt2{font-size:12px;color:var(--muted)}
+  .brow .bs{display:flex;gap:6px;align-items:center}
+  .brow .mu{font-size:13px;color:var(--brand);cursor:pointer;padding:0 3px}
+  .brow .mu.red{color:var(--risk)}
+  .brow .drag{font-size:14px;color:var(--muted);cursor:grab}
+  .brow.dragging{opacity:.5;border-color:var(--brand);border-style:dashed;background:var(--brand-soft)}
+  .brow.drag-over{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+  .addblock{border:1px dashed var(--brand);color:var(--brand);background:var(--brand-soft);width:100%;padding:10px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+
+  /* 出摊工作台 + 文案库 */
+  .goods-checks{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .check{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:4px 2px}
+  .check input{width:18px;height:18px;accent-color:var(--brand);flex:none}
+  .plan .head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+  .chan{display:inline-block;font-size:12px;color:#fff;background:var(--brand);padding:2px 10px;border-radius:99px;font-weight:600}
+  .pl-goods{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .pl-goods .t{font-size:11px;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:99px;border:1px solid var(--line)}
+  .pl-content{font-size:13px;line-height:1.7;color:var(--muted);margin-top:10px;max-height:110px;overflow:hidden;white-space:pre-wrap;word-break:break-word;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+  .copy-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+  .copy-card .head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .copy-card .head h3{flex:1;min-width:0;margin:0;font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .copy-card .head .pin{border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;padding:2px}
+  .copy-card .head .pin.on{color:#f59e0b}
+  .copy-card .meta-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .copy-card .chan2{font-size:11px;color:#0369a1;background:#e0f2fe;padding:2px 8px;border-radius:99px;font-weight:600}
+  .copy-card .body{font-size:13.5px;line-height:1.7;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;white-space:pre-wrap;word-break:break-word;max-height:150px;overflow:auto}
+  .copy-card .body.muted{color:var(--muted)}
+  .copy-card .meta-tags .t{font-size:11px;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:99px;border:1px solid var(--line)}
+  .copy-card.own{border-left:4px solid var(--brand)}
+  .copy-card.ext{border-left:4px solid #f59e0b}
+  .src-badge{font-size:11px;font-weight:700;color:#fff;padding:2px 8px;border-radius:99px;flex:none;line-height:1.4}
+  .src-badge.own{background:var(--brand)}
+  .src-badge.ext{background:#f59e0b}
+  .copy-link{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#b45309;margin:0 0 8px;text-decoration:none}
+  .copy-link:hover{text-decoration:underline}
+  .copy-attach{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .copy-attach img{width:64px;height:64px;object-fit:cover;border:1px solid var(--line);border-radius:8px}
+  .copy-card .head .drag{color:var(--muted);font-size:14px;cursor:grab;line-height:1;padding:2px 4px;flex:none}
+  #sc-copy{max-width:1200px}
+  .copy-grid{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+  .copy-card.dragging{opacity:.45}
+  .copy-card.drag-over{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+  .search-bar{margin-bottom:12px}
+  .search-bar input{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink)}
+  .search-bar input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  #toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);background:rgba(26,32,44,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:99px;z-index:99;opacity:0;pointer-events:none;transition:all .22s}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* 出摊工作台：三栏仪表盘 */
+  #sc-workbench{max-width:1280px}
+  .wb-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  .wb-pane{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);min-height:180px}
+  .wb-pane-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+ .wb-pane-head h3{margin:0;font-size:16px;font-weight:700}
+  .wb-head-actions{display:flex;gap:8px;align-items:center}
+  .copy-all{border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:10px;cursor:pointer}
+  .copy-all:active{transform:scale(.96)}
+  .add-btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}
+  .wb-list{display:flex;flex-direction:column;gap:10px}
+ #sc-deals{max-width:1280px}
+  #sc-goods{max-width:1280px}
+  .deals-grid{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+  .deals-col{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);min-height:180px}
+  .empty.small{padding:22px 14px;font-size:13px}
+  .chan-item{cursor:pointer;transition:border-color .12s,box-shadow .12s}
+  .chan-item.chan-on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+  .chan-sum{font-size:12px;color:var(--muted);margin:4px 0 0;white-space:pre-wrap;word-break:break-word;line-height:1.6}
+  .list .item.dragging{opacity:.45}
+  .list .item.drag-over{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+  .item.dragging{opacity:.45}
+  .item.drag-over{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+  @media(min-width:900px){
+    #sc-workbench{max-width:1280px}
+    .wb-grid{grid-template-columns:1fr}
+    .deals-grid{grid-template-columns:repeat(3,1fr)}
+    .wb-list{max-height:64vh;overflow:auto;padding-right:2px}
+    .copy-grid{grid-template-columns:repeat(3,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1 id="top-title">OPC 出摊工作台</h1>
+  <div class="top-actions">
+    <button class="ghost-btn" id="btn-back" style="display:none">← 返回</button>
+    <button class="ghost-btn" id="btn-lib">📚 模板库</button>
+    <button class="ghost-btn" id="btn-copy" style="display:none">📁 文案库</button>
+    <button class="ghost-btn" id="btn-settings">⚙️ 设置</button>
+  </div>
+</div>
+
+<!-- 我的货品 -->
+<section class="screen active" id="sc-goods">
+  <div class="screen-head">
+    <h2>我的货品</h2>
+    <div class="top-actions">
+      <button class="ghost-btn" id="goods-guide">🧭 盘点</button>
+      <button class="ghost-btn" id="goods-summary">📋 出摊总览</button>
+      <button class="add-btn" data-open="goods">＋ 添加</button>
+    </div>
+  </div>
+  <div id="goods-list"></div>
+</section>
+
+<!-- 出摊渠道 -->
+<section class="screen" id="sc-channels">
+  <div class="screen-head">
+    <h2>出摊渠道</h2>
+    <button class="add-btn" data-open="channels">＋ 添加</button>
+  </div>
+  <div id="channels-list"></div>
+</section>
+
+<!-- 出摊数据 -->
+<section class="screen" id="sc-deals">
+  <div class="screen-head">
+    <h2>出摊数据</h2>
+  </div>
+  <div class="deals-grid">
+    <div class="deals-col">
+      <div class="wb-pane-head"><h3>行动数据</h3><div class="wb-head-actions"><button class="copy-all" data-copy-all="actions">复制全部</button><button class="add-btn sm" data-open="actions">＋ 添加</button></div></div>
+      <div id="actions-list" class="wb-list"></div>
+    </div>
+    <div class="deals-col">
+      <div class="wb-pane-head"><h3>成交数据</h3><div class="wb-head-actions"><button class="copy-all" data-copy-all="deals">复制全部</button><button class="add-btn sm" data-open="deals">＋ 添加</button></div></div>
+      <div id="deals-list" class="wb-list"></div>
+    </div>
+    <div class="deals-col">
+      <div class="wb-pane-head"><h3>行动笔记</h3><div class="wb-head-actions"><button class="copy-all" data-copy-all="notes">复制全部</button><button class="add-btn sm" data-open="notes">＋ 添加</button></div></div>
+      <div id="notes-list" class="wb-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 出摊工作台 -->
+<section class="screen" id="sc-workbench">
+  <div class="wb-grid">
+    <div class="wb-pane">
+      <div class="wb-pane-head"><h3>出摊渠道</h3><button class="add-btn sm" id="wb-channel-new">＋ 添加</button></div>
+      <div id="wb-channel-list" class="wb-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 文案库 -->
+<section class="screen" id="sc-copy">
+  <div class="screen-head">
+    <h2>文案库</h2>
+    <button class="add-btn" id="copy-new">＋ 新建文案</button>
+  </div>
+  <div class="search-bar"><input id="copy-search" placeholder="🔍 搜索标题 / 渠道 / 货品 / 内容"></div>
+  <div id="copy-list"></div>
+</section>
+
+<!-- 模板库视图 -->
+<section class="screen" id="sc-lib">
+  <div class="screen-head">
+    <h2>我的模板</h2>
+    <button class="add-btn" id="new-tpl">＋ 新建模板</button>
+  </div>
+  <div class="list" id="tpl-list"></div>
+</section>
+
+<!-- 设置视图 -->
+<section class="screen" id="sc-settings">
+  <div class="screen-head">
+    <h2>设置</h2>
+  </div>
+  <div class="backup">
+    <h3>数据备份</h3>
+   <p class="hint">导出全部数据（货品 / 渠道 / 成交 / 模板 / 出摊方案 / 文案库）为 JSON 文件。换设备或清理浏览器后，导入即可恢复。</p>
+    <p class="hint">导出全部数据（货品 / 渠道 / 成交 / 模板 / 出摊方案 / 文案库 / AI 提示词模板）为 JSON 文件。换设备或清理浏览器后，导入即可恢复。</p>
+    <div class="tpl-actions">
+      <button class="mini use" id="export-data">⬇ 导出备份</button>
+      <button class="mini use" id="import-data">⬆ 导入备份</button>
+    </div>
+  </div>
+  <p class="hint">更多设置（AI 配置等）即将加入。</p>
+  <input type="file" id="import-file" accept=".json,application/json" style="display:none">
+</section>
+
+<!-- bottom nav -->
+<nav class="nav">
+  <button data-go="goods" class="on"><span class="ico">🧰</span>我的货品</button>
+  <button data-go="workbench"><span class="ico">🚀</span>出摊</button>
+  <button data-go="deals"><span class="ico">💰</span>出摊数据</button>
+</nav>
+
+<!-- 添加弹窗 -->
+<div class="mask" id="mask">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 id="m-title">添加</h3>
+    <p class="sub" id="m-sub"></p>
+    <div class="field" id="tpl-switch-wrap" style="display:none">
+      <label id="tpl-switch-label">使用模板</label>
+      <select id="tpl-switch"></select>
+    </div>
+    <div id="dyn-fields"></div>
+    <div class="actions">
+      <button class="btn ghost" id="m-cancel">取消</button>
+      <button class="btn primary" id="m-save">保存</button>
+    </div>
+    <p class="tip" id="m-tip"></p>
+  </div>
+</div>
+
+<!-- 查看弹窗 -->
+<div class="mask" id="view-mask">
+  <div class="sheet">
+    <div class="grab"></div>
+    <div class="sheet-head-row">
+      <div style="min-width:0">
+        <h3 id="view-title">内容</h3>
+        <p class="sub" id="view-sub"></p>
+      </div>
+      <button class="tpl-edit-btn" id="view-edit" style="display:none">编辑模板</button>
+    </div>
+    <div class="viewer-body" id="view-body"></div>
+    <div class="tpl-edit-wrap" id="view-edit-wrap" style="display:none">
+      <textarea id="view-tpl"></textarea>
+      <p class="tpl-hint" id="view-tpl-hint"></p>
+      <div class="actions">
+        <button class="btn ghost" id="view-tpl-cancel">取消</button>
+        <button class="btn primary" id="view-tpl-save">保存模板</button>
+      </div>
+    </div>
+    <button class="copy-btn" id="view-copy">复制内容</button>
+    <p class="tip" id="view-tip">复制后，去 AI 里粘贴，就能把货品变成能用的内容。</p>
+  </div>
+</div>
+
+<!-- 模板编辑器弹窗 -->
+<div class="mask" id="mask-tpl">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 id="mt-title">新建模板</h3>
+    <p class="sub">给模板起个名，拼出你想要的板块。</p>
+    <div class="field"><label>模板名称</label><input id="tpl-name" placeholder="例如：我的技能模板"></div>
+    <div class="field"><label>板块（拖动调整顺序）</label><div class="blocklist" id="block-list"></div><button class="mini addblock" id="add-block">＋ 加一个板块</button></div>
+    <div class="actions">
+      <button class="btn ghost" id="mt-cancel">取消</button>
+      <button class="btn primary" id="mt-save">保存模板</button>
+    </div>
+    <button class="btn danger" id="mt-del">删除</button>
+  </div>
+</div>
+
+<!-- 板块编辑器弹窗 -->
+<div class="mask" id="mask-block">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 id="mb-title">编辑板块</h3>
+    <p class="sub">设置标题 + 正文类型。</p>
+    <div class="field"><label>板块标题</label><input id="b-label" placeholder="例如：名称 / 面向谁 / 交付方式"></div>
+    <div class="field"><label>正文类型</label><div class="cat-chips" id="b-type"></div></div>
+    <div class="field" id="b-opt-wrap" style="display:none"><label>选项（用逗号隔开，单选类型用）</label><input id="b-opts" placeholder="例如：技能，服务，知识，内容，实体"></div>
+    <div class="actions">
+      <button class="btn ghost" id="mb-cancel">取消</button>
+      <button class="btn primary" id="mb-save">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 盘点引导弹窗 -->
+<div class="mask" id="mask-guide">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 id="gd-title">盘点我能卖什么</h3>
+    <p class="sub" id="gd-sub">一步步找出你能上架的货品。</p>
+    <div class="gd-progress" id="gd-progress"></div>
+    <div id="gd-body"></div>
+    <div class="actions">
+      <button class="btn ghost" id="gd-prev">取消</button>
+      <button class="btn primary" id="gd-next">下一步</button>
+    </div>
+    <p class="tip" id="gd-tip"></p>
+  </div>
+</div>
+
+<!-- 出摊方案设计弹窗 -->
+<div class="mask" id="mask-plan">
+  <div class="sheet">
+    <div class="grab"></div>
+    <div class="sheet-head-row">
+      <div style="min-width:0">
+        <h3 id="pl-title">设计出摊内容</h3>
+        <p class="sub" id="pl-sub">选好货品，一键生成一篇能直接出摊的提示词。</p>
+      </div>
+      <button class="tpl-edit-btn" id="pl-edit">编辑模板</button>
+    </div>
+    <div id="pl-form">
+      <div class="field"><label>出摊渠道</label><select id="pl-channel"></select></div>
+      <div class="field"><label>选一个货品</label><select id="pl-goods"></select></div>
+      <div class="field" id="pl-ai-wrap" style="display:none"><label>生成结果</label><div class="viewer-body" id="pl-ai"></div><button class="copy-btn" id="pl-copy" style="display:none">复制内容</button></div>
+      <div class="actions">
+        <button class="btn ghost" id="pl-cancel">取消</button>
+        <button class="btn primary" id="pl-gen">生成提示词</button>
+      </div>
+    </div>
+    <div class="tpl-edit-wrap" id="pl-edit-wrap" style="display:none">
+      <textarea id="pl-tpl"></textarea>
+      <p class="tpl-hint" id="pl-tpl-hint"></p>
+      <div class="actions">
+        <button class="btn ghost" id="pl-tpl-cancel">取消</button>
+        <button class="btn primary" id="pl-tpl-save">保存模板</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增文案弹窗 -->
+<div class="mask" id="mask-copy">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3 id="cp-title">新建文案</h3>
+    <p class="sub">保存一段你觉得有效的内容，下次出摊直接拿来用。</p>
+    <div class="cat-chips" id="cp-mode">
+      <span class="cat-chip on" data-cpmode="own">自己写的</span>
+      <span class="cat-chip" data-cpmode="ext">外部参考</span>
+    </div>
+    <div class="field"><label>标题</label><input id="cp-name" placeholder="例如：朋友圈出摊文案"></div>
+    <div class="field"><label>关联渠道</label><select id="cp-channel"></select></div>
+    <div id="cp-own-fields">
+      <div class="field"><label>关联货品（可多选）</label><div class="goods-checks" id="cp-goods"></div></div>
+    </div>
+    <div id="cp-ext-fields" style="display:none">
+      <div class="field"><label>来源链接</label><input id="cp-url" placeholder="粘贴原文 / 视频 / 图片链接"></div>
+      <div class="field"><label>可关联货品</label><input id="cp-good" placeholder="填入要关联的货品名（选填）"></div>
+    </div>
+    <div class="field"><label>正文</label><textarea id="cp-content" placeholder="把有效的文案贴进来"></textarea></div>
+    <div class="field">
+      <label>附件</label>
+      <div id="cp-attach-list"></div>
+      <button class="mini-btn" id="cp-attach-btn">📎 上传附件（图片 / 截图）</button>
+      <input type="file" id="cp-attach-file" accept="image/*" multiple style="display:none">
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="cp-cancel">取消</button>
+      <button class="btn primary" id="cp-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- 配置：三个板块 ----------
+  const SECTIONS = {
+    goods:{ key:'opc_goods', name:'我的货品', icon:'🧰', title:'添加货品', sub:'这是你能「卖」的资源，按模板填写，能生成 AI 提示词、汇总出摊。' },
+    channels:{ key:'opc_channels', name:'出摊渠道', icon:'📢', title:'添加渠道', sub:'这是你能「摆摊」的地方。填渠道名称 + 说明。',
+      nameLabel:'渠道名称', namePh:'例如：小红书 / 朋友圈 / 闲鱼', contentLabel:'具体内容', contentPh:'发什么内容？怎么吸引人？' },
+    actions:{ key:'opc_actions', name:'行动数据', icon:'📝', title:'添加行动', sub:'记录你做了什么。', dateLabel:'时间', dateRequired:true, dateText:true, datePh:'例如：上周 / 9月1日那一周', contentLabel:'我做了什么事', contentPh:'例如：发了 3 条朋友圈，跟 2 个老客户聊了聊', tip:'把每天的行动记下来，回头才知道哪些动作带来了成交。' },
+    deals:{ key:'opc_deals', name:'成交数据', icon:'💰', title:'添加成交', sub:'记录一次成交结果。', dateLabel:'日期', dateRequired:true, contentLabel:'成交结果', contentPh:'例如：帮人改了一份简历，成交 200', tip:'记下每一次成交，看得见自己跑了多少单、攒了多少信任。' },
+    notes:{ key:'opc_notes', name:'行动笔记', icon:'📓', title:'添加笔记', sub:'随手记一条想法或复盘。', dateLabel:'日期（选填）', dateRequired:false, contentLabel:'正文', contentPh:'写点什么…', tip:'把复盘和灵感记下来，下次出摊更有底气。' }
+  };
+
+  const DEFAULT_TPL = [
+    { id:'bid1', title:'类别', type:'radio', ph:'', opts:['技能','服务','知识','内容','实体'] },
+    { id:'bid0', title:'名称', type:'subtitle', ph:'例如：帮人改简历' },
+    { id:'bid2', title:'属性 / 标签', type:'tags', ph:'用逗号隔开，例如：便宜，快速，省心' },
+    { id:'bid3', title:'具体内容', type:'textarea', ph:'它是什么？卖给谁？解决什么问题？价格（选填）？' }
+  ];
+  const DEFAULT_TPL_EXT = [
+    { id:'bid1', title:'类别', type:'radio', ph:'', opts:['实体产品','课程','线上服务'] },
+    { id:'bid0', title:'名称', type:'subtitle', ph:'' },
+    { id:'bid4', title:'来源', type:'text', ph:'' },
+    { id:'bid2', title:'属性 / 标签', type:'tags', ph:'用逗号隔开，例如：稀缺，靠谱，价优' },
+    { id:'bid3', title:'具体内容', type:'textarea', ph:'' }
+  ];
+  const DEFAULT_CH_TPLS = [
+    { id:'ch-friend', name:'朋友圈', def:true, blocks:[
+      { id:'cf0', title:'好友数', type:'number', ph:'例如：500' },
+      { id:'cf1', title:'关系怎么样', type:'radio', ph:'', opts:['熟人多','陌生人多','一半一半'] },
+      { id:'cf2', title:'平时发什么', type:'textarea', ph:'例如：美食 / 生活 / 工作日常' }
+    ]},
+    { id:'ch-wx', name:'微信通讯录', def:true, blocks:[
+      { id:'cw0', title:'联系人数量', type:'number', ph:'例如：300' },
+      { id:'cw1', title:'关系怎么样', type:'radio', ph:'', opts:['熟人多','陌生人多','一半一半'] },
+      { id:'cw2', title:'平时聊什么', type:'textarea', ph:'例如：私聊 / 群聊 / 朋友圈互动' }
+    ]},
+    { id:'ch-xhs', name:'小红书', def:true, blocks:[
+      { id:'cxn', title:'名称', type:'subtitle', ph:'小红书账号名' },
+      { id:'cx0', title:'粉丝数', type:'number', ph:'例如：200' },
+      { id:'cx1', title:'账号标签', type:'tags', ph:'例如：职场，学习，生活' },
+      { id:'cx2', title:'平时发什么', type:'textarea', ph:'例如：干货笔记 / 日常分享' }
+    ]},
+    { id:'ch-gzh', name:'公众号', def:true, blocks:[
+      { id:'cgn', title:'名称', type:'subtitle', ph:'公众号名' },
+      { id:'cg0', title:'粉丝数', type:'number', ph:'例如：1000' },
+      { id:'cg1', title:'领域', type:'text', ph:'例如：职场成长' },
+      { id:'cg2', title:'平时发什么', type:'textarea', ph:'例如：长文 / 教程 / 资讯' }
+    ]},
+    { id:'ch-qun', name:'微信群 / 社群', def:true, blocks:[
+      { id:'cwn', title:'名称', type:'subtitle', ph:'例如：学习交流群' },
+      { id:'cw0', title:'群人数', type:'number', ph:'例如：200' },
+      { id:'cw1', title:'群定位', type:'text', ph:'例如：学习群 / 同城群' },
+      { id:'cw2', title:'平时聊什么', type:'textarea', ph:'例如：打卡 / 答疑 / 闲聊' }
+    ]},
+    { id:'ch-ecom', name:'电商平台', def:true, blocks:[
+      { id:'cep0', title:'平台', type:'text', ph:'例如：淘宝 / 京东 / 拼多多 / 抖音商城' },
+      { id:'cep2', title:'主营品类', type:'tags', ph:'例如：服饰，家居，数码' },
+      { id:'cep3', title:'可以上架什么', type:'textarea', ph:'例如：主推爆款 / 日常上新' }
+    ]},
+    { id:'ch-xianyu', name:'闲鱼', def:true, blocks:[
+      { id:'cxy1', title:'主要卖什么', type:'tags', ph:'例如：二手数码，闲置好物，手工' },
+      { id:'cxy2', title:'平时怎么运营', type:'textarea', ph:'例如：低价出闲置 / 一件代发 / 同城自提' }
+    ]},
+    { id:'ch-custom', name:'自定义', def:true, blocks:[
+      { id:'cc0', title:'渠道名称', type:'text', ph:'例如：知乎 / 抖音 / 线下摆摊' },
+      { id:'cc1', title:'规模 / 资源', type:'text', ph:'例如：粉丝 5000 / 好友 300' },
+      { id:'cc2', title:'说明', type:'textarea', ph:'这个渠道怎么用？怎么触达？' }
+    ]}
+  ];
+  const TYPE_NAMES = {text:'单行文本', number:'数字', textarea:'多行文本', tags:'标签组', radio:'选项单选', subtitle:'小标题'};
+  const TYPES = ['text','number','textarea','tags','radio','subtitle'];
+
+  // DOM
+  const mask = document.getElementById('mask');
+  const mTitle = document.getElementById('m-title');
+  const mSub = document.getElementById('m-sub');
+  const mTip = document.getElementById('m-tip');
+  const dynFields = document.getElementById('dyn-fields');
+  const tplSwitchWrap = document.getElementById('tpl-switch-wrap');
+  const tplSwitch = document.getElementById('tpl-switch');
+  const tplSwitchLabel = document.getElementById('tpl-switch-label');
+  const viewMask = document.getElementById('view-mask');
+  const viewTitle = document.getElementById('view-title');
+  const viewSub = document.getElementById('view-sub');
+  const viewBody = document.getElementById('view-body');
+  const viewCopy = document.getElementById('view-copy');
+  let viewText = '';
+
+  const maskTpl = document.getElementById('mask-tpl');
+  const maskBlock = document.getElementById('mask-block');
+  const mtTitle = document.getElementById('mt-title');
+  const tplNameEl = document.getElementById('tpl-name');
+  const blockListEl = document.getElementById('block-list');
+  const bLabelEl = document.getElementById('b-label');
+  const bTypeEl = document.getElementById('b-type');
+  const bOptWrap = document.getElementById('b-opt-wrap');
+  const bOptsEl = document.getElementById('b-opts');
+  const maskGuide = document.getElementById('mask-guide');
+  const gdTitle = document.getElementById('gd-title');
+  const gdSub = document.getElementById('gd-sub');
+  const gdBody = document.getElementById('gd-body');
+  const gdProgress = document.getElementById('gd-progress');
+  const gdPrev = document.getElementById('gd-prev');
+  const gdNext = document.getElementById('gd-next');
+  const gdTip = document.getElementById('gd-tip');
+  const maskPlan = document.getElementById('mask-plan');
+  const plTitle = document.getElementById('pl-title');
+  const plSub = document.getElementById('pl-sub');
+  const plChannel = document.getElementById('pl-channel');
+  const plGoods = document.getElementById('pl-goods');
+  const plAiWrap = document.getElementById('pl-ai-wrap');
+  const plAi = document.getElementById('pl-ai');
+  const plCopy = document.getElementById('pl-copy');
+  const maskCopy = document.getElementById('mask-copy');
+  const cpName = document.getElementById('cp-name');
+  const cpChannel = document.getElementById('cp-channel');
+  const cpGoods = document.getElementById('cp-goods');
+  const cpContent = document.getElementById('cp-content');
+  const cpModeBox = document.getElementById('cp-mode');
+  const cpOwnFields = document.getElementById('cp-own-fields');
+  const cpExtFields = document.getElementById('cp-ext-fields');
+  const cpUrl = document.getElementById('cp-url');
+  const cpGoodSel = document.getElementById('cp-good');
+  const cpAttachList = document.getElementById('cp-attach-list');
+  const cpAttachBtn = document.getElementById('cp-attach-btn');
+  const cpAttachFile = document.getElementById('cp-attach-file');
+
+  let cur = null;
+  let curTpl = null;
+  let radioVals = {};
+  let editingTpl = null;
+  let editingIndex = -1;
+  let selType = 'text';
+  let dragFrom = -1;
+  let dragGoodsFrom = -1;
+  let dragChFrom = -1;
+  let dragTplFrom = -1;
+  let editIndex = -1;
+  let lastMain = 'goods';
+  const CATS = ['技能','知识','内容','时间体力','资源关系','实体物品'];
+  let guide = { step:0, scope:'', total:5, name:'', cat:'', source:'', func:'', keywords:[], cats:[] };
+  let planContent = '';
+  let cpMode = 'own';
+  let cpAttach = [];
+  let cpEditIndex = -1;
+  let curChannel = '';
+
+  // ---------- 读写 localStorage ----------
+  function load(key){ try{ return JSON.parse(localStorage.getItem(key)) || []; }catch(e){ return []; } }
+  function save(key, arr){ localStorage.setItem(key, JSON.stringify(arr)); }
+  if(!localStorage.getItem('opc_goods_cleared_v2')){ localStorage.removeItem('opc_goods'); localStorage.setItem('opc_goods_cleared_v2', '1'); }
+
+  function loadTpls(){
+    try{
+      var arr = JSON.parse(localStorage.getItem('opc_goods_templates_v2')) || [];
+      var needsFix = false;
+      arr.forEach(function(t){
+        if(t.id==='default' || t.id==='default-ext' || t.def){ if(!t.blocks || !t.blocks.length || t.blocks.some(function(b){ return !b.id; })) needsFix = true; }
+      });
+      if(needsFix){ arr = arr.filter(function(t){ return !(t.id==='default'||t.id==='default-ext'||t.def); }); localStorage.setItem('opc_goods_templates_v2', JSON.stringify(arr)); }
+      return arr;
+    }catch(e){ return []; }
+  }
+  function allTpls(){
+    var diy = loadTpls();
+    var defA = null, defB = null;
+    diy.forEach(function(t){
+      if(t.id==='default') defA = t;
+      else if(t.id==='default-ext') defB = t;
+    });
+    if(!defA){ var legacy = diy.find(function(t){ return t.def && t.id!=='default-ext'; }); if(legacy) defA = legacy; }
+    if(!defA){ defA = { id:'default', name:'我的资源', def:true, blocks: JSON.parse(JSON.stringify(DEFAULT_TPL)) }; }
+    if(!defB){ defB = { id:'default-ext', name:'外部资源', def:true, blocks: JSON.parse(JSON.stringify(DEFAULT_TPL_EXT)) }; }
+    if(defA){
+      const b3 = defA.blocks.find(function(b){ return b.id==='bid3' && b.title==='具体内容'; });
+      if(b3) b3.ph = '它是什么？卖给谁？解决什么问题？价格（选填）？';
+    }
+    var custom = diy.filter(function(t){ return t!==defA && t!==defB; });
+    var list = [defA, defB].concat(custom);
+    save('opc_goods_templates_v2', list);
+    return list;
+  }
+  function getTpl(id){ var t = allTpls().find(function(x){ return x.id===id; }); return t || allTpls()[0]; }
+  function allChTpls(){ return DEFAULT_CH_TPLS; }
+  function getChTpl(id){ var t = allChTpls().find(function(x){ return x.id===id; }); return t || allChTpls()[allChTpls().length-1]; }
+  function isNameBlock(b){ return b && (b.title==='名称' || b.title==='渠道名称'); }
+  function channelName(ch){
+    if(!ch) return '';
+    var tpl = ch.tplId ? getChTpl(ch.tplId) : null;
+    if(tpl && ch.fields){
+      var nb = tpl.blocks.filter(isNameBlock)[0];
+      if(nb && ch.fields[nb.id]) return ch.fields[nb.id];
+    }
+    if(ch.name) return ch.name;
+    return tpl ? tpl.name : '';
+  }
+  function loadChannels(){
+    var arr = load('opc_channels');
+    var changed = false;
+    arr.forEach(function(ch){
+      if(ch && !ch.tplId){
+        var preset = allChTpls().filter(function(t){ return t.id!=='ch-custom'; }).find(function(t){
+          var key = t.name.split(' ')[0];
+          return t.name===ch.name || (ch.name && ch.name.indexOf(key)>=0);
+        });
+        var tpl = preset || getChTpl('ch-custom');
+        var fields = {};
+        tpl.blocks.forEach(function(b){
+          if(isNameBlock(b)){ fields[b.id] = ch.name || ''; }
+          else if(b.type==='textarea'){ fields[b.id] = ch.content || ''; }
+          else { fields[b.id] = ''; }
+        });
+        ch.tplId = tpl.id; ch.fields = fields; changed = true;
+      }
+    });
+    if(changed) save('opc_channels', arr);
+    return arr;
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+
+  // ---------- 渲染三个板块 ----------
+  function render(sKey){
+    const conf = SECTIONS[sKey];
+    const arr = (sKey==='channels') ? loadChannels() : load(conf.key);
+    const box = document.getElementById(sKey + '-list');
+    if(!arr.length){
+      if(sKey === 'goods'){
+        box.innerHTML = '<div class="empty"><span class="big">'+conf.icon+'</span>还没有'+conf.name+'<br>不知道卖什么？点这里开始盘点<br><button class="mini-btn" data-guide="1">🧭 开始盘点</button></div>';
+      } else {
+        box.innerHTML = '<div class="empty"><span class="big">'+conf.icon+'</span>还没有'+conf.name+'<br>点「＋ 添加」开始吧</div>';
+      }
+      return;
+    }
+    if(sKey === 'goods'){
+      box.innerHTML = '<div class="shelf-grid">' + arr.map(function(it,i){
+        const tpl = getTpl(it.tplId);
+        const fieldLines = tpl.blocks.map(function(b){
+          const val = it.fields && it.fields[b.id];
+          if(val===undefined||val===null||val===''||(Array.isArray(val)&&!val.length)) return '';
+          let html = '';
+          if(b.type==='subtitle'){ html = '<div class="subtitle">'+esc(val)+'</div>'; }
+          else if(b.type==='tags'){ html = '<div class="tags">'+val.map(function(t){return '<span class="t">#'+esc(t)+'</span>';}).join('')+'</div>'; }
+          else if(b.type==='radio'){ html = '<div class="cat">'+esc(val)+'</div>'; }
+          else { html = '<p>'+esc(val)+'</p>'; }
+          return '<div class="fl">'+html+'</div>';
+        }).join('');
+        var isExt = (it.tplId==='default-ext');
+        var cls = isExt ? ' item-ext' : ' item-mine';
+        return '<div class="item'+cls+'" draggable="true" data-i="'+i+'"><div class="shelf-top"><span class="drag" title="拖动换位">⠿</span><button class="del-inline" data-del="goods" data-i="'+i+'">×</button></div>'+fieldLines+'<div class="item-foot"><button class="icon-btn" data-edit="goods" data-i="'+i+'" title="编辑">✎</button><button class="icon-btn" data-ai="'+i+'" title="生成 AI 提示词">✦</button></div></div>';
+      }).join('') + '</div>';
+    } else if(sKey === 'channels'){
+      box.innerHTML = '<div class="list">' + arr.map(function(it,i){
+        const tpl = getChTpl(it.tplId);
+        const fieldLines = tpl.blocks.filter(function(b){ return !isNameBlock(b); }).map(function(b){
+          const val = it.fields && it.fields[b.id];
+          if(val===undefined||val===null||val===''||(Array.isArray(val)&&!val.length)) return '';
+          let html = '';
+          if(b.type==='tags'){ html = '<div class="tags">'+val.map(function(t){return '<span class="t">#'+esc(t)+'</span>';}).join('')+'</div>'; }
+          else if(b.type==='radio'){ html = '<div class="cat">'+esc(val)+'</div>'; }
+          else { html = '<p>'+esc(val)+'</p>'; }
+          return html;
+        }).join('');
+        return '<div class="item" draggable="true" data-i="'+i+'"><div class="shelf-top"><span class="drag" title="拖动排序">⠿</span><button class="del-inline" data-del="channels" data-i="'+i+'">×</button></div><h3>'+esc(channelName(it))+'</h3>'+fieldLines+'<div class="item-foot"><button class="icon-btn" data-edit="channels" data-i="'+i+'" title="编辑">✎</button></div></div>';
+      }).join('') + '</div>';
+    } else {
+      box.innerHTML = '<div class="list">' + arr.map(function(it,i){
+        if(sKey==='notes'){
+          return '<div class="item" draggable="true" data-i="'+i+'"><div class="shelf-top"><span class="drag" title="拖动排序">⠿</span><button class="del-inline" data-del="'+sKey+'" data-i="'+i+'">×</button></div><p>'+esc(it.content||'')+'</p>'+(it.date?'<div class="note-date">'+esc(it.date)+'</div>':'')+'<div class="item-foot"><button class="icon-btn" data-edit="'+sKey+'" data-i="'+i+'" title="编辑">✎</button></div></div>';
+        }
+        return '<div class="item" draggable="true" data-i="'+i+'"><div class="shelf-top"><span class="drag" title="拖动排序">⠿</span><button class="del-inline" data-del="'+sKey+'" data-i="'+i+'">×</button></div><h3>'+esc(it.date||'未记日期')+'</h3><p>'+esc(it.content||'')+'</p><div class="item-foot"><button class="icon-btn" data-edit="'+sKey+'" data-i="'+i+'" title="编辑">✎</button></div></div>';
+      }).join('') + '</div>';
+    }
+  }
+
+  // ---------- 切换板块 + 模板库视图 ----------
+  const screens = {goods:document.getElementById('sc-goods'),channels:document.getElementById('sc-channels'),deals:document.getElementById('sc-deals'),workbench:document.getElementById('sc-workbench'),copy:document.getElementById('sc-copy'),lib:document.getElementById('sc-lib'),settings:document.getElementById('sc-settings')};
+  const navBtns = document.querySelectorAll('.nav button');
+
+  function showView(name){
+    Object.keys(screens).forEach(function(k){ screens[k].classList.toggle('active', k===name); });
+    document.querySelectorAll('.nav button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-go')===name); });
+    const overlay = (name==='lib' || name==='settings' || name==='copy');
+    document.querySelector('.nav').style.display = overlay ? 'none' : 'flex';
+    document.getElementById('btn-back').style.display = overlay ? 'inline-flex' : 'none';
+    document.getElementById('btn-lib').style.display = (name==='goods') ? 'inline-flex' : 'none';
+    document.getElementById('btn-copy').style.display = (name==='workbench') ? 'inline-flex' : 'none';
+    document.getElementById('btn-settings').style.display = overlay ? 'none' : 'inline-flex';
+    if(name==='lib'){ document.getElementById('top-title').textContent = 'OPC 模板库'; renderTpls(); }
+    else if(name==='settings'){ document.getElementById('top-title').textContent = 'OPC 设置'; }
+    else if(name==='copy'){ document.getElementById('top-title').textContent = 'OPC 文案库'; renderCopy(); }
+    else if(name==='workbench'){ lastMain = name; document.getElementById('top-title').textContent = 'OPC 出摊工作台'; wbDashboard(); }
+    else if(name==='deals'){ lastMain = name; document.getElementById('top-title').textContent = '出摊数据'; renderData(); }
+    else { lastMain = name; document.getElementById('top-title').textContent = 'OPC 出摊工作台'; render(name); }
+  }
+  function go(name){ showView(name); }
+
+  document.querySelectorAll('.nav button').forEach(function(b){
+    b.addEventListener('click', function(){ go(b.getAttribute('data-go')); });
+  });
+  document.querySelectorAll('.add-btn').forEach(function(b){
+    b.addEventListener('click', function(){ var o=b.getAttribute('data-open'); if(o) open(o); });
+  });
+
+  // 模板库入口 / 返回
+  document.getElementById('btn-lib').addEventListener('click', function(){ showView('lib'); });
+  document.getElementById('btn-copy').addEventListener('click', function(){ showView('copy'); });
+  document.getElementById('btn-settings').addEventListener('click', function(){ showView('settings'); });
+  document.getElementById('btn-back').addEventListener('click', function(){ showView(lastMain); });
+
+  // ---------- 添加弹窗 ----------
+  function open(sKey, idx){
+    cur = sKey;
+    editIndex = (typeof idx==='number' && idx>=0) ? idx : -1;
+    const conf = SECTIONS[sKey];
+    const editing = editIndex >= 0;
+    const editWord = sKey==='goods'?'货品':sKey==='channels'?'渠道':sKey==='actions'?'行动':sKey==='notes'?'笔记':'成交';
+    mTitle.textContent = editing ? ('编辑'+editWord) : conf.title;
+    mSub.textContent = conf.sub;
+    mask.classList.add('show');
+    if(sKey === 'goods'){
+      const tpls = allTpls();
+      tplSwitchWrap.style.display = 'block';
+      tplSwitchLabel.textContent = '使用模板';
+      tplSwitch.innerHTML = tpls.map(function(t){ return '<option value="'+t.id+'">'+esc(t.name)+'</option>'; }).join('');
+      const item = editing ? load('opc_goods')[editIndex] : null;
+      curTpl = item ? getTpl(item.tplId) : tpls[0];
+      tplSwitch.value = curTpl.id;
+      renderDynFields();
+      if(item) fillDynFields(item);
+      mTip.textContent = '先列清楚，接下去才知道自己「有什么货、去哪儿卖」。';
+    } else if(sKey === 'channels'){
+      const tpls = allChTpls();
+      tplSwitchWrap.style.display = 'block';
+      tplSwitchLabel.textContent = '渠道类型';
+      tplSwitch.innerHTML = tpls.map(function(t){ return '<option value="'+t.id+'">'+esc(t.name)+'</option>'; }).join('');
+      const chs = loadChannels();
+      const item = editing ? chs[editIndex] : null;
+      curTpl = item ? getChTpl(item.tplId) : tpls[0];
+      tplSwitch.value = curTpl.id;
+      renderDynFields();
+      if(item) fillDynFields(item);
+      mTip.textContent = '盘点你的渠道：粉丝 / 好友有多少、平时发什么，后面才好帮你挑货写内容。';
+    } else {
+      tplSwitchWrap.style.display = 'none';
+      const dType = conf.dateText ? 'text' : 'date';
+      const dPh = conf.dateText ? (conf.datePh ? ' placeholder="'+conf.datePh+'"' : '') : '';
+      dynFields.innerHTML = '<div class="field"><label>'+conf.dateLabel+'</label><input type="'+dType+'" id="f-date" class="dyn-input"'+dPh+'></div>'+
+       '<div class="field"><label>'+conf.contentLabel+'</label><textarea id="f-content" class="dyn-input" placeholder="'+conf.contentPh+'"></textarea></div>';
+      mTip.textContent = conf.tip || '记录一下，回头能复盘。';
+      if(editing){
+        const it = load(conf.key)[editIndex];
+        if(it){
+          var dd = document.getElementById('f-date'); if(dd) dd.value = it.date||'';
+          var ct = document.getElementById('f-content'); if(ct) ct.value = it.content||'';
+        } else {
+          editIndex = -1; mTitle.textContent = conf.title;
+        }
+      }
+    }
+  }
+
+  function fillDynFields(it){
+    if(!it || !it.fields) return;
+    const tpl = curTpl;
+    if(!tpl) return;
+    tpl.blocks.forEach(function(b){
+      const el = dynFields.querySelector('[data-bid="'+b.id+'"]');
+      if(!el) return;
+      const val = it.fields[b.id];
+      if(val===undefined||val===null||val===''||(Array.isArray(val)&&!val.length)) return;
+      if(b.type==='radio'){
+        const wrap = el.querySelector('.cat-chips');
+        let found = false;
+        if(wrap){ Array.prototype.forEach.call(wrap.children, function(c){ if(c.textContent===val){ c.classList.add('on'); found=true; radioVals[b.id]=val; } }); }
+        if(!found){
+          const ci = el.querySelector('.cat-input'); if(ci) ci.style.display='block';
+          const cc = el.querySelector('.cat-custom-input'); if(cc) cc.value=val;
+          radioVals[b.id]='';
+        }
+      } else if(b.type==='tags'){
+        const inp = el.querySelector('.dyn-input');
+        if(inp && Array.isArray(val)) inp.value = val.join('，');
+      } else {
+        const inp = el.querySelector('.dyn-input');
+        if(inp) inp.value = val;
+      }
+    });
+  }
+
+  function renderDynFields(){
+    const tpl = curTpl;
+    dynFields.innerHTML = tpl.blocks.map(function(b){
+      if(b.type==='radio'){
+        const chips = (b.opts||[]).map(function(o){ return '<span class="cat-chip" data-r="'+esc(o)+'">'+esc(o)+'</span>'; }).join('');
+        return '<div class="field" data-bid="'+b.id+'" data-type="radio"><label>'+esc(b.title)+'</label><div class="cat-chips" data-radio-wrap="'+b.id+'">'+chips+'<a class="cat-custom-toggle">自己填一个</a></div><div class="cat-input" style="display:none"><input class="cat-custom-input" placeholder="输入一个自定义值"></div></div>';
+      }
+      if(b.type==='textarea'){ return '<div class="field" data-bid="'+b.id+'" data-type="textarea"><label>'+esc(b.title)+'</label><textarea class="dyn-input" placeholder="'+(b.ph||'')+'"></textarea></div>'; }
+      if(b.type==='tags'){ return '<div class="field" data-bid="'+b.id+'" data-type="tags"><label>'+esc(b.title)+'</label><input class="dyn-input" placeholder="'+(b.ph||'用逗号隔开')+'"></div>'; }
+      if(b.type==='subtitle'){ return '<div class="field" data-bid="'+b.id+'" data-type="subtitle"><label>'+esc(b.title)+'</label><input class="dyn-input" placeholder="'+(b.ph||'小标题文字')+'"></div>'; }
+      if(b.type==='number'){ return '<div class="field" data-bid="'+b.id+'" data-type="number"><label>'+esc(b.title)+'</label><input type="number" class="dyn-input" placeholder="'+(b.ph||'')+'"></div>'; }
+      return '<div class="field" data-bid="'+b.id+'" data-type="text"><label>'+esc(b.title)+'</label><input class="dyn-input" placeholder="'+(b.ph||'')+'"></div>';
+    }).join('');
+  }
+
+  tplSwitch.addEventListener('change', function(){ curTpl = (cur==='channels' ? getChTpl : getTpl)(tplSwitch.value); renderDynFields(); });
+  dynFields.addEventListener('click', function(e){
+    const chip = e.target.getAttribute && e.target.getAttribute('data-r');
+    if(chip){
+      const wrap = e.target.parentElement;
+      const bid = wrap.getAttribute('data-radio-wrap');
+      radioVals[bid] = chip;
+      Array.prototype.forEach.call(wrap.children, function(c){ c.classList.toggle('on', c.getAttribute('data-r')===chip); });
+      const field = wrap.parentElement;
+      const ci = field.querySelector('.cat-input'); if(ci) ci.style.display='none';
+      const cc = field.querySelector('.cat-custom-input'); if(cc) cc.value='';
+    }
+    if(e.target.classList && e.target.classList.contains('cat-custom-toggle')){
+      const field = e.target.closest('.field');
+      const bid = field.getAttribute('data-bid');
+      radioVals[bid] = '';
+      const wrap = field.querySelector('.cat-chips');
+      Array.prototype.forEach.call(wrap.children, function(c){ c.classList.remove('on'); });
+      const ci = field.querySelector('.cat-input'); if(ci) ci.style.display='block';
+      const cc = field.querySelector('.cat-custom-input'); if(cc){ cc.value=''; cc.focus(); }
+    }
+  });
+
+  function close(){ mask.classList.remove('show'); cur=null; curTpl=null; radioVals={}; editIndex=-1; }
+  document.getElementById('m-cancel').addEventListener('click', close);
+  function fNameFocus(){ var n=document.getElementById('f-name'); if(n) n.focus(); }
+
+  // ---------- 保存 ----------
+  document.getElementById('m-save').addEventListener('click', function(){
+    if(!cur) return;
+    if(cur === 'goods'){
+      const tpl = curTpl;
+      const fields = {};
+      tpl.blocks.forEach(function(b){
+        const el = dynFields.querySelector('[data-bid="'+b.id+'"]');
+        if(!el) return;
+        if(b.type==='radio'){
+          const ci = el.querySelector('.cat-custom-input');
+          const custom = ci && ci.value.trim();
+          fields[b.id] = custom || radioVals[b.id] || '';
+        } else if(b.type==='tags'){
+          const inp = el.querySelector('.dyn-input');
+          fields[b.id] = inp ? inp.value.split(/[,，]/).map(function(s){return s.trim();}).filter(Boolean) : [];
+        } else {
+          const inp = el.querySelector('.dyn-input');
+          fields[b.id] = inp ? inp.value.trim() : '';
+        }
+      });
+      const arr = load('opc_goods');
+      const entry = { tplId:tpl.id, fields:fields };
+      if(editIndex>=0){ arr[editIndex] = entry; } else { arr.push(entry); }
+      save('opc_goods', arr);
+      render('goods');
+      close();
+    } else if(cur === 'channels'){
+      const tpl = curTpl;
+      const fields = {};
+      tpl.blocks.forEach(function(b){
+        const el = dynFields.querySelector('[data-bid="'+b.id+'"]');
+        if(!el) return;
+        if(b.type==='radio'){
+          const ci = el.querySelector('.cat-custom-input');
+          const custom = ci && ci.value.trim();
+          fields[b.id] = custom || radioVals[b.id] || '';
+        } else if(b.type==='tags'){
+          const inp = el.querySelector('.dyn-input');
+          fields[b.id] = inp ? inp.value.split(/[,，]/).map(function(s){return s.trim();}).filter(Boolean) : [];
+        } else {
+          const inp = el.querySelector('.dyn-input');
+          fields[b.id] = inp ? inp.value.trim() : '';
+        }
+      });
+      const entry = { id:'ch'+Date.now(), tplId:tpl.id, fields:fields };
+      const nm = channelName(entry);
+      if(!nm){ const fb = dynFields.querySelector('[data-bid="'+tpl.blocks[0].id+'"] .dyn-input'); if(fb) fb.focus(); return; }
+      const arr = loadChannels();
+      const oldName = editIndex>=0 ? channelName(arr[editIndex]) : '';
+      if(editIndex>=0){ arr[editIndex] = entry; } else { arr.push(entry); }
+      save('opc_channels', arr);
+      if(oldName && oldName===curChannel) curChannel = channelName(entry);
+      render('channels');
+      renderWbChannels();
+      close();
+    } else {
+      const conf = SECTIONS[cur];
+      const dEl = document.getElementById('f-date');
+      const cEl = document.getElementById('f-content');
+      const date = dEl ? dEl.value : '';
+      const content = cEl ? cEl.value.trim() : '';
+      if(conf.dateRequired && !date){ if(dEl){ dEl.focus(); } return; }
+      if(!content){ if(cEl){ cEl.focus(); } return; }
+      const item = { date:date, content:content };
+      const arr = load(conf.key);
+      if(editIndex>=0){ arr[editIndex] = item; } else { arr.push(item); }
+      save(conf.key, arr);
+      render(cur);
+      close();
+    }
+  });
+
+  // 删除
+  document.addEventListener('click', function(e){
+    const del = e.target.getAttribute && e.target.getAttribute('data-del');
+    if(del && SECTIONS[del]){
+      const i = +e.target.getAttribute('data-i');
+      const label = del==='goods' ? '货品' : del==='channels' ? '渠道' : del==='actions' ? '行动记录' : del==='notes' ? '笔记' : '成交记录';
+      if(!confirm('确定删除这个'+label+'吗？删除后无法恢复。')) return;
+      const arr = load(SECTIONS[del].key); const nm = del==='channels' ? channelName(arr[i]) : (arr[i] && arr[i].name); arr.splice(i,1); save(SECTIONS[del].key, arr); render(del);
+      if(del==='channels'){ if(curChannel && curChannel===nm) curChannel=''; renderWbChannels(); }
+    }
+  });
+
+  // 编辑
+ document.addEventListener('click', function(e){
+   const ed = e.target.getAttribute && e.target.getAttribute('data-edit');
+   if(ed && SECTIONS[ed]){ open(ed, +e.target.getAttribute('data-i')); }
+ });
+
+  // 复制整列
+  function copyColAll(sKey, btn){
+    const conf = SECTIONS[sKey];
+    const arr = load(conf.key);
+    if(!arr || !arr.length){ alert('这一列还没有内容'); return; }
+    const dl = (conf.dateLabel || '日期').replace('（选填）','');
+    const blocks = arr.map(function(it,ix){
+      let line = (ix+1) + '. ';
+      if(sKey==='notes'){
+        line += (it.content||'').trim();
+        if(it.date) line += '\n    ' + dl + '：' + it.date;
+      } else {
+        if(it.date) line += dl + '：' + it.date + '　';
+        line += (it.content||'').trim();
+      }
+      return line;
+    });
+    copyText('【' + conf.name + '】\n' + blocks.join('\n\n'), btn);
+  }
+  document.addEventListener('click', function(e){
+    const ca = e.target.getAttribute && e.target.getAttribute('data-copy-all');
+    if(ca && SECTIONS[ca]) copyColAll(ca, e.target);
+  });
+
+  // 货品货架：拖动换位
+  const goodsBox = document.getElementById('goods-list');
+  goodsBox.addEventListener('dragstart', function(e){
+    const item = e.target.closest('.item'); if(!item) return;
+    if(e.target.closest('button, a, input, textarea, select')){ e.preventDefault(); return; }
+    dragGoodsFrom = +item.getAttribute('data-i');
+    item.classList.add('dragging');
+  });
+  goodsBox.addEventListener('dragover', function(e){
+    e.preventDefault(); const item = e.target.closest('.item'); if(!item) return;
+    goodsBox.querySelectorAll('.item').forEach(function(r){ r.classList.remove('drag-over'); });
+    item.classList.add('drag-over');
+  });
+  goodsBox.addEventListener('dragleave', function(e){ const item = e.target.closest('.item'); if(item) item.classList.remove('drag-over'); });
+  goodsBox.addEventListener('drop', function(e){
+    e.preventDefault(); const item = e.target.closest('.item');
+    goodsBox.querySelectorAll('.item').forEach(function(r){ r.classList.remove('dragging','drag-over'); });
+    if(!item || dragGoodsFrom<0) return;
+    const to = +item.getAttribute('data-i'); if(dragGoodsFrom===to) return;
+    const arr = load('opc_goods'); const moved = arr.splice(dragGoodsFrom,1)[0]; arr.splice(to,0,moved);
+    save('opc_goods', arr); dragGoodsFrom=-1; render('goods');
+  });
+  goodsBox.addEventListener('dragend', function(){ goodsBox.querySelectorAll('.item').forEach(function(r){ r.classList.remove('dragging','drag-over'); }); dragGoodsFrom=-1; });
+  bindChDrag(document.getElementById('wb-channel-list'));
+  bindChDrag(document.getElementById('channels-list'));
+  bindDataDrag(document.getElementById('actions-list'), 'actions');
+  bindDataDrag(document.getElementById('deals-list'), 'deals');
+  bindDataDrag(document.getElementById('notes-list'), 'notes');
+
+  // ---------- 查看弹窗 ----------
+  let viewTplKey = null, viewRegen = null;
+  function setViewerEdit(on){
+    const w = document.getElementById('view-edit-wrap');
+    if(!w) return;
+    w.style.display = on ? 'block' : 'none';
+    viewBody.style.display = (!on && viewText) ? 'block' : 'none';
+    viewCopy.style.display = (!on && viewText) ? 'block' : 'none';
+    var tip = document.getElementById('view-tip'); if(tip) tip.style.display = (!on && viewText) ? 'block' : 'none';
+    const ve = document.getElementById('view-edit');
+    if(ve){ ve.style.display = viewTplKey ? 'inline-flex' : 'none'; ve.textContent = on ? '编辑中' : '编辑模板'; }
+    if(on && viewTplKey){
+      const ta = document.getElementById('view-tpl'); if(ta) ta.value = getPromptTpl(viewTplKey);
+      const h = document.getElementById('view-tpl-hint'); if(h) h.textContent = PROMPT_TPL_HINT[viewTplKey] || '';
+    }
+  }
+  function openViewer(title, sub, text, tplKey, regen){
+    viewTplKey = tplKey || null; viewRegen = regen || null;
+    viewTitle.textContent=title;
+    viewSub.textContent=sub;
+    viewSub.style.display = sub ? 'block' : 'none';
+    viewBody.textContent=text;
+    viewText=text;
+    setViewerEdit(false);
+    viewMask.classList.add('show');
+  }
+  function closeViewer(){ viewMask.classList.remove('show'); viewText=''; viewTplKey=null; viewRegen=null; setViewerEdit(false); }
+  viewMask.addEventListener('click', function(e){ if(e.target===viewMask) closeViewer(); });
+  function copyText(text, btn){
+    var orig = btn.textContent;
+    const done = function(){ btn.textContent='已复制 ✓'; setTimeout(function(){ btn.textContent=orig; }, 1400); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text); done(); }); }
+    else { fallbackCopy(text); done(); }
+  }
+  function fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
+  viewCopy.addEventListener('click', function(){ if(viewText) copyText(viewText, viewCopy); });
+  document.getElementById('view-edit').addEventListener('click', function(){ setViewerEdit(true); });
+  document.getElementById('view-tpl-cancel').addEventListener('click', function(){ setViewerEdit(false); });
+  document.getElementById('view-tpl-save').addEventListener('click', function(){
+    if(!viewTplKey) return;
+    const ta = document.getElementById('view-tpl');
+    savePromptTpl(viewTplKey, ta ? ta.value : '');
+    if(viewRegen){ viewText = viewRegen() || ''; viewBody.textContent = viewText; }
+    setViewerEdit(false);
+    toast('模板已保存，下次生成就用它');
+  });
+
+  // ---------- 提示词模板 ----------
+  const PROMPT_TPL_DEFAULT = {
+    goods: '我有一项资源，想把它变成能「出摊」的内容。\n\n{货品信息}\n\n请你帮我：\n1. 写一句让人一眼想要的产品介绍；\n2. 写一条「1块钱技能小卖铺」风格的文案；\n3. 分析它适合在哪些渠道发布（朋友圈 / 小红书 / 闲鱼 / 群）；\n4. 写一段让人愿意下单的成交话术。',
+    summary: '这是我手上的货品：\n\n{货品列表}\n\n请你帮我：\n1. 提炼一下我都有哪些可卖的东西；\n2. 告诉我这些货现在该先出哪个摊、怎么排优先级；\n3. 给每个货品写一句出摊宣传语。',
+    plan: '我要在「{渠道}」这个渠道出摊，帮我写一份完整、能直接发布的内容。\n\n【渠道特点】{渠道特点}\n【标题】{标题提示}\n【正文要求】{正文要求}\n【行动引导】{行动引导}\n【语气】{语气}\n\n我的货品：\n{货品信息}\n\n请你帮我：\n1. {标题任务}\n2. 把货品的卖点，按上面的「正文要求」写成一段能直接发的内容；\n3. 写一句让人愿意下单或互动的行动引导；\n4. 整体语气按上面的【语气】要求来。'
+  };
+  const PROMPT_TPL_HINT = {
+    goods: '可用变量：{货品信息}（该货品的全部字段），也可直接用字段名，如 {名称}、{类别}、{属性 / 标签}、{具体内容}。',
+    summary: '可用变量：{货品列表}（全部货品的汇总）。',
+    plan: '可用变量：{渠道}、{渠道特点}、{标题提示}、{正文要求}、{行动引导}、{语气}、{货品信息}、{标题任务}。'
+  };
+  function loadPromptTpls(){ try{ return JSON.parse(localStorage.getItem('opc_prompt_tpls')) || {}; }catch(e){ return {}; } }
+  function getPromptTpl(k){ const o=loadPromptTpls(); return (o[k] && String(o[k]).trim()) ? String(o[k]) : (PROMPT_TPL_DEFAULT[k]||''); }
+  function savePromptTpl(k, v){ const o=loadPromptTpls(); o[k]=v; localStorage.setItem('opc_prompt_tpls', JSON.stringify(o)); }
+  function fillTpl(str, vars){ return String(str).replace(/\{([^{}]+)\}/g, function(m, key){ key=key.trim(); return (vars && vars[key]!==undefined && vars[key]!==null) ? vars[key] : m; }); }
+  function buildPrompt(it){
+    const tpl = getTpl(it.tplId);
+    const info = [];
+    const vars = {};
+    tpl.blocks.forEach(function(b){
+      const val = it.fields && it.fields[b.id];
+      if(val===undefined||val===null||val==='') if(!(Array.isArray(val)&&val.length)) return;
+      const v = Array.isArray(val) ? val.join('、') : val;
+      info.push(b.title+'：'+v);
+      vars[b.title] = v;
+    });
+    vars['货品信息'] = info.join('\n');
+    return fillTpl(getPromptTpl('goods'), vars);
+  }
+  document.addEventListener('click', function(e){
+    const ai = e.target.getAttribute && e.target.getAttribute('data-ai');
+    if(ai !== null && ai !== undefined){ const arr=load('opc_goods'); const it=arr[+ai]; if(it) openViewer('AI 提示词','复制后粘贴给 AI，把你的货品变成能用内容', buildPrompt(it), 'goods', function(){ return buildPrompt(it); }); }
+  });
+
+  // ---------- 出摊总览 ----------
+  function buildSummaryPrompt(){
+    const arr = load('opc_goods');
+    const list = arr.map(function(it,i){
+      const tpl = getTpl(it.tplId);
+      const lines = [(i+1)+'. '+(goodsName(it, i)||'未命名')];
+      tpl.blocks.filter(function(b){ return !isNameBlock(b); }).forEach(function(b){
+        const val = it.fields && it.fields[b.id];
+        if(val===undefined||val===null||val===''||(Array.isArray(val)&&!val.length)) return;
+        lines.push('   '+b.title+'：'+(Array.isArray(val)?val.join('、'):val));
+      });
+      return lines.join('\n');
+    }).join('\n\n');
+    return fillTpl(getPromptTpl('summary'), { '货品列表': list });
+  }
+  document.getElementById('goods-summary').addEventListener('click', function(){
+    const arr = load('opc_goods');
+    if(!arr.length){ openViewer('出摊总览','还没有货品，先添加几个','去「＋ 添加」先盘点你的资源，这里就会汇总成一份出摊总览。'); return; }
+    openViewer('出摊总览','把全部货品汇总成一份可出摊的总览 + 提示词', buildSummaryPrompt(), 'summary', buildSummaryPrompt);
+  });
+
+  // ---------- 盘点引导（不知道卖什么，带你快速上架） ----------
+  const CAT_EXAMPLES = {
+    '技能':'做PPT、修图、写文案、剪视频、编程、翻译、设计',
+    '知识':'教数学、辅导作业、讲历史、科普、职业咨询、考研规划',
+    '内容':'写公众号、做短视频脚本、手绘插画、拍照、配音、做表情包',
+    '时间体力':'跑腿代取、搬家、打扫卫生、排队、陪练、遛狗、照看小孩',
+    '资源关系':'内推、牵线合作、闲置设备转租、找场地、人脉引荐',
+    '实体物品':'二手书、手作饰品、闲置数码、零食、本地特产、花卉绿植'
+  };
+  const guideTips = [
+    '先选你是用自己手上的，还是能借助外面的资源。',
+    '先选你手上/擅长能帮到别人的类别，后面好帮你列具体能卖的东西。',
+    '围绕你选的类别，把具体能做、能帮的事写下来，越多越好。',
+    '给每个东西补一句：它是什么？解决什么问题？怎么交付？',
+    '确认无误后点「生成货品」，这些会一起放到货架。'
+  ];
+  const EXT_CATS = ['实体产品','课程','线上服务'];
+  const guideTipsExt = [
+    '先选你是用自己手上的，还是能借助外面的资源。',
+    '给这个外部资源起个名字，并选它的类别。',
+    '说说它从哪里来，方便后面找到。',
+    '说清楚它能帮你解决什么、怎么用，就可以上架了。'
+  ];
+  function openGuide(){
+    guide = { step:0, scope:'', total:5, name:'', cat:'', source:'', func:'', keywords:[], cats:[] };
+    maskGuide.classList.add('show');
+    renderGuide();
+  }
+  function closeGuide(){
+    maskGuide.classList.remove('show');
+    guide = { step:0, scope:'', total:5, name:'', cat:'', source:'', func:'', keywords:[], cats:[] };
+  }
+  function readGuideKeywords(){
+    const out = [];
+    const inputs = gdBody.querySelectorAll('.gk-input');
+    Array.prototype.forEach.call(inputs, function(inp){
+      const idx = +inp.getAttribute('data-gk-i');
+      const cat = guide.cats[idx] || '';
+      inp.value.split(/[\n,，;；、]+/).map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(t){
+        out.push({ text:t, cat:cat, desc:'' });
+      });
+    });
+    return out;
+  }
+  function readGuideDescs(){
+    const inputs = gdBody.querySelectorAll('.kw-input');
+    Array.prototype.forEach.call(inputs, function(inp){
+      const idx = +inp.getAttribute('data-kw-i');
+      if(guide.keywords[idx]) guide.keywords[idx].desc = inp.value.trim();
+    });
+  }
+  function renderGuide(){
+    var prog = '';
+    for(var i=0;i<guide.total;i++){ prog += '<span'+(i===guide.step?' class="on"':'')+'></span>'; }
+    gdProgress.innerHTML = prog;
+    gdPrev.textContent = guide.step===0 ? '取消' : '上一步';
+    gdNext.textContent = guide.step===guide.total-1 ? '生成货品' : '下一步';
+    gdTip.textContent = (guide.scope==='外部资源' ? guideTipsExt[guide.step] : guideTips[guide.step]) || '';
+    if(guide.step===0){
+      gdTitle.textContent = '盘点我能卖什么';
+      gdSub.textContent = '第 1 步：你要盘点的是？';
+      const opts = ['我的资源','外部资源'];
+      const chips = opts.map(function(o){
+        const on = guide.scope===o ? ' on' : '';
+        return '<span class="cat-chip'+(on)+'" data-guide-scope="'+esc(o)+'">'+esc(o)+'</span>';
+      }).join('');
+      gdBody.innerHTML = '<div class="field"><label>你要盘点的是？</label><div class="cat-chips" id="guide-scope">'+chips+'</div></div>';
+      return;
+    }
+    if(guide.scope==='外部资源'){
+      if(guide.step===1){
+        gdTitle.textContent = '盘点外部资源';
+        gdSub.textContent = '第 2 步：这个资源叫什么？属于哪类？';
+        const chips = EXT_CATS.map(function(c){
+          const on = guide.cat===c ? ' on' : '';
+          return '<span class="cat-chip'+(on)+'" data-guide-extcat="'+esc(c)+'">'+esc(c)+'</span>';
+        }).join('');
+        const customVal = (guide.cat && EXT_CATS.indexOf(guide.cat)<0) ? guide.cat : '';
+        const customDisplay = customVal ? '' : ' style="display:none"';
+        gdBody.innerHTML =
+          '<div class="field"><label>名称</label><input id="ext-name" value="'+esc(guide.name)+'" placeholder=""></div>'+
+          '<div class="field"><label>类别</label><div class="cat-chips" id="ext-cats">'+chips+'<a class="cat-custom-toggle">自己填一个</a></div><div class="cat-input"'+customDisplay+'><input class="cat-custom-input" id="ext-cat-custom" placeholder="输入一个自定义值" value="'+esc(customVal)+'"></div></div>';
+        return;
+      }
+      if(guide.step===2){
+        gdTitle.textContent = '盘点外部资源';
+        gdSub.textContent = '第 3 步：这个资源从哪里来？';
+        gdBody.innerHTML = '<div class="field"><label>来源</label><input id="ext-source" value="'+esc(guide.source)+'" placeholder=""></div>';
+        return;
+      }
+      gdTitle.textContent = '盘点外部资源';
+      gdSub.textContent = '第 4 步：它能帮人解决什么？具体怎么用？';
+      gdBody.innerHTML = '<div class="field"><label>具体功能</label><textarea id="ext-func" placeholder="">'+esc(guide.func)+'</textarea></div>';
+      return;
+    }
+    if(guide.step===1){
+      gdTitle.textContent = '盘点我能卖什么';
+      gdSub.textContent = '第 2 步：你有什么可以帮助别人解决问题？';
+      const chips = CATS.map(function(cat){
+        const on = guide.cats.indexOf(cat)>=0 ? ' on' : '';
+        return '<span class="cat-chip'+(on)+'" data-guide-cat="'+esc(cat)+'">'+esc(cat)+'</span>';
+      }).join('');
+      const customVal = guide.cats.filter(function(c){ return CATS.indexOf(c)<0; }).join('、') || '';
+      const customDisplay = customVal ? '' : ' style="display:none"';
+      gdBody.innerHTML = '<div class="field"><label>选上你能帮别人的类别（可多选）</label><div class="cat-chips" id="guide-cats">'+chips+'<a class="cat-custom-toggle">自己填一个</a></div><div class="cat-input"'+customDisplay+'><input class="cat-custom-input" placeholder="例如：宠物、烘焙" value="'+esc(customVal)+'"></div></div>';
+      return;
+    }
+    if(guide.step===2){
+      gdTitle.textContent = '盘点我能卖什么';
+      gdSub.textContent = '第 3 步：按你选的类别，分别写下具体能帮什么';
+      const cats = guide.cats && guide.cats.length ? guide.cats.slice() : ['未分类'];
+      gdBody.innerHTML = cats.map(function(cat, i){
+        const ex = CAT_EXAMPLES[cat] || '帮人做PPT、教数学、跑腿代取，具体到你擅长什么';
+        const val = guide.keywords.filter(function(k){ return k.cat===cat; }).map(function(k){ return k.text; }).join('、');
+        return '<div class="field"><label>'+esc(cat)+'</label><textarea class="gk-input" data-gk-i="'+i+'" placeholder="例如：'+esc(ex)+'">'+esc(val)+'</textarea></div>';
+      }).join('');
+      return;
+    }
+    if(guide.step===3){
+      gdTitle.textContent = '盘点我能卖什么';
+      gdSub.textContent = '第 4 步：给每个东西补一句具体内容';
+      gdBody.innerHTML = guide.keywords.map(function(k, i){
+        const catTag = k.cat ? ' <span class="gd-cat">'+esc(k.cat)+'</span>' : '';
+        return '<div class="field"><label>'+esc(k.text)+catTag+'</label><textarea class="kw-input" data-kw-i="'+i+'" placeholder="它是什么？解决什么问题？怎么交付？">'+esc(k.desc||'')+'</textarea></div>';
+      }).join('');
+      return;
+    }
+    gdTitle.textContent = '盘点我能卖什么';
+    gdSub.textContent = '第 5 步：确认一下，准备上架';
+    const list = guide.keywords.map(function(k, i){
+      const catTag = k.cat ? ' <span class="gd-cat">'+esc(k.cat)+'</span>' : '';
+      const d = k.desc ? '<div class="gd-item-desc">'+esc(k.desc)+'</div>' : '';
+      return '<div class="gd-item"><div class="gd-item-name">'+(i+1)+'. '+esc(k.text)+catTag+'</div>'+d+'</div>';
+    }).join('');
+    gdBody.innerHTML = '<div class="field"><label>下面这些会一起放到货架</label>'+list+'</div>';
+  }
+  document.addEventListener('click', function(e){
+    if(!e.target.closest || !e.target.closest('#gd-body')) return;
+    const scope = e.target.getAttribute && e.target.getAttribute('data-guide-scope');
+    if(scope){
+      guide.scope = scope;
+      const wrap = e.target.parentElement;
+      Array.prototype.forEach.call(wrap.children, function(c){ c.classList.toggle('on', c.getAttribute('data-guide-scope')===scope); });
+      return;
+    }
+    const extcat = e.target.getAttribute && e.target.getAttribute('data-guide-extcat');
+    if(extcat){
+      guide.cat = extcat;
+      const wrap = e.target.parentElement;
+      Array.prototype.forEach.call(wrap.children, function(c){ c.classList.toggle('on', c.getAttribute('data-guide-extcat')===extcat); });
+      return;
+    }
+    const cat = e.target.getAttribute && e.target.getAttribute('data-guide-cat');
+    if(cat){
+      const idx = guide.cats.indexOf(cat);
+      if(idx>=0){ guide.cats.splice(idx,1); e.target.classList.remove('on'); }
+      else { guide.cats.push(cat); e.target.classList.add('on'); }
+      return;
+    }
+    if(e.target.classList && e.target.classList.contains('cat-custom-toggle')){
+      const field = e.target.closest('.field');
+      const ci = field && field.querySelector('.cat-input');
+      if(ci) ci.style.display = ci.style.display==='none' ? 'block' : 'none';
+    }
+  });
+  document.getElementById('goods-guide').addEventListener('click', openGuide);
+  document.addEventListener('click', function(e){
+    if(e.target.getAttribute && e.target.getAttribute('data-guide') !== null){ openGuide(); }
+  });
+  gdPrev.addEventListener('click', function(){
+    if(guide.step===0){ closeGuide(); return; }
+    guide.step--;
+    renderGuide();
+  });
+  gdNext.addEventListener('click', function(){
+    if(guide.step===0){
+      if(!guide.scope){ gdTip.textContent = '先选一个你要盘点哪一类资源。'; return; }
+      guide.total = guide.scope==='外部资源' ? 4 : 5;
+      guide.step = 1;
+    } else if(guide.scope==='外部资源'){
+      if(guide.step===1){
+        var nm = document.getElementById('ext-name');
+        guide.name = nm ? nm.value.trim() : '';
+        if(!guide.name){ if(nm) nm.focus(); gdTip.textContent = '先填一个名称。'; return; }
+        var cus = document.getElementById('ext-cat-custom');
+        var cc = cus && cus.value.trim();
+        if(cc) guide.cat = cc;
+        if(!guide.cat){ gdTip.textContent = '选一个类别。'; return; }
+        guide.step = 2;
+      } else if(guide.step===2){
+        var src = document.getElementById('ext-source');
+        guide.source = src ? src.value.trim() : '';
+        guide.step = 3;
+      } else {
+        var fn = document.getElementById('ext-func');
+        guide.func = fn ? fn.value.trim() : '';
+        generateGoodsExt();
+        return;
+      }
+    } else {
+      if(guide.step===1){
+        const cats = guide.cats.slice();
+        const ci = document.querySelector('#guide-cats');
+        const cust = ci && ci.parentElement.querySelector('.cat-custom-input');
+        if(cust && cust.value.trim() && cats.indexOf(cust.value.trim())<0) cats.push(cust.value.trim());
+        if(!cats.length){ gdTip.textContent = '至少选一个类别，才能继续。'; return; }
+        guide.cats = cats;
+        guide.step = 2;
+      } else if(guide.step===2){
+        const ks = readGuideKeywords();
+        if(!ks.length){ gdTip.textContent = '至少写一个你能帮别人做的事，才能继续。'; return; }
+        guide.keywords = ks;
+        guide.step = 3;
+      } else if(guide.step===3){
+        readGuideDescs();
+        guide.step = 4;
+      } else {
+        generateGoods();
+        return;
+      }
+    }
+    renderGuide();
+  });
+  function generateGoods(){
+    if(!guide.keywords.length) return;
+    const tplId = guide.scope==='外部资源' ? 'default-ext' : 'default';
+    const tpl = getTpl(tplId);
+    const arr = load('opc_goods');
+    const items = guide.keywords.slice();
+    items.forEach(function(k){
+      const fields = {};
+      let assignedName=false, assignedCat=false, assignedTags=false, assignedDesc=false;
+      tpl.blocks.forEach(function(b){
+        if((b.type==='text'||b.type==='subtitle') && !assignedName){ fields[b.id]=k.text; assignedName=true; }
+        else if(b.type==='radio' && !assignedCat){ fields[b.id]=k.cat||''; assignedCat=true; }
+        else if(b.type==='tags' && !assignedTags){ fields[b.id]=[]; assignedTags=true; }
+        else if(b.type==='textarea' && !assignedDesc){ fields[b.id]=k.desc||''; assignedDesc=true; }
+        else fields[b.id]='';
+      });
+      arr.push({ tplId: tplId, fields: fields });
+    });
+    save('opc_goods', arr);
+    closeGuide();
+    render('goods');
+    openViewer('盘点完成！','货品已放到货架','');
+  }
+  function generateGoodsExt(){
+    if(!guide.name) return;
+    const tplId = 'default-ext';
+    const tpl = getTpl(tplId);
+    const arr = load('opc_goods');
+    const fields = {};
+    let assignedName=false, assignedCat=false, assignedSrc=false, assignedTags=false, assignedDesc=false;
+    tpl.blocks.forEach(function(b){
+      if((b.type==='text'||b.type==='subtitle') && !assignedName){ fields[b.id]=guide.name; assignedName=true; }
+      else if(b.type==='radio' && !assignedCat){ fields[b.id]=guide.cat||''; assignedCat=true; }
+      else if(b.type==='text' && !assignedSrc && assignedName){ fields[b.id]=guide.source; assignedSrc=true; }
+      else if(b.type==='tags' && !assignedTags){ fields[b.id]=[]; assignedTags=true; }
+      else if(b.type==='textarea' && !assignedDesc){ fields[b.id]=guide.func; assignedDesc=true; }
+      else fields[b.id]='';
+    });
+    arr.push({ tplId: tplId, fields: fields });
+    save('opc_goods', arr);
+    closeGuide();
+    render('goods');
+    openViewer('盘点完成！','货品已放到货架','');
+  }
+
+  // ========== 出摊工作台 ==========
+  function toast(msg){
+    var t = document.getElementById('toast');
+    if(!t){ t=document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+  }
+  function fillChannelSelect(sel, selected){
+    const channels = loadChannels();
+    if(!channels.length){ sel.innerHTML = '<option value="">还没有渠道</option>'; return; }
+    sel.innerHTML = channels.map(function(c){
+      const nm = channelName(c);
+      const on = selected && selected===nm ? ' selected' : '';
+      return '<option value="'+esc(nm)+'"'+on+'>'+esc(nm)+'</option>';
+    }).join('');
+  }
+  function goodsName(g, i){
+    const tpl = g ? getTpl(g.tplId) : null;
+    const blocks = (tpl && tpl.blocks) || [];
+    const fields = (g && g.fields) || {};
+    const nb = blocks.filter(isNameBlock)[0] || blocks.filter(function(b){ return b.type==='subtitle'; })[0];
+    if(nb){
+      const v = fields[nb.id];
+      if(v && !(Array.isArray(v) && !v.length)) return Array.isArray(v) ? v.join('、') : v;
+    }
+    for(var k=0;k<blocks.length;k++){
+      const val = fields[blocks[k].id];
+      if(val && !(Array.isArray(val) && !val.length)) return Array.isArray(val) ? val.join('、') : val;
+    }
+    return '货品' + ((typeof i==='number' ? i : 0) + 1);
+  }
+  function renderGoodsChecks(box, selected){
+    const goods = load('opc_goods');
+    if(!goods.length){ box.innerHTML = '<div class="hint">还没有货品，先去「我的货品」添加。</div>'; return; }
+    box.innerHTML = goods.map(function(g,i){
+      const nm = goodsName(g,i);
+      const on = selected && selected.indexOf(nm)>=0 ? ' checked' : '';
+      return '<label class="check"><input type="checkbox" data-gname="'+esc(nm)+'"'+on+'><span>'+esc(nm)+'</span></label>';
+    }).join('');
+  }
+  function readGoodsChecks(box){
+    const out = [];
+    Array.prototype.forEach.call(box.querySelectorAll('input[type=checkbox]:checked'), function(c){ out.push(c.getAttribute('data-gname')); });
+    return out;
+  }
+  function renderGoodsSelect(sel, selected){
+    const goods = load('opc_goods');
+    if(!goods.length){ sel.innerHTML = '<option value="">还没有货品</option>'; return; }
+    sel.innerHTML = '<option value="">请选择一个货品</option>' + goods.map(function(g,i){
+      const nm = goodsName(g,i);
+      const on = selected && selected===nm ? ' selected' : '';
+      return '<option value="'+esc(nm)+'"'+on+'>'+esc(nm)+'</option>';
+    }).join('');
+  }
+  function readGoodsSelect(sel){
+    const v = sel.value;
+    return v ? [v] : [];
+  }
+  function renderWbChannels(){
+    const box = document.getElementById('wb-channel-list');
+    const arr = loadChannels();
+    if(!arr.length){
+      box.innerHTML = '<div class="empty small"><span class="big">📢</span>还没有出摊渠道<br>点「＋ 添加」开始</div>';
+      return;
+    }
+    box.innerHTML = '<div class="list">'+arr.map(function(it,i){
+      const name = channelName(it);
+      const on = curChannel===name ? ' chan-on' : '';
+      const tpl = getChTpl(it.tplId);
+      const bits = [];
+      tpl.blocks.filter(function(b){ return !isNameBlock(b); }).forEach(function(b){
+        const val = it.fields && it.fields[b.id];
+        if(val===undefined||val===null||val===''||(Array.isArray(val)&&!val.length)) return;
+        bits.push(esc(b.title)+'：'+esc(Array.isArray(val)?val.join('、'):val));
+      });
+      const sum = bits.join('　');
+      return '<div class="item chan-item'+on+'" draggable="true" data-chan="'+i+'" role="button"><div class="shelf-top"><span class="drag" title="拖动排序">⠿</span><button class="del-inline" data-del="channels" data-i="'+i+'">×</button></div><h3>'+esc(name)+'</h3>'+(sum?'<div class="chan-sum">'+sum+'</div>':'')+'<div class="item-foot"><button class="icon-btn" data-edit="channels" data-i="'+i+'" title="编辑">✎</button><button class="icon-btn" data-plan="'+i+'" title="设计出摊内容">✦</button></div></div>';
+    }).join('')+'</div>';
+  }
+  function renderChannelsAll(){ renderWbChannels(); render('channels'); }
+  function wbDashboard(){ renderWbChannels(); }
+  function renderData(){ render('actions'); render('deals'); render('notes'); }
+  function bindChDrag(box){
+    function chIdx(item){
+      var v = item.getAttribute('data-i');
+      if(v===null || v===undefined || v==='') v = item.getAttribute('data-chan');
+      return +v;
+    }
+    box.addEventListener('dragstart', function(e){
+      const item = e.target.closest('.item'); if(!item) return;
+      if(e.target.closest('button, a, input, textarea, select')){ e.preventDefault(); return; }
+      dragChFrom = chIdx(item);
+      item.classList.add('dragging');
+    });
+    box.addEventListener('dragover', function(e){
+      e.preventDefault(); const item = e.target.closest('.item'); if(!item) return;
+      box.querySelectorAll('.item').forEach(function(r){ r.classList.remove('drag-over'); });
+      item.classList.add('drag-over');
+    });
+    box.addEventListener('dragleave', function(e){ const item = e.target.closest('.item'); if(item) item.classList.remove('drag-over'); });
+    box.addEventListener('drop', function(e){
+      e.preventDefault(); const item = e.target.closest('.item');
+      box.querySelectorAll('.item').forEach(function(r){ r.classList.remove('dragging','drag-over'); });
+      if(!item || dragChFrom<0) return;
+      const to = chIdx(item); if(dragChFrom===to) return;
+      const arr = loadChannels(); const moved = arr.splice(dragChFrom,1)[0]; arr.splice(to,0,moved);
+      save('opc_channels', arr); dragChFrom=-1; renderChannelsAll();
+    });
+    box.addEventListener('dragend', function(){ box.querySelectorAll('.item').forEach(function(r){ r.classList.remove('dragging','drag-over'); }); dragChFrom=-1; });
+  }
+  function bindDataDrag(box, sKey){
+    const key = SECTIONS[sKey].key;
+    var from = -1;
+    box.addEventListener('dragstart', function(e){
+      const item = e.target.closest('.item'); if(!item) return;
+      if(e.target.closest('button,a,input,textarea,select')){ e.preventDefault(); return; }
+      from = +item.getAttribute('data-i');
+      item.classList.add('dragging');
+    });
+    box.addEventListener('dragover', function(e){
+      e.preventDefault(); const item = e.target.closest('.item'); if(!item) return;
+      box.querySelectorAll('.item').forEach(function(r){ r.classList.remove('drag-over'); });
+      item.classList.add('drag-over');
+    });
+    box.addEventListener('dragleave', function(e){ const item = e.target.closest('.item'); if(item) item.classList.remove('drag-over'); });
+    box.addEventListener('drop', function(e){
+      e.preventDefault(); const item = e.target.closest('.item');
+      box.querySelectorAll('.item').forEach(function(r){ r.classList.remove('dragging','drag-over'); });
+      if(!item || from<0) return;
+      const to = +item.getAttribute('data-i'); if(from===to) return;
+      const arr = load(key); if(!arr) return;
+      const moved = arr.splice(from,1)[0]; arr.splice(to,0,moved);
+      save(key, arr); from=-1; render(sKey);
+    });
+    box.addEventListener('dragend', function(){ box.querySelectorAll('.item').forEach(function(r){ r.classList.remove('dragging','drag-over'); }); from=-1; });
+  }
+  function renderCopy(){
+    const box = document.getElementById('copy-list');
+    const arr = load('opc_copylib');
+    if(!arr.length){
+      box.innerHTML = '<div class="empty"><span class="big">📁</span>文案库还是空的<br>把你觉得有效的文案存进来，下次直接复用<br><button class="mini-btn" data-copy-new>＋ 新建文案</button></div>';
+      return;
+    }
+    const q = (document.getElementById('copy-search') && document.getElementById('copy-search').value || '').trim().toLowerCase();
+    let list = arr.slice();
+    if(q){
+      list = list.filter(function(c){
+        return (c.title||'').toLowerCase().indexOf(q)>=0 || (c.channel||'').toLowerCase().indexOf(q)>=0 || (c.content||'').toLowerCase().indexOf(q)>=0 || (c.goods||[]).join(' ').toLowerCase().indexOf(q)>=0 || (c.url||'').toLowerCase().indexOf(q)>=0 || (c.good||'').toLowerCase().indexOf(q)>=0;
+      });
+    }
+    list.sort(function(a,b){ return (b.pinned?1:0)-(a.pinned?1:0); });
+    if(!list.length){ box.innerHTML = '<div class="empty"><span class="big">🔍</span>没有匹配的文案</div>'; return; }
+    box.innerHTML = '<div class="copy-grid">'+list.map(function(c){
+      const isExt = c.source==='ext';
+      const srcType = isExt ? 'ext' : 'own';
+      const badge = isExt ? '外部' : '原创';
+      const chan = c.channel ? '<span class="chan2">📢 '+esc(c.channel)+'</span>' : '';
+      let meta = chan;
+      if(isExt){
+        if(c.good) meta += '<span class="t">关联：'+esc(c.good)+'</span>';
+      } else {
+        meta += (c.goods||[]).map(function(g){ return '<span class="t">'+esc(g)+'</span>'; }).join('');
+      }
+      const link = (isExt && c.url) ? '<a class="copy-link" href="'+esc(c.url)+'" target="_blank" rel="noopener">🔗 '+esc(c.url)+'</a>' : '';
+      const body = c.content ? '<div class="body">'+esc(c.content)+'</div>' : '<div class="body muted">（没有正文，看来源链接 / 附件即可）</div>';
+      const attach = (c.attach && c.attach.length) ? '<div class="copy-attach">'+c.attach.map(function(d){ return '<img src="'+d+'" alt="附件">'; }).join('')+'</div>' : '';
+      const pinBtn = c.pinned ? '<button class="pin on" data-pin="'+c.id+'" title="取消置顶">★</button>' : '<button class="pin" data-pin="'+c.id+'" title="置顶">☆</button>';
+      return '<div class="copy-card '+srcType+'" draggable="true" data-ciid="'+esc(c.id)+'"><div class="head"><span class="drag" title="拖动排序">⠿</span><span class="src-badge '+srcType+'">'+badge+'</span><h3>'+esc(c.title||'未命名')+'</h3>'+pinBtn+'</div>'+
+        '<div class="meta-tags">'+meta+'</div>'+
+        link+
+        body+
+        attach+
+        '<div class="item-foot"><button class="icon-btn" data-editcopy="'+c.id+'" title="编辑">✎</button><button class="mini use" data-copytext="'+c.id+'">复制</button><button class="mini del" data-delcopy="'+c.id+'">删除</button></div></div>';
+    }).join('')+'</div>';
+  }
+
+  function planGuide(channel){
+    const chs = loadChannels();
+    let tplId = '';
+    for(var i=0;i<chs.length;i++){ if(channelName(chs[i])===channel){ tplId = chs[i] && chs[i].tplId; break; } }
+    const name = channel || '';
+    const G = {
+      'ch-friend':{ tag:'朋友圈是熟人社交场景，靠信任和日常感带动，不需要刻意做标题。', title:null, body:'像朋友间分享一样，先自然说说这个资源能帮到什么，再带出货品，措辞轻松、别像广告。', action:'结尾留一句「有需要可以私我」这类轻引导，别强推。', style:'口语化、真诚、像随手发的日常。' },
+      'ch-wx':{ tag:'微信通讯录更像一对一私聊，重点是先建立信任、再给建议。', title:null, body:'先关心对方近况或需求，再自然地介绍你最近能帮到的资源，像聊天不像推销。', action:'末尾问「要不要我帮你看看」这类贴心引导。', style:'亲切、温和、有分寸。' },
+      'ch-xhs':{ tag:'小红书是「真诚分享」社区，标题和封面感很重要，正文要分段、带 emoji 和话题标签。', title:'写一个抓眼球的标题：带数字、痛点或反差，例如「帮人____，我靠这招」。', body:'正文口语化、短句分段，讲清帮人解决了什么，搭配 #话题标签，结尾抛个互动。', action:'结尾引导收藏 / 评论 / 私信，例如「评论区聊聊你的情况」。', style:'有分享欲、真实不装、Nice。' },
+      'ch-gzh':{ tag:'公众号适合稍长、有信息量的内容，标题要让人有点进去的理由。', title:'写一个信息量足的标题，说清「写给谁 + 解决什么」。', body:'结构清晰：开头引入痛点 → 讲清资源价值 → 给具体例子 → 结尾总结。', action:'结尾引导关注 / 转发 / 留言，例如「点个关注，下次不迷路」。', style:'平实、有干货、逻辑清楚。' },
+      'ch-qun':{ tag:'群聊是短平快场景，别刷屏，先给价值再自然带出。', title:null, body:'用一两段话先抛大家关心的问题或福利，再自然带出货品，句子别太长。', action:'结尾放轻引导，例如「有兴趣扣 1 / 私聊我」。', style:'轻松、不端着、有互动感。' },
+      'ch-custom':{ tag:'这是自定义渠道，按它平时的腔调和受众来把握。', title:'写一个能让人停下来的标题或开头。', body:'先简短介绍，再讲清货品卖点和能解决的问题。', action:'结尾写一句让人愿意进一步了解或下单的话。', style:'自然、真诚、有针对性。' }
+    };
+    let g = G[tplId];
+    if(!g){
+      if(name.indexOf('小红书')>=0){ g = G['ch-xhs']; }
+      else if(name.indexOf('公众号')>=0){ g = G['ch-gzh']; }
+      else if(name.indexOf('朋友圈')>=0){ g = G['ch-friend']; }
+      else if(name.indexOf('通讯录')>=0){ g = G['ch-wx']; }
+      else if(name.indexOf('群')>=0){ g = G['ch-qun']; }
+      else { g = G['ch-custom']; }
+    }
+    return g;
+  }
+  function buildPlanPrompt(channel, names){
+    const goods = load('opc_goods');
+    const selected = goods.filter(function(g, idx){
+      return names.indexOf(goodsName(g, idx))>=0;
+    });
+    const g = planGuide(channel);
+    const info = [];
+    selected.forEach(function(g,i){
+      const tpl = getTpl(g.tplId);
+      const sub = [];
+      tpl.blocks.forEach(function(b){
+        const val = g.fields && g.fields[b.id];
+        if(val===undefined||val===null||val===''){ if(!(Array.isArray(val)&&val.length)) return; }
+        const v = Array.isArray(val) ? val.join('、') : val;
+        sub.push(b.title+'：'+v);
+      });
+      info.push((i+1)+'. '+sub.join('；'));
+    });
+    const vars = {
+      '渠道': channel,
+      '渠道特点': g.tag,
+      '标题提示': (g.title || '这种渠道不需要刻意做标题，自然开头就好。'),
+      '正文要求': g.body,
+      '行动引导': g.action,
+      '语气': g.style,
+      '货品信息': (info.length ? info.join('\n') : '（未选货品）'),
+      '标题任务': (g.title ? '写一个能让人停下来的标题；' : '用一段自然的话开头，别硬凹标题；')
+    };
+    return fillTpl(getPromptTpl('plan'), vars);
+  }
+  function openPlan(channelName){
+    planContent = '';
+    const channels = loadChannels();
+    if(!channels.length){ alert('还没有出摊渠道，先添加一个，再回来设计。'); return; }
+    const defChannel = channelName || curChannel || '';
+    fillChannelSelect(plChannel, defChannel);
+    renderGoodsSelect(plGoods, '');
+    plTitle.textContent = '设计出摊内容';
+    plSub.textContent = '选好货品，一键生成一篇能直接出摊的提示词。';
+    plAi.textContent = '';
+    plAiWrap.style.display = 'none';
+    plCopy.style.display = 'none';
+    setPlanEdit(false);
+    maskPlan.classList.add('show');
+  }
+  function closePlan(){ maskPlan.classList.remove('show'); planContent=''; setPlanEdit(false); }
+  function openCopyModal(p){
+    cpEditIndex = -1;
+    if(p && p.id){
+      const arr = load('opc_copylib');
+      arr.forEach(function(x,i){ if(x.id===p.id) cpEditIndex=i; });
+    }
+    document.getElementById('cp-title').textContent = p ? '编辑文案' : '新建文案';
+    cpMode = (p && p.source) ? p.source : 'own';
+    setCopyMode(cpMode);
+    fillChannelSelect(cpChannel, p ? p.channel : '');
+    renderGoodsChecks(cpGoods, p ? p.goods : []);
+    if(p){
+      cpName.value = p.title || '';
+      cpContent.value = p.content || '';
+      cpUrl.value = p.url || '';
+      cpGoodSel.value = p.good || '';
+    } else {
+      cpName.value = '';
+      cpContent.value = '';
+      cpUrl.value = '';
+      cpGoodSel.value = '';
+    }
+    cpAttach = (p && p.attach) ? p.attach.slice() : [];
+    renderCopyAttach();
+    maskCopy.classList.add('show');
+    if(!p) cpName.focus();
+  }
+  function closeCopyModal(){ maskCopy.classList.remove('show'); cpAttach = []; cpEditIndex = -1; }
+  function setCopyMode(mode){
+    cpMode = (mode==='ext') ? 'ext' : 'own';
+    Array.prototype.forEach.call(cpModeBox.children, function(c){ c.classList.toggle('on', c.getAttribute('data-cpmode')===cpMode); });
+    cpOwnFields.style.display = (cpMode==='own') ? 'block' : 'none';
+    cpExtFields.style.display = (cpMode==='ext') ? 'block' : 'none';
+  }
+  function renderCopyAttach(){
+    cpAttachList.innerHTML = cpAttach.map(function(d,i){
+      return '<div class="attach-thumb"><img src="'+d+'"><button class="attach-rm" data-rmattach="'+i+'">×</button></div>';
+    }).join('');
+  }
+  function readImageFile(file, cb){
+    const r = new FileReader();
+    r.onload = function(){
+      const img = new Image();
+      img.onload = function(){
+        const max = 900; let w = img.width, h = img.height;
+        if(w>max || h>max){ const k = Math.min(max/w, max/h); w = Math.round(w*k); h = Math.round(h*k); }
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(img, 0, 0, w, h);
+        cb(cv.toDataURL('image/jpeg', 0.72));
+      };
+      img.onerror = function(){ cb(null); };
+      img.src = r.result;
+    };
+    r.onerror = function(){ cb(null); };
+    r.readAsDataURL(file);
+  }
+
+  document.getElementById('wb-channel-new').addEventListener('click', function(){ open('channels'); });
+  document.addEventListener('click', function(e){
+    const ch = e.target.getAttribute && e.target.getAttribute('data-chan');
+    if(ch !== null){
+      if(e.target.closest('button,a,input,textarea,select,.drag')) return;
+      const it = loadChannels()[+ch];
+      if(it){ const nm = channelName(it); curChannel = nm; renderWbChannels(); toast('已选择渠道：'+nm); }
+    }
+  });
+  document.getElementById('pl-cancel').addEventListener('click', closePlan);
+  document.getElementById('pl-gen').addEventListener('click', function(){
+    const channel = plChannel.value;
+    if(!channel || channel==='还没有渠道'){ plSub.textContent = '先选一个出摊渠道，才能生成。'; return; }
+    planContent = buildPlanPrompt(channel, readGoodsSelect(plGoods));
+    plAi.textContent = planContent;
+    plAiWrap.style.display = 'block';
+    plCopy.style.display = 'block';
+  });
+  plCopy.addEventListener('click', function(){ if(planContent) copyText(planContent, plCopy); });
+  document.addEventListener('click', function(e){
+    const pi = e.target.getAttribute && e.target.getAttribute('data-plan');
+    if(pi !== null && pi !== undefined){
+      const it = loadChannels()[+pi];
+      if(it){ const nm = channelName(it); curChannel = nm; renderWbChannels(); openPlan(nm); }
+    }
+  });
+  plChannel.addEventListener('change', function(){ if(planContent){ planContent=''; plAiWrap.style.display='none'; plCopy.style.display='none'; } });
+  plGoods.addEventListener('change', function(){ if(planContent){ planContent=''; plAiWrap.style.display='none'; plCopy.style.display='none'; } });
+
+  function setPlanEdit(on){
+    const form = document.getElementById('pl-form');
+    const wrap = document.getElementById('pl-edit-wrap');
+    if(form) form.style.display = on ? 'none' : 'block';
+    if(wrap) wrap.style.display = on ? 'block' : 'none';
+    const btn = document.getElementById('pl-edit');
+    if(btn) btn.textContent = on ? '编辑中' : '编辑模板';
+    if(on){
+      const ta = document.getElementById('pl-tpl'); if(ta) ta.value = getPromptTpl('plan');
+      const h = document.getElementById('pl-tpl-hint'); if(h) h.textContent = PROMPT_TPL_HINT.plan;
+    }
+  }
+  document.getElementById('pl-edit').addEventListener('click', function(){ setPlanEdit(true); });
+  document.getElementById('pl-tpl-cancel').addEventListener('click', function(){ setPlanEdit(false); });
+  document.getElementById('pl-tpl-save').addEventListener('click', function(){
+    const ta = document.getElementById('pl-tpl');
+    savePromptTpl('plan', ta ? ta.value : '');
+    setPlanEdit(false);
+    if(planContent){ planContent = buildPlanPrompt(plChannel.value, readGoodsSelect(plGoods)); plAi.textContent = planContent; }
+    toast('模板已保存，下次生成就用它');
+  });
+
+  document.getElementById('copy-new').addEventListener('click', function(){ openCopyModal(); });
+  document.getElementById('cp-cancel').addEventListener('click', closeCopyModal);
+  cpModeBox.addEventListener('click', function(e){
+    const m = e.target.getAttribute && e.target.getAttribute('data-cpmode');
+    if(m){ setCopyMode(m); }
+  });
+  cpAttachBtn.addEventListener('click', function(){ cpAttachFile.click(); });
+  cpAttachFile.addEventListener('change', function(){
+    const files = Array.prototype.slice.call(cpAttachFile.files);
+    if(!files.length) return;
+    let done = 0;
+    files.forEach(function(file){
+      if(!/^image\//.test(file.type)){ done++; return; }
+      readImageFile(file, function(d){ if(d) cpAttach.push(d); done++; if(done>=files.length){ renderCopyAttach(); cpAttachFile.value=''; } });
+    });
+  });
+  cpAttachList.addEventListener('click', function(e){
+    const i = e.target.getAttribute && e.target.getAttribute('data-rmattach');
+    if(i !== null && i !== undefined){ cpAttach.splice(+i,1); renderCopyAttach(); }
+  });
+  document.getElementById('cp-save').addEventListener('click', function(){
+    const title = cpName.value.trim();
+    if(!title){ cpName.focus(); return; }
+    const content = cpContent.value.trim();
+    if(!content){ cpContent.focus(); return; }
+    const arr = load('opc_copylib');
+    const ex = cpEditIndex>=0 ? arr[cpEditIndex] : null;
+    const base = { id: ex ? ex.id : 'c'+Date.now(), title:title, content:content, channel:cpChannel.value, source:cpMode, attach:cpAttach.slice(), pinned: ex ? !!ex.pinned : false, createdAt: ex ? ex.createdAt : new Date().toISOString() };
+    if(cpMode==='ext'){ base.url = cpUrl.value.trim(); base.good = cpGoodSel.value || ''; }
+    else { base.goods = readGoodsChecks(cpGoods); }
+    if(cpEditIndex>=0){ arr[cpEditIndex] = base; } else { arr.push(base); }
+    save('opc_copylib', arr);
+    closeCopyModal();
+    renderCopy();
+    toast('已存入文案库');
+  });
+
+  // 工作台 / 文案库 事件委托
+  document.addEventListener('click', function(e){
+    if(e.target.getAttribute && e.target.getAttribute('data-copy-new') !== null){ openCopyModal(); return; }
+  });
+  document.addEventListener('click', function(e){
+    const pin = e.target.getAttribute && e.target.getAttribute('data-pin');
+    if(pin !== null){
+      const arr = load('opc_copylib');
+      const it = arr.find(function(x){ return x.id===pin; });
+      if(it){ it.pinned = !it.pinned; save('opc_copylib', arr); renderCopy(); }
+      return;
+    }
+    const ec = e.target.getAttribute && e.target.getAttribute('data-editcopy');
+    if(ec !== null){
+      const it = load('opc_copylib').find(function(x){ return x.id===ec; });
+      if(it) openCopyModal(it);
+      return;
+    }
+    const ct = e.target.getAttribute && e.target.getAttribute('data-copytext');
+    if(ct !== null){
+      const it = load('opc_copylib').find(function(x){ return x.id===ct; });
+      if(it) copyText(it.content, e.target);
+      return;
+    }
+    const dc = e.target.getAttribute && e.target.getAttribute('data-delcopy');
+    if(dc !== null){
+      if(confirm('确定删除这条文案吗？')){
+        const arr = load('opc_copylib').filter(function(x){ return x.id!==dc; });
+        save('opc_copylib', arr); renderCopy();
+      }
+      return;
+    }
+  });
+  function bindCopyDrag(box){
+    var dragId = '';
+    box.addEventListener('dragstart', function(e){
+      const card = e.target.closest('.copy-card'); if(!card) return;
+      if(e.target.closest('button,a,input,textarea,select')){ e.preventDefault(); return; }
+      const q = (document.getElementById('copy-search').value || '').trim();
+      if(q){ e.preventDefault(); return; }
+      dragId = card.getAttribute('data-ciid');
+      card.classList.add('dragging');
+    });
+    box.addEventListener('dragover', function(e){
+      e.preventDefault(); const card = e.target.closest('.copy-card'); if(!card) return;
+      box.querySelectorAll('.copy-card').forEach(function(r){ r.classList.remove('drag-over'); });
+      card.classList.add('drag-over');
+    });
+    box.addEventListener('dragleave', function(e){ const card = e.target.closest('.copy-card'); if(card) card.classList.remove('drag-over'); });
+    box.addEventListener('drop', function(e){
+      e.preventDefault(); const card = e.target.closest('.copy-card');
+      box.querySelectorAll('.copy-card').forEach(function(r){ r.classList.remove('dragging','drag-over'); });
+      if(!card || !dragId) return;
+      const toId = card.getAttribute('data-ciid');
+      if(!toId || toId===dragId) return;
+      const arr = load('opc_copylib');
+      var fromIdx = -1, toIdx = -1;
+      arr.forEach(function(x,i){ if(x.id===dragId) fromIdx=i; });
+      if(fromIdx<0) return;
+      const moved = arr.splice(fromIdx,1)[0];
+      arr.forEach(function(x,i){ if(x.id===toId) toIdx=i; });
+      if(toIdx<0){ arr.splice(fromIdx,0,moved); } else { arr.splice(toIdx,0,moved); }
+      save('opc_copylib', arr); dragId=''; renderCopy();
+    });
+    box.addEventListener('dragend', function(){ box.querySelectorAll('.copy-card').forEach(function(r){ r.classList.remove('dragging','drag-over'); }); dragId=''; });
+  }
+  bindCopyDrag(document.getElementById('copy-list'));
+  document.addEventListener('input', function(e){ if(e.target && e.target.id === 'copy-search') renderCopy(); });
+
+  // ========== 模板库 ==========
+  function renderTpls(){
+    const box = document.getElementById('tpl-list');
+    const tpls = allTpls();
+    if(!tpls.length){ box.innerHTML='<div class="empty"><span class="big">🗂️</span>还没有模板</div>'; return; }
+    box.innerHTML = '<div class="list">'+tpls.map(function(t,i){
+      const blocks = t.blocks.map(function(b){ return '<span class="b">'+esc(b.title)+' · '+TYPE_NAMES[b.type]+'</span>'; }).join('');
+      const isDef = (t.id==='default' || t.id==='default-ext');
+      return '<div class="tpl" draggable="true" data-i="'+i+'"><div class="head"><span class="drag" title="拖动排序">⠿</span><h3>'+esc(t.name)+'</h3>'+(isDef?'<span class="default">默认</span>':'')+'</div><div class="blocks">'+blocks+'</div><div class="tpl-actions"><button class="mini" data-copy="'+t.id+'">复制</button><button class="mini use" data-edit="'+t.id+'">编辑</button></div></div>';
+    }).join('')+'</div>';
+  }
+
+  function openTplEditor(tpl){
+    const isNew = !tpl || !tpl.id || tpl.id==='new';
+    editingTpl = JSON.parse(JSON.stringify(tpl || {id:'', name:'', blocks:[]}));
+    if(isNew) editingTpl.id = '';
+    tplNameEl.value = editingTpl.name;
+    renderBlocks();
+    const isDef = editingTpl.id==='default' || editingTpl.id==='default-ext';
+    mtTitle.textContent = isNew ? '新建模板' : (editingTpl.def || isDef ? '编辑默认模板' : '编辑模板');
+    const md = document.getElementById('mt-del');
+    if(isNew){ md.style.display='none'; }
+    else { md.style.display='block'; md.textContent = (isDef || editingTpl.def) ? '重置默认' : '删除'; }
+    maskTpl.classList.add('show');
+  }
+  function renderBlocks(){
+    blockListEl.innerHTML = editingTpl.blocks.map(function(b,i){
+      return '<div class="brow" draggable="true" data-i="'+i+'"><span class="drag" title="拖动排序">⠿</span><span class="bt">'+esc(b.title)+'</span><span class="bt2">'+TYPE_NAMES[b.type]+'</span><span class="bs"><a class="mu" data-editb="'+i+'">改</a><a class="mu red" data-delb="'+i+'">×</a></span></div>';
+    }).join('');
+  }
+  function closeTpl(){ maskTpl.classList.remove('show'); editingTpl=null; }
+
+  document.getElementById('new-tpl').addEventListener('click', function(){ openTplEditor(null); });
+  document.getElementById('mt-cancel').addEventListener('click', closeTpl);
+  document.getElementById('mt-del').addEventListener('click', function(){
+    if(!editingTpl || !editingTpl.id || editingTpl.id==='new') return;
+    if(editingTpl.id==='default' || editingTpl.id==='default-ext'){
+      if(confirm('确定将默认模板恢复为初始状态吗？')){
+        const arr = loadTpls();
+        const idx = arr.findIndex(function(t){return t.id===editingTpl.id;});
+        if(idx>=0){
+          const defBlocks = editingTpl.id==='default-ext' ? DEFAULT_TPL_EXT : DEFAULT_TPL;
+          const defName = editingTpl.id==='default-ext' ? '外部资源' : '我的资源';
+          arr[idx] = { id:editingTpl.id, name:defName, def:true, blocks: JSON.parse(JSON.stringify(defBlocks)) };
+          save('opc_goods_templates_v2', arr);
+        }
+        closeTpl(); renderTpls();
+      }
+      return;
+    }
+    if(confirm('确定删除模板「'+editingTpl.name+'」吗？删除后无法恢复。')){
+      const used = load('opc_goods').filter(function(g){ return g.tplId===editingTpl.id; }).length;
+      if(used){ alert('该模板正被 '+used+' 个货品使用，请先在这些货品里改成别的模板，再删除。'); return; }
+      const arr = loadTpls();
+      const idx = arr.findIndex(function(t){return t.id===editingTpl.id;});
+      if(idx>=0){ arr.splice(idx,1); save('opc_goods_templates_v2', arr); }
+      closeTpl(); renderTpls();
+    }
+  });
+  document.getElementById('add-block').addEventListener('click', function(){ openBlockEditor(-1); });
+  blockListEl.addEventListener('click', function(e){
+    const el = e.target.closest('[data-editb],[data-delb]');
+    if(!el) return;
+    if(el.hasAttribute('data-editb')){ openBlockEditor(+el.getAttribute('data-editb')); }
+    else if(el.hasAttribute('data-delb')){ editingTpl.blocks.splice(+el.getAttribute('data-delb'),1); renderBlocks(); }
+  });
+
+  // 拖拽排序
+  blockListEl.addEventListener('dragstart', function(e){ const row=e.target.closest('.brow'); if(!row) return; dragFrom=+row.getAttribute('data-i'); row.classList.add('dragging'); });
+  blockListEl.addEventListener('dragover', function(e){ e.preventDefault(); const row=e.target.closest('.brow'); if(!row) return; blockListEl.querySelectorAll('.brow').forEach(function(r){r.classList.remove('drag-over');}); row.classList.add('drag-over'); });
+  blockListEl.addEventListener('dragleave', function(e){ const row=e.target.closest('.brow'); if(row) row.classList.remove('drag-over'); });
+  blockListEl.addEventListener('drop', function(e){
+    e.preventDefault(); const row=e.target.closest('.brow'); blockListEl.querySelectorAll('.brow').forEach(function(r){r.classList.remove('dragging','drag-over');});
+    if(!row||dragFrom<0) return; const to=+row.getAttribute('data-i'); if(dragFrom===to) return;
+    const arr=editingTpl.blocks; const moved=arr.splice(dragFrom,1)[0]; arr.splice(to,0,moved); dragFrom=-1; renderBlocks();
+  });
+  blockListEl.addEventListener('dragend', function(){ blockListEl.querySelectorAll('.brow').forEach(function(r){r.classList.remove('dragging','drag-over');}); dragFrom=-1; });
+
+  // 板块编辑器
+  function openBlockEditor(i){
+    editingIndex = i;
+    const isNew = (i < 0);
+    const b = isNew ? {title:'', type:'text', ph:'', opts:[]} : editingTpl.blocks[i];
+    bLabelEl.value = b.title;
+    selType = b.type;
+    bOptsEl.value = (b.opts||[]).join('，');
+    renderTypeChips();
+    bOptWrap.style.display = selType==='radio' ? 'block' : 'none';
+    document.getElementById('mb-title').textContent = isNew ? '新增板块' : '编辑板块';
+    maskBlock.classList.add('show');
+    if(isNew) bLabelEl.focus();
+  }
+  function renderTypeChips(){ bTypeEl.innerHTML = TYPES.map(function(t){ return '<span class="cat-chip'+(t===selType?' on':'')+'" data-t="'+t+'">'+TYPE_NAMES[t]+'</span>'; }).join(''); }
+  bTypeEl.addEventListener('click', function(e){ const t=e.target.getAttribute('data-t'); if(!t) return; selType=t; renderTypeChips(); bOptWrap.style.display = t==='radio'?'block':'none'; });
+  document.getElementById('mb-cancel').addEventListener('click', function(){ maskBlock.classList.remove('show'); editingIndex=-1; });
+  document.getElementById('mb-save').addEventListener('click', function(){
+    const title = bLabelEl.value.trim();
+    if(!title){ bLabelEl.focus(); return; }
+    const isNew = (editingIndex < 0);
+    if(isNew){ editingTpl.blocks.push({ id:'bid'+(Date.now()+Math.floor(Math.random()*1000)), title:title, type:selType, ph:'', opts:(selType==='radio'?bOptsEl.value.split(/[,，]/).map(function(s){return s.trim();}).filter(Boolean):[]) }); }
+    else { const b=editingTpl.blocks[editingIndex]; b.title=title; b.type=selType; if(selType==='radio'){ b.opts=bOptsEl.value.split(/[,，]/).map(function(s){return s.trim();}).filter(Boolean); } }
+    renderBlocks();
+    maskBlock.classList.remove('show'); editingIndex=-1;
+  });
+
+  // 保存模板
+  document.getElementById('mt-save').addEventListener('click', function(){
+    const name = tplNameEl.value.trim();
+    if(!name){ tplNameEl.focus(); return; }
+    if(!editingTpl.blocks.length){ alert('至少加一个板块'); return; }
+    const isNew = !editingTpl.id || editingTpl.id==='new';
+    if(isNew){ editingTpl.id = 't'+Date.now(); }
+    editingTpl.name = name;
+    editingTpl.def = (editingTpl.id==='default' || editingTpl.id==='default-ext');
+    const arr = loadTpls();
+    const idx = arr.findIndex(function(t){ return t.id===editingTpl.id; });
+    if(idx>=0){ arr[idx]=editingTpl; } else { arr.push(editingTpl); }
+    save('opc_goods_templates_v2', arr);
+    renderTpls();
+    closeTpl();
+  });
+
+  // 模板列表内 编辑/删除
+  // 模板卡片拖动排序
+  const tplBox = document.getElementById('tpl-list');
+  tplBox.addEventListener('dragstart', function(e){
+    const row = e.target.closest('.tpl'); if(!row) return;
+    if(e.target.closest('button, a, input, textarea, select')){ e.preventDefault(); return; }
+    dragTplFrom = +row.getAttribute('data-i');
+    row.classList.add('dragging');
+  });
+  tplBox.addEventListener('dragover', function(e){
+    e.preventDefault(); const row = e.target.closest('.tpl'); if(!row) return;
+    tplBox.querySelectorAll('.tpl').forEach(function(r){ r.classList.remove('drag-over'); });
+    row.classList.add('drag-over');
+  });
+  tplBox.addEventListener('dragleave', function(e){ const row = e.target.closest('.tpl'); if(row) row.classList.remove('drag-over'); });
+  tplBox.addEventListener('drop', function(e){
+    e.preventDefault(); const row = e.target.closest('.tpl');
+    tplBox.querySelectorAll('.tpl').forEach(function(r){ r.classList.remove('dragging','drag-over'); });
+    if(!row || dragTplFrom<0) return;
+    const to = +row.getAttribute('data-i'); if(dragTplFrom===to) return;
+    const arr = allTpls(); const moved = arr.splice(dragTplFrom,1)[0]; arr.splice(to,0,moved);
+    save('opc_goods_templates_v2', arr); dragTplFrom=-1; renderTpls();
+  });
+  tplBox.addEventListener('dragend', function(){ tplBox.querySelectorAll('.tpl').forEach(function(r){ r.classList.remove('dragging','drag-over'); }); dragTplFrom=-1; });
+
+  document.getElementById('tpl-list').addEventListener('click', function(e){
+    const el = e.target.closest('[data-edit],[data-del],[data-copy]');
+    if(!el) return;
+    if(el.hasAttribute('data-edit')){
+      const ed = el.getAttribute('data-edit');
+      const tpl = allTpls().find(function(t){return t.id===ed;});
+      if(tpl) openTplEditor(tpl);
+    } else if(el.hasAttribute('data-del')){
+      const dl = el.getAttribute('data-del');
+      const arr = loadTpls();
+      const idx = arr.findIndex(function(t){return t.id===dl;});
+      if(idx<0) return;
+      if(dl==='default' || dl==='default-ext'){
+        const defBlocks = dl==='default-ext' ? DEFAULT_TPL_EXT : DEFAULT_TPL;
+        const defName = dl==='default-ext' ? '外部资源' : '我的资源';
+        arr[idx] = { id:dl, name:defName, def:true, blocks: JSON.parse(JSON.stringify(defBlocks)) };
+        save('opc_goods_templates_v2', arr); renderTpls();
+        return;
+      }
+      const used = load('opc_goods').filter(function(g){ return g.tplId===dl; }).length;
+      if(used){ alert('该模板正被 '+used+' 个货品使用，请先在这些货品里改成别的模板，再删除。'); return; }
+      arr.splice(idx,1); save('opc_goods_templates_v2', arr); renderTpls();
+    } else if(el.hasAttribute('data-copy')){
+      const cp = el.getAttribute('data-copy');
+      const arr = allTpls();
+      const idx = arr.findIndex(function(t){return t.id===cp;});
+      if(idx<0) return;
+      const src = arr[idx];
+      const copy = { id:'t'+Date.now(), name: src.name+' 副本', def:false, blocks: JSON.parse(JSON.stringify(src.blocks)) };
+      arr.splice(idx+1, 0, copy);
+      save('opc_goods_templates_v2', arr);
+      renderTpls();
+    }
+  });
+
+  // ---------- 数据备份（导出 / 导入） ----------
+  function exportData(){
+    const data = {
+      app:'opc_workbench',
+      version:1,
+      exportedAt:new Date().toISOString(),
+      data:{ opc_goods:load('opc_goods'), opc_channels:loadChannels(), opc_actions:load('opc_actions'), opc_deals:load('opc_deals'), opc_notes:load('opc_notes'), opc_goods_templates_v2:loadTpls(), opc_plans:load('opc_plans'), opc_copylib:load('opc_copylib'), opc_prompt_tpls:loadPromptTpls() }
+    };
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date(); const pad = function(n){ return ('0'+n).slice(-2); };
+    a.download = 'opc备份_'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
+  }
+  function importData(file){
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        var obj = JSON.parse(ev.target.result);
+        var src = obj && obj.data ? obj.data : obj;
+        if(src['opc_goods_templates_v2'] && Array.isArray(src['opc_goods_templates_v2'])) save('opc_goods_templates_v2', src['opc_goods_templates_v2']);
+        if(src['opc_prompt_tpls'] && typeof src['opc_prompt_tpls']==='object') save('opc_prompt_tpls', src['opc_prompt_tpls']);
+        ['opc_goods','opc_channels','opc_actions','opc_deals','opc_notes','opc_plans','opc_copylib'].forEach(function(k){ if(src[k] && Array.isArray(src[k])) save(k, src[k]); });
+        alert('导入成功');
+        showView('goods');
+      }catch(err){ alert('导入失败：文件格式不对'); }
+    };
+    reader.readAsText(file);
+  }
+  document.getElementById('export-data').addEventListener('click', exportData);
+  document.getElementById('import-data').addEventListener('click', function(){ document.getElementById('import-file').click(); });
+  document.getElementById('import-file').addEventListener('change', function(e){ importData(e.target.files && e.target.files[0]); e.target.value=''; });
+
+  // 初渲染
+  showView('goods');
+})();
+</script>
+</body>
+</html>

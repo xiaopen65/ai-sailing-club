@@ -1,0 +1,3616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>业务拆解器</title>
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --paper:#f4efe6; --paper-deep:#ebe3d5; --panel:#fffdf8; --panel-soft:#fbf7ef;
+  --ink:#1b1d1a; --ink-soft:#3d403a; --muted:#7c7669; --faint:#a79e8f;
+  --line:#ded5c6; --line-soft:#ece5d9;
+  --red:#b3261e; --red-deep:#881c16; --red-soft:#f6e3df;
+  --green:#2f6b52; --green-soft:#e7f0ea; --blue:#40657a; --blue-soft:#e7eef2;
+  --amber:#9b6a24; --amber-soft:#f7eddc; --violet:#695781; --violet-soft:#eee9f3;
+  --shadow:0 18px 55px rgba(54,44,28,.08); --shadow-small:0 4px 16px rgba(54,44,28,.07);
+  --serif:"Noto Serif SC","Songti SC","Source Han Serif SC","STSong",SimSun,serif;
+  --sans:"PingFang SC","Microsoft YaHei","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html{height:100%}
+body{
+  min-height:100%;margin:0;color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;
+  background:
+    radial-gradient(circle at 62% 18%,rgba(179,38,30,.045),transparent 28%),
+    radial-gradient(rgba(70,58,38,.055) .7px,transparent .7px) 0 0/19px 19px,
+    var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.45}
+a{color:inherit}
+::selection{background:rgba(179,38,30,.16)}
+svg{stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.bar{
+  position:sticky;top:0;z-index:30;height:62px;flex:none;display:flex;align-items:center;gap:18px;
+  padding:0 26px;border-bottom:1px solid transparent;background:rgba(244,239,230,.82);backdrop-filter:blur(14px);
+}
+.bar.solid{border-bottom-color:var(--line)}
+.brand{display:flex;align-items:center;gap:11px;border:0;background:transparent;padding:5px 0;text-align:left}
+.brand-mark{position:relative;width:27px;height:27px;flex:none;border:1px solid #b9ad9c;border-radius:50%}
+.brand-mark::before,.brand-mark::after{content:"";position:absolute;background:#b9ad9c}
+.brand-mark::before{width:1px;height:35px;left:12px;top:-5px}
+.brand-mark::after{height:1px;width:35px;top:12px;left:-5px}
+.brand-mark i{position:absolute;inset:8px;border-radius:50%;background:var(--red);opacity:.9}
+.brand-name{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.06em;line-height:1.2}
+.bar-context{min-width:0;display:flex;align-items:center;gap:9px;flex:1;padding-left:8px;color:var(--muted);font-size:11px}
+.bar-context[hidden]{display:none}
+.bar-context .mode-chip{flex:none;padding:2px 7px;border:1px solid #ddcfbf;border-radius:999px;color:var(--red);font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase}
+.bar-context .ctx-title{max-width:38vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--ink-soft)}
+.bar-actions{margin-left:auto;display:flex;align-items:center;gap:5px}
+.tb-btn{border:0;background:transparent;padding:8px 10px;border-radius:7px;font-size:11.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.tb-btn:hover{background:rgba(255,253,248,.8);color:var(--ink)}
+.tb-btn svg{width:15px;height:15px}
+.tb-btn.icon{padding:8px}
+.main{flex:1;min-height:0;display:flex;flex-direction:column}
+.page{animation:fadeUp .38s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.landing{width:min(100%,1040px);margin:0 auto;padding:clamp(48px,11vh,112px) 28px 80px;text-align:center;position:relative}
+.landing::before{content:"";position:absolute;left:50%;top:8%;width:1px;height:54px;background:linear-gradient(transparent,#c9bcab);transform:translateX(-.5px);opacity:.8}
+.landing-mark{width:54px;height:54px;margin:0 auto 34px;position:relative;border:1px solid #cbbdaa;border-radius:50%}
+.landing-mark::before,.landing-mark::after{content:"";position:absolute;background:#cbbdaa}
+.landing-mark::before{width:1px;height:72px;left:26px;top:-10px}
+.landing-mark::after{height:1px;width:72px;top:26px;left:-10px}
+.landing-mark i{position:absolute;inset:17px;border-radius:50%;background:var(--red)}
+.kicker{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--red)}
+.landing h1{margin:16px 0 10px;font-family:var(--serif);font-size:clamp(38px,5.6vw,62px);font-weight:600;line-height:1.16;letter-spacing:.02em}
+.landing h1{text-wrap:balance}
+.landing h1 em{font-style:normal;color:var(--red)}
+.landing-sub{margin:0;color:var(--muted);font-size:13.5px}
+.mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:760px;margin:46px auto 0;text-align:left}
+.mode-card{
+  position:relative;display:flex;flex-direction:column;min-height:226px;padding:28px 28px 24px;
+  border:1px solid #dfd4c4;border-radius:18px;background:rgba(255,253,248,.72);text-align:left;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset;transition:.22s ease;overflow:hidden;
+}
+.mode-card::after{content:"";position:absolute;right:-42px;bottom:-58px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(179,38,30,.1),transparent 68%);transition:.22s ease}
+.mode-card:hover{border-color:#c7ab9f;background:var(--panel);transform:translateY(-4px);box-shadow:0 20px 45px rgba(54,44,28,.1)}
+.mode-card:hover::after{transform:scale(1.2)}
+.mode-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:1px solid #e2c9c3;background:var(--red-soft);color:var(--red);margin-bottom:20px}
+.mode-icon svg{width:21px;height:21px}
+.mode-card h2{margin:0 0 8px;font-family:var(--serif);font-size:25px;font-weight:600;letter-spacing:.03em}
+.mode-card p{margin:0;max-width:280px;color:var(--muted);font-size:12.5px;line-height:1.75}
+.mode-arrow{margin-top:auto;padding-top:24px;display:flex;align-items:center;justify-content:space-between;color:var(--faint);font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase}
+.mode-arrow svg{width:18px;height:18px;color:var(--red);transition:.18s ease}
+.mode-card:hover .mode-arrow svg{transform:translateX(4px)}
+.continue-last{margin:26px auto 0;border:0;background:transparent;color:var(--muted);font-size:11.5px;padding:7px 10px;border-bottom:1px solid #d5c8b7}
+.continue-last:hover{color:var(--red);border-color:var(--red)}
+.landing-note{margin-top:34px;color:#b1a696;font-size:10px;letter-spacing:.08em}
+.conversation{width:min(100%,760px);margin:0 auto;padding:clamp(36px,7vh,76px) 28px 100px}
+.transcript{display:flex;flex-direction:column;gap:26px}
+.turn{position:relative;padding-left:20px;animation:fadeUp .3s ease both}
+.turn::before{content:"";position:absolute;left:0;top:7px;bottom:5px;width:1px;background:#d8cbbb}
+.turn .q{color:var(--muted);font-size:11.5px;line-height:1.6}
+.turn .a{margin-top:3px;color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.55;letter-spacing:.015em}
+.turn .edit{border:0;background:transparent;color:#b6a897;font-size:9.5px;padding:2px 0;margin-top:3px;border-bottom:1px solid transparent}
+.turn .edit:hover{color:var(--red);border-color:#e1b6b0}
+.ask{padding-top:12px;animation:fadeUp .36s ease both}
+.ask-kicker{display:flex;align-items:center;gap:8px;color:var(--red);font-family:var(--mono);font-size:8.5px;letter-spacing:.15em;text-transform:uppercase}
+.ask-kicker::before{content:"";width:17px;height:1px;background:var(--red)}
+.ask h2{margin:10px 0 7px;font-family:var(--serif);font-size:clamp(26px,3.3vw,34px);font-weight:600;line-height:1.35;letter-spacing:.02em}
+.ask-copy{margin:0 0 26px;color:var(--muted);font-size:12.5px;line-height:1.8}
+.ask-form{display:flex;flex-direction:column;gap:18px;max-width:660px}
+.line-input,.line-area{
+  width:100%;border:0;border-bottom:1px solid #cfc1ae;border-radius:0;background:transparent;
+  padding:9px 0 11px;font-family:var(--serif);font-size:22px;line-height:1.55;outline:0;resize:none;
+  transition:border-color .18s ease;
+}
+.line-input::placeholder,.line-area::placeholder{color:#b6aa99;font-family:var(--sans);font-size:14px}
+.line-input:focus,.line-area:focus{border-bottom-color:var(--red)}
+.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.field-label{display:block;margin-bottom:3px;color:var(--faint);font-size:9.5px;letter-spacing:.08em}
+.field-input{width:100%;border:0;border-bottom:1px solid #d3c6b5;background:transparent;padding:8px 0 10px;font-size:15px;outline:0}
+.field-input:focus{border-bottom-color:var(--red)}
+.form-actions{display:flex;align-items:center;gap:12px;margin-top:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink-soft);font-size:11.5px;transition:.16s ease;white-space:nowrap}
+.btn:hover{border-color:#bfae99;background:#fff;transform:translateY(-1px)}
+.btn svg{width:15px;height:15px}
+.btn-primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn-primary:hover{background:var(--red-deep);border-color:var(--red-deep)}
+.btn-dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn-dark:hover{background:#000;border-color:#000}
+.btn-quiet{background:transparent;border-color:transparent;color:var(--muted)}
+.btn-quiet:hover{background:rgba(255,253,248,.8);color:var(--ink);border-color:transparent}
+.btn-sm{min-height:31px;padding:5px 9px;font-size:10px}
+.text-link{border:0;background:transparent;color:var(--muted);font-size:11px;padding:0;border-bottom:1px solid #d8cbbb}
+.text-link:hover{color:var(--red);border-color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid #e0d3c2;border-radius:999px;background:rgba(255,253,248,.8);font-size:10px;color:var(--ink-soft)}
+.chip b{font-family:var(--mono);font-size:8px;color:var(--red);font-weight:500}
+.hint-inline{color:var(--faint);font-size:10px;line-height:1.6}
+.offer-list{display:flex;flex-direction:column;gap:9px;margin:4px 0 17px}
+.offer-card{display:grid;grid-template-columns:22px minmax(0,1fr);gap:11px;width:100%;padding:13px 14px;border:1px solid #e2d7c8;border-radius:10px;background:rgba(255,253,248,.72);text-align:left;transition:.16s ease}
+.offer-card:hover{border-color:#c9b6a2;background:var(--panel)}
+.offer-card.selected{border-color:#d6b6b0;background:#fff9f7;box-shadow:inset 3px 0 0 var(--red)}
+.offer-check{width:20px;height:20px;display:grid;place-items:center;border:1px solid #d0c3b2;border-radius:50%;color:transparent;font-size:10px;margin-top:1px}
+.offer-card.selected .offer-check{background:var(--red);border-color:var(--red);color:#fff}
+.offer-card h3{margin:0;font-size:12px;font-weight:600}
+.offer-card p{margin:2px 0 0;color:var(--muted);font-size:10px;line-height:1.55}
+.offer-card small{display:block;margin-top:3px;color:#a49785;font-size:9.5px;line-height:1.5}
+.offer-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.note-line{color:var(--faint);font-size:10px;line-height:1.7}
+.workbench{width:100%;max-width:1660px;margin:0 auto;padding:20px 26px 42px;display:flex;flex-direction:column;min-height:0;flex:1}
+.wb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:0 0 15px}
+.wb-title-wrap{min-width:0}
+.wb-kicker{display:flex;align-items:center;gap:8px;color:var(--red);font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase}
+.wb-kicker::before{content:"";width:15px;height:1px;background:var(--red)}
+.wb-title{margin:5px 0 3px;font-family:var(--serif);font-size:clamp(23px,2.5vw,31px);font-weight:600;line-height:1.25;letter-spacing:.015em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.wb-meta{display:flex;align-items:center;gap:9px;color:var(--faint);font-size:10px;flex-wrap:wrap}
+.wb-meta b{color:var(--muted);font-weight:500}
+.wb-actions{display:flex;align-items:center;gap:7px;flex:none}
+.wb-tools{display:flex;align-items:center;gap:7px;padding:0 0 11px;flex-wrap:wrap}
+.wb-tools .spacer{flex:1}
+.wb-count{color:var(--faint);font-size:10px;font-variant-numeric:tabular-nums}
+.wb-count b{color:var(--ink-soft);font-weight:500}
+.matrix-wrap{flex:1;min-height:260px;overflow:auto;border:1px solid var(--line);border-radius:13px;background:var(--panel);box-shadow:var(--shadow);scrollbar-color:#c7bba8 transparent}
+.matrix{display:grid;grid-template-columns:218px repeat(var(--seg-count),minmax(210px,1fr));min-width:max-content}
+.matrix-corner,.matrix-head,.row-label,.matrix-cell{border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.matrix-corner{position:sticky;left:0;top:0;z-index:7;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:74px;padding:13px 15px;background:#faf6ee;color:var(--faint);font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase}
+.matrix-head{position:sticky;top:0;z-index:4;min-height:74px;padding:11px 13px;background:#fbf8f2;text-align:left;border-top:0;border-left:0;cursor:pointer;transition:.14s ease}
+.matrix-head:hover{background:#f8f1e5}
+.head-top{display:flex;align-items:center;gap:6px}
+.head-index{color:var(--red);font-family:var(--mono);font-size:8px}
+.head-edit{margin-left:auto;color:#c4b5a1;font-size:9px}
+.head-title{margin-top:4px;font-size:12px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.head-sub{margin-top:2px;color:var(--faint);font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-label{position:sticky;left:0;z-index:3;min-height:108px;padding:13px 14px;background:#fcf9f3;display:flex;flex-direction:column;justify-content:center;gap:4px;width:100%;border-top:0;border-left:0;text-align:left;font:inherit;cursor:pointer;transition:.16s ease}
+.row-label:hover{background:#f8f0e5}
+.row-label-top{display:flex;align-items:center;gap:7px}
+.row-pick{margin-left:auto;color:#d0c2b0;font-family:var(--mono);font-size:8px;opacity:0;transition:.16s}
+.row-label:hover .row-pick,.row-label:focus-visible .row-pick{opacity:1;color:var(--red)}
+.dim-dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex:none}
+.dim-dot.time{background:var(--blue)} .dim-dot.action{background:var(--green)} .dim-dot.result{background:var(--amber)} .dim-dot.risk{background:#a64848} .dim-dot.opportunity{background:var(--violet)}
+.row-title{font-size:11px;font-weight:600;line-height:1.35}
+.row-hint{color:var(--faint);font-size:9px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row-cut-in{animation:rowCutIn .52s cubic-bezier(.18,.82,.25,1) both}
+@keyframes rowCutIn{0%{opacity:.15;clip-path:inset(0 0 0 100%);transform:translateX(12px)}55%{opacity:1;transform:translateX(-2px)}100%{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+.matrix-cell{position:relative;min-height:108px;padding:11px 12px;border-top:0;border-left:0;background:#fff;text-align:left;font-size:11px;line-height:1.55;color:var(--ink-soft);transition:.14s ease;overflow:hidden;width:100%}
+.matrix-cell:hover{background:#fffaf3;box-shadow:inset 0 0 0 1px #e0cbb7}
+.matrix-cell.empty{color:#b9af9f}
+.matrix-cell.empty .cell-plus{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border:1px dashed #d4c8b6;border-radius:50%;color:#b7aa98;font-size:15px;margin-bottom:4px}
+.cell-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.cell-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.cell-tag{display:inline-flex;padding:2px 6px;border-radius:999px;background:var(--blue-soft);color:var(--blue);font-size:8px;line-height:1.5;white-space:nowrap}
+.cell-mark{position:absolute;right:8px;bottom:6px;color:#d8ccbb;font-family:var(--mono);font-size:8px}
+.matrix-empty{padding:54px 24px;text-align:center;border-top:1px solid var(--line-soft)}
+.matrix-empty .empty-icon{width:48px;height:48px;margin:0 auto 12px;display:grid;place-items:center;border:1px dashed #cbbda8;border-radius:50%;color:var(--red);font-family:var(--serif);font-size:20px}
+.matrix-empty h3{margin:0 0 5px;font-family:var(--serif);font-size:18px}
+.matrix-empty p{margin:0 auto 14px;max-width:380px;color:var(--muted);font-size:11.5px;line-height:1.7}
+.scroll-hint{display:none;text-align:center;color:var(--faint);font-family:var(--mono);font-size:8.5px;padding:5px 0 8px}
+.hover-tip{position:fixed;left:0;top:0;z-index:220;width:max-content;max-width:min(360px,calc(100vw - 28px));padding:11px 13px;border:1px solid #d8cab8;border-radius:10px;background:rgba(255,253,248,.98);box-shadow:0 16px 38px rgba(46,37,23,.16);color:var(--ink-soft);font-size:10.5px;line-height:1.65;pointer-events:none;opacity:0;visibility:hidden;transform:translateY(3px);transition:opacity .12s ease,transform .12s ease}
+.hover-tip.show{opacity:1;visibility:visible;transform:none}
+.hover-tip-title{margin:0 0 5px;color:var(--red);font-family:var(--mono);font-size:8px;letter-spacing:.08em}
+.hover-tip-copy{white-space:pre-line;overflow-wrap:anywhere;word-break:break-word}
+.sheet-layer{position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;background:rgba(20,18,15,.18);animation:fadeIn .18s ease}
+.sheet-layer[hidden]{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.sheet{width:min(400px,94vw);height:100%;background:var(--panel);border-left:1px solid var(--line);box-shadow:-24px 0 70px rgba(30,26,20,.15);display:flex;flex-direction:column;animation:sheetIn .24s ease both}
+.sheet.analysis-sheet{width:min(720px,96vw)}
+.analysis-sheet .sheet-body{display:flex;overflow:hidden}
+.analysis-prompt-field{display:flex;flex:1;min-width:0;min-height:0}
+.analysis-prompt-field textarea{width:100%;height:100%;min-height:320px;resize:none;border:1px solid var(--line);border-radius:9px;background:#fff;padding:13px 14px;font-family:var(--mono);font-size:11px;line-height:1.75;color:var(--ink);outline:0}
+.analysis-prompt-field textarea:focus{border-color:#c9a9a2;box-shadow:0 0 0 3px rgba(179,38,30,.05)}
+@keyframes sheetIn{from{transform:translateX(18px);opacity:.6}to{transform:none;opacity:1}}
+.sheet-head{flex:none;padding:20px 20px 15px;border-bottom:1px solid var(--line-soft);display:flex;align-items:flex-start;gap:12px}
+.sheet-head-copy{min-width:0;flex:1}
+.sheet-kicker{color:var(--red);font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase}
+.sheet-head h2{margin:5px 0 3px;font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.35}
+.sheet-head p{margin:0;color:var(--muted);font-size:10.5px;line-height:1.6}
+.sheet-close{width:30px;height:30px;flex:none;border:1px solid var(--line);border-radius:50%;background:transparent;display:grid;place-items:center;color:var(--muted)}
+.sheet-close:hover{background:var(--panel-soft);color:var(--ink)}
+.sheet-close svg{width:14px;height:14px}
+.sheet-body{flex:1;overflow:auto;padding:18px 20px 28px}
+.sheet-foot{flex:none;padding:12px 20px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fdfaf4}
+.editor-context{padding:12px 13px;border:1px solid #eadfd2;border-left:3px solid var(--red);border-radius:8px;background:linear-gradient(90deg,#fff8f5,#fffdf8)}
+.editor-context .ctx-seg{color:var(--faint);font-size:9px}
+.editor-context h3{margin:3px 0;font-size:13px;font-weight:600}
+.editor-context p{margin:0;color:var(--muted);font-size:10px;line-height:1.6}
+.cell-area{width:100%;min-height:160px;margin-top:14px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:12px;font-size:12.5px;line-height:1.7;outline:0;resize:vertical}
+.cell-area:focus{border-color:#c9a9a2;box-shadow:0 0 0 3px rgba(179,38,30,.07)}
+.editor-hint{margin-top:10px;padding:9px 10px;border-left:2px solid #e3c9c4;background:#fdf7f3;color:#76695c;font-size:9.5px;line-height:1.65}
+.quick-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:13px}
+.quick-tag{padding:5px 9px;border:1px solid #ddd2c3;border-radius:999px;background:#fff;color:var(--muted);font-size:9.5px}
+.quick-tag:hover{border-color:#c9b5a0;color:var(--ink)}
+.quick-tag.selected{border-color:#d7b4ae;background:var(--red-soft);color:var(--red)}
+.danger-link{border:0;background:transparent;color:#a85b54;font-size:10px;padding:4px 0}
+.sheet-field{margin-bottom:15px}
+.sheet-field label{display:block;margin-bottom:4px;color:var(--faint);font-size:9.5px}
+.sheet-field input,.sheet-field textarea{width:100%;border:1px solid var(--line);border-radius:7px;background:#fff;padding:8px 10px;font-size:12px;outline:0}
+.sheet-field textarea{min-height:70px;resize:vertical}
+.sheet-field input:focus,.sheet-field textarea:focus{border-color:#c9a9a2}
+.modal-layer{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:24px;background:rgba(20,18,15,.32);animation:fadeIn .18s ease}
+.modal-layer[hidden]{display:none}
+.modal-layer.secondary{z-index:90;background:rgba(20,18,15,.24)}
+.modal{width:min(780px,94vw);max-height:88vh;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:17px;box-shadow:0 30px 90px rgba(30,26,20,.25);animation:modalIn .22s ease both;overflow:hidden}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+.modal-head{flex:none;padding:21px 23px 16px;border-bottom:1px solid var(--line-soft);display:flex;align-items:flex-start;gap:14px}
+.modal-head-copy{flex:1;min-width:0}
+.modal-head h2{margin:4px 0 3px;font-family:var(--serif);font-size:23px;font-weight:600}
+.modal-head p{margin:0;color:var(--muted);font-size:11px;line-height:1.65}
+.modal-body{flex:1;overflow:auto;padding:18px 23px 24px}
+.modal-foot{flex:none;padding:12px 23px;border-top:1px solid var(--line-soft);background:#fdfaf4;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dim-edit-modal{width:min(620px,calc(100vw - 32px))}
+.dim-edit-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.dim-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.dim-field.full{grid-column:1/-1}
+.dim-field > span{color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.06em}
+.dim-field input,.dim-field select,.dim-field textarea{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;padding:9px 10px;font-size:11.5px;color:var(--ink);outline:0}
+.dim-field textarea{min-height:88px;resize:vertical;line-height:1.65}
+.dim-field input:focus,.dim-field select:focus,.dim-field textarea:focus{border-color:#c9a9a2}
+.search-input{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;padding:9px 11px;font-size:11.5px;outline:0;margin-bottom:14px}
+.search-input:focus{border-color:#c9a9a2}
+.dim-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.dim-card{position:relative;padding:12px 12px 11px;border:1px solid #e5dbcd;border-radius:9px;background:#fff;text-align:left;transition:.15s ease}
+.dim-card:hover{border-color:#cab7a2;box-shadow:var(--shadow-small);transform:translateY(-1px)}
+.dim-card.selected{border-color:#d9b7b1;background:#fff9f7;box-shadow:inset 3px 0 0 var(--red)}
+.dim-card[hidden]{display:none}
+.dim-top{display:flex;align-items:flex-start;gap:7px}
+.dim-check{width:18px;height:18px;flex:none;display:grid;place-items:center;border:1px solid #d4c7b6;border-radius:50%;color:transparent;font-size:9px}
+.dim-card.selected .dim-check{background:var(--red);border-color:var(--red);color:#fff}
+.dim-title{font-size:11.5px;font-weight:600;line-height:1.45}
+.dim-badge{margin-left:auto;padding:2px 5px;border-radius:3px;background:#f3ece1;color:var(--faint);font-family:var(--mono);font-size:7px;white-space:nowrap}
+.dim-hint{margin:5px 0 0 25px;color:var(--muted);font-size:9.5px;line-height:1.55}
+.custom-box{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.custom-form{display:none;gap:8px;grid-template-columns:1fr;margin-top:10px}
+.custom-form.open{display:grid}
+.custom-form input{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px;font-size:11px;outline:0}
+.library-list{display:flex;flex-direction:column;gap:8px}
+.library-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+.library-item{display:flex;align-items:flex-start;gap:12px;padding:12px 13px;border:1px solid #e5dbcd;border-radius:9px;background:#fff}
+.library-item-copy{flex:1;min-width:0}
+.library-item-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.library-item-head h3{margin:0;font-size:12px;font-weight:600}
+.library-scope{padding:2px 6px;border:1px solid #e0d4c5;border-radius:999px;color:var(--faint);font-family:var(--mono);font-size:7px;letter-spacing:.04em}
+.library-item p{margin:3px 0 0;color:var(--muted);font-size:9.5px;line-height:1.55}
+.library-item small{display:block;margin-top:3px;color:#a49785;font-size:9px;line-height:1.5}
+.library-item-actions{display:flex;align-items:center;gap:3px;flex:none}
+.library-mini{border:0;background:transparent;padding:5px 7px;border-radius:5px;color:#a69987;font-size:9.5px}
+.library-mini:hover{background:#f6eee5;color:var(--ink)}
+.library-mini.danger:hover{background:#f4e9e6;color:var(--red)}
+.library-edit-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px;padding:12px;border:1px solid #dec9c1;border-radius:9px;background:#fff9f7}
+.library-edit-form input,.library-edit-form textarea,.library-edit-form select{width:100%;border:1px solid var(--line);border-radius:6px;background:#fff;padding:8px;font-size:11px;outline:0}
+.library-edit-form textarea{grid-column:1/-1;min-height:62px;resize:vertical}
+.library-edit-form .library-form-foot{grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;gap:7px}
+.dimlib-mode{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-bottom:12px;padding:4px;border:1px solid #e1d5c5;border-radius:10px;background:#f7f1e8}
+.dimlib-mode button{height:34px;border:0;border-radius:7px;background:transparent;color:var(--muted);font-size:11px;font-weight:600;transition:background .18s,color .18s,box-shadow .18s}
+.dimlib-mode button.active{background:#fff;color:var(--red);box-shadow:0 4px 12px rgba(54,44,28,.08),inset 0 0 0 1px rgba(196,122,112,.24)}
+.dimlib-topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dimlib-topbar .dimlib-mode{flex:1;min-width:0;margin-bottom:0}
+.dimlib-transfer{display:flex;align-items:center;gap:5px;flex:none}
+.library-section{border:1px solid #e3d7c7;border-radius:10px;background:#fff;overflow:hidden}
+.library-section + .library-section{margin-top:9px}
+.library-section > summary{display:flex;align-items:center;gap:8px;padding:11px 13px;list-style:none;cursor:pointer;background:#fcf8f1;font-size:11px;font-weight:600;color:var(--ink);user-select:none}
+.library-section > summary::-webkit-details-marker{display:none}
+.library-section > summary::after{content:"";width:7px;height:7px;margin-left:auto;border-right:1.5px solid #a99b8a;border-bottom:1.5px solid #a99b8a;transform:rotate(45deg) translateY(-2px);transition:transform .18s ease}
+.library-section[open] > summary{border-bottom:1px solid #eee3d6}
+.library-section[open] > summary::after{transform:rotate(-135deg) translateY(-2px)}
+.library-section-count{color:var(--faint);font-family:var(--mono);font-size:8px;font-weight:400;letter-spacing:.04em}
+.library-section-body{padding:10px}
+.library-section-body .library-toolbar{justify-content:flex-end;margin-bottom:8px}
+.library-section-body .library-toolbar-bottom{justify-content:flex-end;margin:9px 0 0}
+.library-empty{padding:16px 10px;text-align:center;color:var(--faint);font-size:10.5px}
+.history-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:9px 10px;border:1px solid #e5dbcd;border-radius:9px;background:#fcf8f1}
+.history-select-all{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:10px;cursor:pointer;user-select:none;white-space:nowrap}
+.history-check{display:grid;place-items:center;width:28px;height:28px;flex:none;border-radius:7px;cursor:pointer}
+.history-check:hover{background:#f5ede4}
+.history-select-all input,.history-check input{width:15px;height:15px;margin:0;accent-color:var(--red);cursor:pointer}
+.history-select-all input:disabled{cursor:not-allowed;opacity:.45}
+.history-selected-count{color:var(--faint);font-family:var(--mono);font-size:8.5px;white-space:nowrap}
+.history-toolbar-actions{margin-left:auto;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.history-export-wrap{position:relative}
+.history-export-toggle svg{width:10px;height:10px;transition:transform .16s ease}
+.history-export-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.history-export-menu{width:156px}
+.btn-danger-ghost{color:var(--red);border-color:#dfc8c2;background:#fffaf8}
+.btn-danger-ghost:hover{color:var(--red-deep);border-color:#d2aea6;background:#fff5f2}
+.btn:disabled,.btn:disabled:hover{opacity:.42;cursor:not-allowed;transform:none;background:var(--panel);border-color:var(--line)}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid #e5dbcd;border-radius:9px;background:#fff;text-align:left;width:100%}
+.history-item:hover{border-color:#cab7a2;background:#fffdf8}
+.history-item.selected{border-color:#d7b4ae;background:#fff9f7;box-shadow:inset 3px 0 0 var(--red)}
+.history-main{flex:1;min-width:0}
+.history-title{font-size:12px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.history-meta{margin-top:3px;color:var(--faint);font-size:9px;display:flex;gap:8px;flex-wrap:wrap}
+.history-progress{flex:none;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.history-del{width:27px;height:27px;flex:none;border:0;background:transparent;border-radius:50%;color:#b3a797;display:grid;place-items:center}
+.history-del:hover{background:#f4e9e6;color:var(--red)}
+.history-del svg{width:13px;height:13px}
+.empty-state{padding:30px 16px;text-align:center;color:var(--muted);font-size:12px;line-height:1.7}
+.empty-state b{display:block;color:var(--ink);font-family:var(--serif);font-size:18px;font-weight:600;margin-bottom:4px}
+.sample-row{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.settings-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.settings-row:last-child{border-bottom:0}
+.settings-copy b{display:block;font-size:12px;font-weight:600}
+.settings-copy span{display:block;color:var(--muted);font-size:10px;line-height:1.6;margin-top:2px}
+.toast-stack{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+.toast{padding:8px 12px;border:1px solid #d6c8b5;border-radius:7px;background:#262924;color:#f9f3e8;font-size:10.5px;box-shadow:0 12px 32px rgba(0,0,0,.18);animation:toastIn .2s ease both}
+.toast.error{background:#8d2b24;border-color:#a64a42}
+.toast.success{background:#2d5f49;border-color:#477b63}
+@keyframes toastIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.summary-hero{display:flex;align-items:center;gap:18px;padding:14px 15px;border:1px solid #eadfd2;border-radius:10px;background:linear-gradient(120deg,#fff8f5,#fffdf8)}
+.ring{--pct:0%;width:66px;height:66px;flex:none;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--red) var(--pct),#eee4d6 0)}
+.ring::before{content:"";width:53px;height:53px;border-radius:50%;background:var(--panel)}
+.ring b{position:absolute;font-family:var(--mono);font-size:13px;font-weight:500}
+.ring b small{font-size:8px}
+.summary-copy strong{display:block;font-size:13px;font-weight:600}
+.summary-copy span{display:block;margin-top:3px;color:var(--muted);font-size:10px;line-height:1.6}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{padding:10px 8px;border:1px solid #e8dfd2;border-radius:8px;text-align:center;background:#fffdf8}
+.stat b{display:block;font-family:var(--mono);font-size:16px;font-weight:500}
+.stat span{display:block;color:var(--faint);font-size:8px;margin-top:2px}
+.summary-block{margin-top:18px}
+.summary-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.summary-title h3{margin:0;font-size:11px;font-weight:600}
+.summary-title span{color:var(--faint);font-family:var(--mono);font-size:7.5px}
+.insight{padding:11px 12px;border:1px solid #eadfd2;border-radius:8px;background:#fdf9f2;font-size:10.5px;line-height:1.7;color:var(--muted)}
+.insight b{display:block;color:var(--ink);font-size:11.5px;margin-bottom:2px}
+.exit{padding:11px 12px;border:1px solid #e8dfd2;border-radius:8px;background:#fff;margin-bottom:7px}
+.exit b{display:block;font-size:10.5px}
+.exit p{margin:3px 0 7px;color:var(--muted);font-size:9.5px;line-height:1.55}
+.missing{display:flex;flex-direction:column;gap:4px}
+.missing button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:7px 9px;border:0;border-bottom:1px solid var(--line-soft);background:transparent;text-align:left;font-size:9.5px;color:var(--muted)}
+.missing button:hover{background:#fdf8f0;color:var(--ink)}
+.menu-pop{position:absolute;right:0;top:calc(100% + 7px);width:196px;padding:6px;border:1px solid var(--line);border-radius:9px;background:var(--panel);box-shadow:0 20px 55px rgba(48,39,25,.17);z-index:90}
+.menu-pop[hidden]{display:none}
+.menu-pop button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 9px;border:0;border-radius:5px;background:transparent;text-align:left;font-size:10.5px;color:var(--ink-soft)}
+.menu-pop button:hover{background:var(--panel-soft)}
+.menu-pop svg{width:13px;height:13px;color:var(--muted)}
+.print-title{display:none}
+body{overflow-x:hidden}
+body.locked{overflow:hidden}
+#modalRoot,#sheetRoot{display:contents}
+.brand:hover .brand-name{color:var(--red)}
+.turn-answer-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.turn-answer-list span{padding:3px 8px;border:1px solid #e3d8c9;border-radius:999px;background:rgba(255,253,248,.7);font-family:var(--sans);font-size:10.5px;color:var(--ink-soft)}
+.rows{display:flex;flex-direction:column;gap:6px;max-width:660px}
+.row-line{display:flex;align-items:center;gap:10px}
+.row-line .num{width:22px;flex:none;color:var(--faint);font-family:var(--mono);font-size:9px}
+.row-line input{flex:1;min-width:0;border:0;border-bottom:1px solid #d8cbbb;background:transparent;padding:7px 0 9px;font-family:var(--serif);font-size:17px;outline:0}
+.row-line input:focus{border-bottom-color:var(--red)}
+.row-line input::placeholder{color:#b6aa99;font-family:var(--sans);font-size:12.5px}
+.row-del{width:25px;height:25px;flex:none;border:0;border-radius:50%;background:transparent;color:#b8ab99;font-size:15px;line-height:1}
+.row-del:hover{background:#f4e9e6;color:var(--red)}
+.conversation.wide{width:min(1120px,calc(100vw - 48px))}
+.ask-form.axis-form{max-width:none}
+.axis-stage{position:relative;margin:24px 0 4px}
+.axis-scroll{flex:1 1 0;min-width:0;display:flex;align-items:stretch;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#c9b9a8 transparent}
+.axis-scroll::-webkit-scrollbar{height:6px}
+.axis-scroll::-webkit-scrollbar-track{background:transparent}
+.axis-scroll::-webkit-scrollbar-thumb{background:#d7c9b8;border-radius:999px}
+.axis-scroll::-webkit-scrollbar-thumb:hover{background:#c6b5a1}
+.axis-track{
+  position:relative;display:flex;align-items:stretch;width:100%;min-width:0;min-height:226px;
+  border:1px solid #d9ccbb;border-radius:16px;background:rgba(255,253,248,.68);
+  box-shadow:0 12px 30px rgba(54,44,28,.06),inset 0 1px 0 rgba(255,255,255,.8);
+  overflow:hidden;isolation:isolate;transition:box-shadow .18s,border-color .18s;
+}
+.axis-track-inner{display:flex;align-items:stretch;width:max-content;min-width:100%;min-height:100%}
+.axis-track.slicing{border-color:#cf8f87;box-shadow:0 15px 35px rgba(179,38,30,.1),0 0 0 3px rgba(179,38,30,.04)}
+.axis-block{
+  position:relative;flex:1 1 0;min-width:160px;padding:25px 17px 20px;border-right:1px solid #ded2c2;
+  background:linear-gradient(180deg,rgba(255,253,248,.82),rgba(250,246,238,.62));
+  transition:background .18s ease,min-width .28s ease;cursor:crosshair;contain:inline-size;
+  animation:axisArrive .42s cubic-bezier(.22,.8,.28,1) both;animation-delay:calc(var(--i,0) * 45ms);
+}
+.axis-block:not(.main)::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:1px;background:linear-gradient(transparent,rgba(179,38,30,.22),transparent);pointer-events:none}
+.axis-block:not(.main)::after{content:"";position:absolute;left:17px;right:17px;bottom:12px;height:1px;background:linear-gradient(90deg,rgba(179,38,30,.28),rgba(198,181,161,.18),transparent);pointer-events:none}
+.axis-block:hover{background:rgba(255,253,248,.96)}
+.axis-block.main{flex:0 0 238px;background:linear-gradient(145deg,#fff9f5,#f8eee9);border-right-color:#cdb2a9;cursor:default}
+.axis-block.main::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+.axis-block-label{display:flex;align-items:center;gap:7px;color:var(--red);font-family:var(--mono);font-size:8.5px;letter-spacing:.13em;text-transform:uppercase}
+.axis-block-label::before{content:"";width:12px;height:1px;background:currentColor}
+.axis-main-copy{margin-top:20px;max-height:120px;overflow:auto;padding-right:3px;font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.5;word-break:break-word}
+textarea.axis-main-copy{display:block;width:100%;min-width:0;height:122px;margin-top:16px;padding:0 3px 3px 0;border:0;border-bottom:1px solid transparent;background:transparent;outline:0;resize:none;cursor:text}
+textarea.axis-main-copy:focus{border-bottom-color:#d8aaa3}
+.axis-block textarea{display:block;width:100%;min-width:0;height:122px;border:0;border-bottom:1px solid transparent;background:transparent;padding:9px 0 3px;outline:0;resize:none;font-family:var(--serif);font-size:18px;line-height:1.55;word-break:break-word;cursor:text}
+.axis-block input:focus{border-bottom-color:#d8aaa3}
+.axis-block textarea:focus{border-bottom-color:#d8aaa3}
+.axis-index{position:absolute;left:17px;top:9px;color:var(--faint);font-family:var(--mono);font-size:8.5px;letter-spacing:.08em}
+.axis-remove{position:absolute;right:8px;top:7px;width:24px;height:24px;border:0;border-radius:50%;background:transparent;color:#b9ac9b;font-size:15px;line-height:1;opacity:0;transition:.15s}
+.axis-block:hover .axis-remove,.axis-remove:focus-visible{opacity:1}
+.axis-remove:hover{color:var(--red);background:#f3e7e3}
+.axis-add{
+  position:relative;flex:0 0 118px;align-self:stretch;margin:10px 10px 10px 0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+  border:1px dashed #d9b7b0;border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,250,247,.62),rgba(253,246,241,.34));
+  color:var(--red);box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
+  transition:border-color .18s,background .18s,box-shadow .18s,transform .18s;touch-action:manipulation;
+}
+.axis-add:hover,.axis-add:focus-visible{border-color:#c47a70;background:#fff8f5;outline:none;transform:translateY(-1px);box-shadow:0 12px 26px rgba(179,38,30,.1),inset 0 1px 0 #fff}
+.axis-add-arrow{position:relative;width:1px;height:38px;background:linear-gradient(transparent,#d8c4bc 16%,#c47a70)}
+.axis-add-arrow::after{content:"";position:absolute;left:50%;bottom:-1px;width:5px;height:5px;border-right:1px solid #c47a70;border-bottom:1px solid #c47a70;transform:translate(-50%,0) rotate(45deg)}
+.axis-add-plus{display:block;font-family:var(--serif);font-size:31px;font-weight:400;line-height:1;color:var(--red);transition:transform .22s ease}
+.axis-add:hover .axis-add-plus{transform:scale(1.1)}
+.axis-slice-line{position:absolute;left:0;top:0;height:0;width:1.5px;background:linear-gradient(#b3261e,#8f1e18 65%,rgba(179,38,30,.08));box-shadow:0 0 12px rgba(179,38,30,.65),0 0 28px rgba(255,255,255,.8);opacity:0;pointer-events:none;z-index:6;transition:opacity .08s}
+.axis-track.slicing .axis-slice-line{opacity:1}
+.axis-cut-flash{position:absolute;top:-8px;bottom:-8px;width:2px;transform-origin:top;background:linear-gradient(transparent,#b3261e 16%,#fff 47%,#b3261e 78%,transparent);box-shadow:0 0 14px rgba(179,38,30,.7);pointer-events:none;z-index:7;animation:axisFlash .46s ease-out forwards}
+.axis-blade{position:fixed;left:0;top:0;width:108px;height:2px;border-radius:999px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35) 12%,#fff 42%,#fff 60%,#b3261e 78%,transparent);box-shadow:0 0 9px rgba(255,255,255,.95),0 0 22px rgba(179,38,30,.5);pointer-events:none;z-index:200;opacity:0;transform:translate(-50%,-50%) rotate(-42deg);transition:opacity .09s}
+.axis-blade.show{opacity:1}
+html.axis-slicing,html.axis-slicing *{cursor:none!important;user-select:none!important}
+.axis-block.cut-in{animation:axisCutIn .46s cubic-bezier(.16,.84,.25,1) both;animation-delay:0ms}
+.axis-block.entered{animation:none}
+.axis-block.cut-out{animation:axisCutOut .22s ease both;pointer-events:none}
+@keyframes axisArrive{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@keyframes axisCutIn{0%{opacity:0;transform:translateX(20px);clip-path:inset(0 0 100% 0)}55%{opacity:1;transform:translateX(-2px)}100%{opacity:1;transform:none;clip-path:inset(0 0 0 0)}}
+@keyframes axisCutOut{to{opacity:0;transform:scaleX(.35);clip-path:inset(0 0 0 100%)}}
+@keyframes axisFlash{0%{opacity:0;transform:scaleY(0)}16%{opacity:1}55%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}
+.vstage{--label-w:208px;--seg-count:3;margin:24px 0 4px}
+.vaxis-area{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 44px;grid-template-rows:auto auto;gap:0 8px;align-items:stretch}
+.axis-summary{
+  display:grid;grid-template-columns:var(--label-w) repeat(var(--seg-count),minmax(0,1fr));
+  border:1px solid #d9ccbb;border-radius:14px;overflow:hidden;
+  background:rgba(255,253,248,.72);box-shadow:0 10px 26px rgba(54,44,28,.05),inset 0 1px 0 rgba(255,255,255,.8);
+  grid-column:1;grid-row:1;
+}
+.summary-main{position:relative;min-width:0;padding:17px 15px 15px 18px;display:flex;flex-direction:column;justify-content:center;gap:9px;background:linear-gradient(145deg,#fff8f4,#f8eee9);border-right:1px solid #d8c7bb}
+.summary-main::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+.summary-main b{font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.4;word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.summary-cell{min-width:0;padding:17px 12px 15px;display:flex;flex-direction:column;gap:8px;border-right:1px solid #e5d9ca;background:linear-gradient(180deg,rgba(255,253,248,.78),rgba(250,246,238,.52));animation:summarySettle .46s cubic-bezier(.22,.8,.28,1) both;animation-delay:calc(var(--i,0) * 26ms)}
+.summary-cell:last-child{border-right:0}
+.summary-index{color:var(--faint);font-family:var(--mono);font-size:8px;letter-spacing:.08em}
+.summary-cell b{font-size:12px;font-weight:600;line-height:1.45;word-break:break-word;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.summary-edit{outline:0;cursor:text;white-space:pre-wrap;word-break:break-word;caret-color:var(--red)}
+.summary-edit:focus{box-shadow:inset 0 -1px 0 #d8aaa3}
+.summary-main .summary-edit{min-height:44px;font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.4}
+.summary-cell .summary-edit{min-height:34px;font-size:12px;font-weight:600;line-height:1.45}
+@keyframes summarySettle{from{opacity:.35;transform:scaleX(.97)}to{opacity:1;transform:none}}
+.vaxis-list{display:flex;flex-direction:column;gap:6px;margin-top:7px}
+.vaxis-list:empty{display:none}
+.vaxis-list{grid-column:1;grid-row:2}
+.analysis-stage{--label-w:208px;margin:24px 0 4px}
+.analysis-list{display:flex;flex-direction:column;gap:7px}
+.analysis-line{display:flex;align-items:stretch;gap:8px;min-width:0}
+.analysis-summary{flex:1;min-width:0}
+.analysis-slot{flex:none;width:40px}
+.analysis-row{
+  flex:1;min-width:0;display:grid;grid-template-columns:var(--label-w) repeat(var(--seg-count),minmax(0,1fr));
+  border:1px solid #e1d4c3;border-radius:10px;background:#fffdf8;overflow:hidden;
+}
+.analysis-label{border-right:1px solid #e6dacb}
+.analysis-cell{
+  min-height:66px;padding:12px 13px;border-right:1px solid #eee4d7;
+  background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(253,250,244,.5));
+  white-space:pre-wrap;word-break:break-word;line-height:1.55;font-size:11.5px;
+}
+.analysis-cell:last-child{border-right:0}
+.analyze-btn{
+  flex:none;align-self:center;display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;padding:0;border:1px solid #ddd0c0;border-radius:12px;
+  background:rgba(255,253,248,.96);color:var(--red);
+  box-shadow:0 6px 16px rgba(54,44,28,.05),inset 0 1px 0 #fff;
+  transition:border-color .18s,background .18s,box-shadow .18s,transform .18s;
+}
+.analyze-btn svg{width:18px;height:18px;fill:currentColor;transition:transform .18s ease}
+.analyze-btn:hover,.analyze-btn:focus-visible{border-color:#c47a70;background:#fff8f5;box-shadow:0 9px 22px rgba(179,38,30,.1),inset 0 1px 0 #fff;outline:none;transform:translateY(-1px)}
+.analyze-btn:hover svg{transform:scale(1.12) rotate(8deg)}
+.col-cut{
+  grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  width:100%;min-height:0;padding:0;border:1px dashed #d3aaa3;border-radius:12px;
+  background:rgba(255,253,248,.96);box-shadow:0 7px 18px rgba(54,44,28,.05),inset 0 1px 0 #fff;
+  transition:border-color .18s,background .18s,box-shadow .18s,transform .18s;
+}
+.col-cut:hover,.col-cut:focus-visible{border-color:#c47a70;background:#fff8f5;box-shadow:0 10px 24px rgba(179,38,30,.1),inset 0 1px 0 #fff;outline:none;transform:translateY(-1px)}
+.col-cut-plus{display:block;color:var(--red);font-family:var(--serif);font-size:21px;line-height:1;transition:transform .2s ease}
+.col-cut-arrow{display:block;color:var(--red);font-family:var(--mono);font-size:12px;line-height:1;transition:transform .18s ease}
+.col-cut:hover .col-cut-plus{transform:scale(1.06)}
+.col-cut:hover .col-cut-arrow{transform:translateY(4px)}
+.vcut-bar{
+  position:relative;display:flex;align-items:center;gap:13px;width:100%;height:46px;margin:7px 0 0;padding:0;
+  border:0;border-radius:10px;background:transparent;overflow:hidden;cursor:pointer;transition:background .18s;
+}
+.vcut-bar:hover,.vcut-bar:focus-visible{background:linear-gradient(90deg,transparent,rgba(255,248,245,.62),transparent);outline:none}
+.vcut-bar:focus-visible{box-shadow:inset 0 0 0 1px rgba(196,122,112,.45)}
+.vcut-rule{flex:1;height:1px;background:linear-gradient(90deg,transparent,#ddcbbb 16%,#cdb3a8 50%,#ddcbbb 84%,transparent);transition:background .18s}
+.vcut-bar:hover .vcut-rule{background:linear-gradient(90deg,transparent,#ddb7ae 16%,#c47a70 50%,#ddb7ae 84%,transparent)}
+.vcut-add{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;height:36px;min-width:82px;padding:0 13px;
+  border:1px dashed #d3aaa3;border-radius:999px;background:rgba(255,253,248,.96);
+  box-shadow:0 7px 18px rgba(54,44,28,.06),inset 0 1px 0 #fff;transition:.18s;
+}
+.vcut-bar:hover .vcut-add{border-color:#c47a70;background:#fff8f5;box-shadow:0 10px 24px rgba(179,38,30,.1),inset 0 1px 0 #fff}
+.vcut-plus{display:block;color:var(--red);font-family:var(--serif);font-size:22px;line-height:1;transition:transform .2s ease}
+.vcut-arrow{display:block;color:var(--red);font-family:var(--mono);font-size:13px;line-height:1;transition:transform .18s ease}
+.vcut-bar:hover .vcut-plus{transform:scale(1.06)}
+.vcut-bar:hover .vcut-arrow{transform:translateX(4px)}
+.vcut-bar.is-cutting::after{
+  content:"";position:absolute;left:50%;top:50%;height:1px;width:0;pointer-events:none;
+  background:linear-gradient(90deg,#b3261e,rgba(179,38,30,.1));box-shadow:0 0 10px rgba(179,38,30,.45);
+  animation:vcutSweep .6s cubic-bezier(.3,.8,.4,1) both;
+}
+.vcut-bar.is-cutting .vcut-arrow{animation:vcutArrow .6s cubic-bezier(.3,.8,.4,1) both}
+@keyframes vcutSweep{0%{width:0;opacity:0}14%{opacity:1}100%{width:50%;opacity:0}}
+@keyframes vcutArrow{0%{transform:translateX(0)}45%{transform:translateX(9px)}100%{transform:translateX(0)}}
+.vaxis-row{
+  position:relative;display:grid;grid-template-columns:var(--label-w) repeat(var(--seg-count),minmax(0,1fr));
+  border:1px solid #e1d4c3;border-radius:10px;background:#fffdf8;overflow:hidden;
+}
+.vaxis-row.is-cutting{animation:vaxisRowIn .58s cubic-bezier(.16,.84,.25,1) both}
+.vaxis-row.is-cutting::after{
+  content:"";position:absolute;top:-2px;bottom:-2px;left:0;width:2px;z-index:5;pointer-events:none;
+  background:linear-gradient(#fff,#b3261e 22%,#fff 48%,#b3261e 74%,#fff);
+  box-shadow:0 0 12px rgba(179,38,30,.65),0 0 24px rgba(255,255,255,.8);
+  animation:vaxisBlade .58s cubic-bezier(.3,.8,.4,1) both;
+}
+.vaxis-label{position:relative;min-width:0;padding:12px 30px 12px 15px;display:flex;flex-direction:column;justify-content:center;gap:4px;background:#fcf8f1;border-right:1px solid #e6dacb;overflow:hidden}
+.vaxis-label-top{display:flex;align-items:center;gap:6px;min-width:0}
+.vaxis-index{flex:none;color:var(--red);font-family:var(--mono);font-size:8px;letter-spacing:.06em}
+.vaxis-title{flex:1;min-width:0;font-size:11.5px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.vaxis-hint{color:var(--faint);font-size:8.5px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vaxis-remove{position:absolute;right:6px;top:6px;width:22px;height:22px;border:0;border-radius:50%;background:transparent;color:#b9ac9b;font-size:14px;line-height:1;opacity:0;transition:.15s}
+.vaxis-row:hover .vaxis-remove,.vaxis-remove:focus-visible{opacity:1}
+.vaxis-remove:hover{color:var(--red);background:#f3e7e3}
+@media (hover:none){.vaxis-remove{opacity:1;color:#b4a594}}
+.vaxis-cell{position:relative;min-height:66px;padding:12px 13px;border-right:1px solid #eee4d7;background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(253,250,244,.5));outline:0;cursor:text;white-space:pre-wrap;word-break:break-word;line-height:1.55;font-size:11.5px;caret-color:var(--red);transition:background .18s,box-shadow .18s}
+.vaxis-cell:last-child{border-right:0}
+.vaxis-cell:focus{background:#fff;box-shadow:inset 0 0 0 1px rgba(196,122,112,.5),inset 0 -2px 0 rgba(179,38,30,.22)}
+@keyframes vaxisRowIn{0%{opacity:.12;clip-path:inset(0 100% 0 0);transform:translateX(-12px)}55%{opacity:1;transform:translateX(2px)}100%{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+@keyframes vaxisBlade{0%{left:0;opacity:0}12%{opacity:1}86%{opacity:1}100%{left:100%;opacity:0}}
+.ask-actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:5px}
+.ask-error{display:none;color:var(--red);font-size:10.5px}
+.ask-error.show{display:block}
+.skip-link{border:0;background:transparent;color:#a99c8b;font-size:10.5px;padding:4px 0}
+.skip-link:hover{color:var(--red)}
+.offer-card h3 .dim-badge{margin-left:5px;vertical-align:1px}
+.history-main{border:0;background:transparent;padding:0;text-align:left;cursor:pointer;color:inherit}
+.history-main:hover .history-title{color:var(--red)}
+.switch{position:relative;width:38px;height:22px;flex:none;border:1px solid #cabcaa;border-radius:999px;background:#eee6d9;transition:.18s ease;padding:0}
+.switch::before{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.16);transition:.18s ease}
+.switch.on{background:var(--red);border-color:var(--red)}
+.switch.on::before{transform:translateX(16px)}
+.custom-form textarea{grid-column:1/-1;width:100%;min-height:58px;border:1px solid var(--line);border-radius:6px;padding:8px;font-size:11px;outline:0;resize:vertical}
+.custom-form .wide{grid-column:1/-1}
+.dim-card .dim-top{width:100%}
+.dim-card{width:100%}
+.matrix-head{width:100%;font:inherit}
+.ring{position:relative}
+.summary-copy{min-width:0}
+.modal .section-label{color:var(--faint);font-size:9px;letter-spacing:.08em;margin:0 0 8px}
+.history-item.current{border-color:#d9b7b1;background:#fff9f7}
+.history-empty{padding:34px 18px;text-align:center;color:var(--muted);font-size:12px;line-height:1.7}
+.history-empty b{display:block;margin-bottom:4px;color:var(--ink);font-family:var(--serif);font-size:19px;font-weight:600}
+.menu-pop button:disabled{opacity:.4;cursor:not-allowed}
+.menu-pop button:disabled:hover{background:transparent}
+.wb-title{cursor:default}
+.title-edit{border:0;background:transparent;padding:0;color:var(--faint);font-size:9.5px;border-bottom:1px solid #d8cbbb}
+.title-edit:hover{color:var(--red);border-color:var(--red)}
+.note-line code{font-family:var(--mono);font-size:9px;background:#f1eadf;padding:1px 4px;border-radius:3px}
+.wb-meta .mode-chip{padding:2px 7px;border:1px solid #ddcfbf;border-radius:999px;color:var(--red);font-family:var(--mono);font-size:8px;letter-spacing:.08em}
+.mini-chip{padding:1px 6px;border:1px solid #e0d3c2;border-radius:999px;color:var(--red);font-family:var(--mono);font-size:7.5px;letter-spacing:.06em}
+.insight p{margin:0}
+@media (max-width:860px){
+  .bar{height:56px;padding:0 14px;gap:8px}
+  .bar-context{display:none}
+  .tb-btn span{display:none}.tb-btn{padding:8px}
+  .landing{padding-top:54px}
+  .mode-grid{grid-template-columns:1fr;max-width:460px;margin-top:32px}
+  .mode-card{min-height:176px;padding:21px 22px 18px}
+  .mode-icon{width:38px;height:38px;margin-bottom:13px}
+  .mode-card h2{font-size:22px}
+  .conversation{padding-left:20px;padding-right:20px}
+  .conversation.wide{width:calc(100vw - 24px);padding-left:12px;padding-right:12px}
+  .axis-scroll{-webkit-overflow-scrolling:touch}
+  .axis-block{min-width:140px}
+  .axis-block.main{flex-basis:160px;padding-left:13px;padding-right:13px}
+  .axis-main-copy{font-size:17px}
+  .axis-block textarea{font-size:16px}
+  .axis-add{flex-basis:92px;margin:8px 8px 8px 0;gap:7px}
+  .axis-add-arrow{height:28px}
+  .axis-add-plus{font-size:27px}
+  .vstage{--label-w:146px}
+  .analysis-stage{--label-w:146px}
+  .analysis-cell{min-height:60px;padding:10px;font-size:11px}
+  .analyze-btn{width:36px;height:36px}
+  .analysis-slot{width:36px}
+  .summary-main{padding:14px 12px 13px 15px}
+  .summary-main b,.summary-main .summary-edit{font-size:13.5px}
+  .summary-cell{padding:14px 9px 12px}
+  .summary-cell b,.summary-cell .summary-edit{font-size:11px}
+  .vcut-bar{height:46px;gap:11px}
+  .vaxis-label{padding:11px 26px 11px 12px}
+  .vaxis-cell{min-height:60px}
+  .vaxis-area{grid-template-columns:minmax(0,1fr) 40px;gap:0 7px}
+  .vaxis-cell{padding:10px;font-size:11px}
+  .field-grid{grid-template-columns:1fr;gap:14px}
+  .workbench{padding:16px 13px 30px}
+  .wb-head{display:block}
+  .wb-actions{margin-top:11px;flex-wrap:wrap}
+  .wb-title{font-size:22px}
+  .matrix-wrap{max-height:none}
+  .matrix{grid-template-columns:168px repeat(var(--seg-count),214px)}
+  .matrix-corner,.row-label{width:168px}
+  .scroll-hint{display:block}
+  .dim-grid{grid-template-columns:1fr}
+  .modal-layer{padding:10px}
+  .modal{padding:0;width:calc(100vw - 20px);max-height:92vh}
+  .modal-head,.modal-body,.modal-foot{padding-left:16px;padding-right:16px}
+  .summary-hero{align-items:flex-start}
+}
+@media (max-width:520px){
+  .dimlib-topbar{flex-wrap:wrap;gap:6px}
+  .dimlib-topbar .dimlib-mode{flex:1 1 100%}
+  .dimlib-transfer{width:100%;justify-content:flex-end}
+  .dim-edit-form{grid-template-columns:1fr}
+  .landing h1{font-size:36px}
+  .landing-sub{font-size:12px}
+  .mode-card p{font-size:12px}
+  .line-input,.line-area{font-size:19px}
+  .ask h2{font-size:25px}
+  .axis-add{flex-basis:70px;margin:7px 7px 7px 0;border-radius:10px}
+  .axis-add-arrow{height:23px}
+  .axis-add-plus{font-size:25px}
+  .axis-block.main{flex-basis:132px}
+  .vstage{--label-w:108px}
+  .analysis-stage{--label-w:108px}
+  .analysis-line{gap:6px}
+  .analysis-cell{min-height:54px;padding:9px 8px;font-size:10.5px}
+  .analyze-btn{width:32px;height:32px;border-radius:9px}
+  .analyze-btn svg{width:15px;height:15px}
+  .analysis-slot{width:32px}
+  .axis-summary{border-radius:11px}
+  .summary-main{padding:12px 9px 11px 12px}
+  .summary-main b,.summary-main .summary-edit{font-size:12px;-webkit-line-clamp:3}
+  .summary-cell{padding:12px 6px 10px}
+  .summary-cell b,.summary-cell .summary-edit{font-size:10px;-webkit-line-clamp:3}
+  .vaxis-row{border-radius:8px}
+  .vaxis-label{padding:10px 22px 10px 10px}
+  .vaxis-title{font-size:10.5px;-webkit-line-clamp:3}
+  .vaxis-hint{display:none}
+  .vaxis-cell{min-height:54px}
+  .vaxis-area{grid-template-columns:minmax(0,1fr) 34px;gap:0 6px}
+  .vaxis-cell{padding:9px 8px;font-size:10.5px}
+  .col-cut{border-radius:9px}
+  .col-cut-plus{font-size:19px}
+  .col-cut-arrow{font-size:11px}
+  .vcut-add{min-width:74px;height:34px;padding:0 10px;gap:5px}
+  .vcut-plus{font-size:20px}
+  .vcut-arrow{font-size:12px}
+  .offer-foot{display:block}
+  .offer-foot .btn{margin-top:10px;width:100%}
+  .wb-actions .btn{font-size:10.5px;padding:7px 9px}
+  .stat-grid{grid-template-columns:repeat(3,1fr)}
+  .sheet.analysis-sheet{width:100vw}
+  .analysis-prompt-field textarea{min-height:260px;font-size:10.5px;padding:11px 12px}
+}
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  body{background:#fff}
+  .bar,.wb-head,.wb-tools,.sheet-layer,.modal-layer,.toast-stack,.scroll-hint{display:none!important}
+  .app,.main{display:block;min-height:0;height:auto}
+  .workbench{display:block;padding:0;max-width:none}
+  .matrix-wrap{border-color:#bbb;box-shadow:none;overflow:visible;min-height:0}
+  .matrix{min-width:0;grid-template-columns:160px repeat(var(--seg-count),minmax(150px,1fr))}
+  .matrix-corner,.matrix-head,.row-label{position:static!important}
+  .matrix-cell{min-height:85px;font-size:8pt}
+  .cell-mark,.head-edit{display:none!important}
+  .matrix-cell.empty .cell-plus,.matrix-cell.empty div{display:none!important}
+  .print-title{display:block!important;margin:0 0 8mm;font-family:var(--serif);font-size:20pt}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar" id="topBar">
+    <button class="brand" id="brandBtn" aria-label="回到开始">
+      <span class="brand-mark"><i></i></span>
+      <span class="brand-name">业务拆解器</span>
+    </button>
+    <div class="bar-context" id="barContext" hidden>
+      <span class="mode-chip" id="barMode">PROJECT</span>
+      <span class="ctx-title" id="barTitle"></span>
+    </div>
+    <div class="bar-actions">
+      <button class="tb-btn" data-open-history title="历史库">
+        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg><span>历史库</span>
+      </button>
+      <button class="tb-btn" data-open-dim-library title="维度库">
+        <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h6"/></svg><span>维度库</span>
+      </button>
+      <button class="tb-btn icon" data-open-settings aria-label="设置" title="设置">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+      </button>
+    </div>
+  </header>
+  <main class="main" id="appMain"></main>
+</div>
+
+<input type="file" id="importFile" accept="application/json,.json" multiple hidden>
+<input type="file" id="dimensionImportFile" accept="application/json,.json" hidden>
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+<div class="hover-tip" id="hoverTip" role="tooltip" aria-hidden="true"></div>
+<div class="axis-blade" id="axisBlade" aria-hidden="true"></div>
+<div class="modal-layer" id="modalLayer" hidden><div id="modalRoot"></div></div>
+<div class="modal-layer secondary" id="dimEditLayer" hidden><div id="dimEditRoot"></div></div>
+<div class="sheet-layer" id="sheetLayer" hidden><div id="sheetRoot"></div></div>
+
+<script>
+const LIB_KEY = 'business-decomposer.library.v2';
+const CURRENT_KEY = 'business-decomposer.current.v2';
+const SETTINGS_KEY = 'business-decomposer.settings.v2';
+const DIMS_KEY = 'business-decomposer.dimensions.v3';
+const DIMS_SEED_KEY = 'business-decomposer.dimensions.seed';
+const DIMS_SEED = 'user-dimensions-20261023';
+const OVERALL_ANALYSIS_ID = '__overall__';
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+const uid = (prefix = 'id') => `${prefix}_${Math.random().toString(36).slice(2, 9)}${Date.now().toString(36).slice(-3)}`;
+const esc = (value = '') => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const clone = value => JSON.parse(JSON.stringify(value));
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+let hoverTipTimer = null;
+let hoverTipTarget = null;
+
+function hideHoverTip() {
+  window.clearTimeout(hoverTipTimer);
+  hoverTipTimer = null;
+  hoverTipTarget = null;
+  const tip = $('#hoverTip');
+  if (!tip) return;
+  tip.classList.remove('show');
+  tip.setAttribute('aria-hidden', 'true');
+}
+
+function placeHoverTip(clientX, clientY) {
+  const tip = $('#hoverTip');
+  if (!tip) return;
+  const gap = 16;
+  const pad = 14;
+  const rect = tip.getBoundingClientRect();
+  let left = clientX + gap;
+  let top = clientY + gap;
+  if (left + rect.width > window.innerWidth - pad) left = clientX - rect.width - gap;
+  if (top + rect.height > window.innerHeight - pad) top = clientY - rect.height - gap;
+  tip.style.left = `${clamp(left, pad, Math.max(pad, window.innerWidth - rect.width - pad))}px`;
+  tip.style.top = `${clamp(top, pad, Math.max(pad, window.innerHeight - rect.height - pad))}px`;
+}
+
+function showHoverTip(target, clientX, clientY) {
+  const tip = $('#hoverTip');
+  if (!tip) return;
+  const title = String(target.dataset.tipTitle || '').trim();
+  const copy = String(target.dataset.tip || '').trim();
+  if (!copy) return hideHoverTip();
+  tip.innerHTML = `${title ? `<div class="hover-tip-title">${esc(title)}</div>` : ''}<div class="hover-tip-copy">${esc(copy)}</div>`;
+  tip.classList.add('show');
+  tip.setAttribute('aria-hidden', 'false');
+  placeHoverTip(clientX, clientY);
+}
+
+function scheduleHoverTip(target, clientX, clientY) {
+  if (!target || target === hoverTipTarget) return;
+  window.clearTimeout(hoverTipTimer);
+  hoverTipTarget = target;
+  if (!String(target.dataset.tip || '').trim()) return hideHoverTip();
+  hoverTipTimer = window.setTimeout(() => {
+    if (hoverTipTarget === target) showHoverTip(target, clientX, clientY);
+  }, 90);
+}
+
+const MODE_META = {
+  project: {
+    label: '项目', chip: 'PROJECT', defaultTitle: '未命名项目拆解',
+    root: '主目标', result: '完成标准', deadline: '截止时间',
+    noun: '子目标', nounPlaceholder: '', add: '加一个子目标'
+  },
+  tasks: {
+    label: '个人任务', chip: 'TASKS', defaultTitle: '我的任务集',
+    root: '时间范围', result: '观察范围', deadline: '时间范围',
+    noun: '任务', nounPlaceholder: '', add: '加一条任务'
+  }
+};
+
+const D = (id, scope, group, title, hint, prompt, options = {}) => ({
+  id, scope, group, title, hint, prompt, analysisPrompt: '', type: 'text', axis: 'vertical', core: false, recommended: false, custom: false, ...options
+});
+
+const DEFAULT_ANALYSIS_PROMPT = '请围绕这个维度，系统分析当前业务拆解：先归纳现状，再找出重复、失衡、卡点或机会，说明对目标的影响，最后给出 1-3 个具体可执行的建议。';
+
+const BUILTIN_DIMENSIONS = [
+  D('project_target_axis','project','structure','目标',
+    '先写主目标，再写子任务。\n（每个任务最好都有具体可衡量的完成标准）',
+    '先写主目标，再写子目标。\n（每个目标最好都有具体结果点+具体时间节点）',
+    {axis:'horizontal',core:true,recommended:true}),
+  D('task_task_axis','tasks','structure','任务',
+    '就写你一般要做什么事，要完成什么任务。\n时间范围可以是一天、一周、一个月、一个季度。',
+    '把这段时间里实际在做的事情逐条列出来。',
+    {axis:'horizontal',core:true,recommended:true}),
+  D('project_board','project','structure','板块',
+    '写清楚这个任务的分类（例如：设计、沟通对接、传播等等）',
+    '写清楚这个任务的分类（例如：设计、沟通对接等等）',
+    {core:true,recommended:true,analysisPrompt:'请重点分析：每个子目标分别落在哪些板块；板块之间是否失衡、割裂或重复投入；哪些板块可以合并、删除或标准化。最后给出最值得优先调整的 1-3 个动作。'}),
+  D('project_rhythm','project','time','时间节奏',
+    '写这个目标在什么具体时间点前完成',
+    '写清起止时间、关键截止点和推进节奏。',
+    {core:true,recommended:true,analysisPrompt:'请重点分析：整个项目的时间节奏、关键节点和等待关系；哪里存在前松后紧、返工或卡在别人手上的情况；如何重排节奏能减少空转。可以和我提问几轮挖掘更多信息，然后最后给出 1-3 个调整建议。'}),
+  D('project_steps','project','action','执行步骤',
+    '写清楚这个目标执行的具体行动步骤',
+    '按顺序写 3–7 个动作，尽量用动词开头。',
+    {core:true,recommended:true,analysisPrompt:'请重点分析：从启动到交付的执行步骤是否顺畅；哪些步骤存在依赖、交接或重复；哪一步最可能成为瓶颈。可以和我提问几轮挖掘更多信息，然后最后给出 1-3 个优化动作。'}),
+  D('project_issue','project','risk','常见问题',
+    '写你的第一感受：你觉得这个事情做的过程中卡不卡，有没有让你感觉很乱的地方。\n以及补充这个任务之前发生过的常见问题。',
+    '写清具体场景：在哪个环节、因为什么、造成什么影响。',
+    {recommended:true,analysisPrompt:'请重点分析：这个项目反复出现的问题、它们发生的环节和根因；哪些问题会直接影响目标和进度；应该如何提前预防或设置兜底。可以和我提问几轮挖掘更多信息，最后给出 1-3 个动作。'}),
+  D('task_nature','tasks','judgment','任务性质',
+    '外界：这个任务是外界给你安排，需要你及时和外界交付/签到。\n自己想做：是你自己想做，结果和时间都是自己安排的。',
+    '先分清这件事是谁在推：交付、签到，还是自己想做。',
+    {type:'tags',core:true,recommended:true,options:['交付','签到','自己想做'],analysisPrompt:'请重点分析：这些任务里，哪些是必须交付or签到，哪些是自己想做；哪些外界任务可以拒绝、延后或缩小。可以和我提问几轮问题挖掘更多信息，最后给出 1-2个建议。'}),
+  D('task_time','tasks','time','时间类型',
+    '自主时间 ：我可以自主提前规划安排时间执行这个任务。\n随机被动：随时会被call到，随时可能会被需要解决问题。',
+    '它占用的是你主动安排的时间，还是随时被打断的时间？',
+    {type:'tags',core:true,recommended:true,options:['自主时间','随机被动'],analysisPrompt:'请重点分析：哪些任务占用自主时间，哪些随时被动打断；碎片化最严重的环节在哪里；如何把被动任务集中处理。可以向我提问几轮问题挖掘更多信息，最后给出 1-3 个调整建议。'}),
+  D('task_frequency','tasks','time','任务类型',
+    '一次性任务：这个事情我只做这一次。\n周期性任务：这个事情会按照一定周期重复执行。',
+    '一次性任务和周期性任务，优化方式完全不同。',
+    {type:'tags',recommended:true,options:['一次性','周期性'],analysisPrompt:'请重点分析：哪些是一次性任务，哪些会周期性重复；重复任务是否值得沉淀和优化（例如生成模板、梳理清单或AI自动化流程）可以向我提问几轮问题挖掘更多信息，然后给出 1-3 个提效建议。'}),
+  D('task_value','tasks','result','对我的重要程度',
+    '参考维度：\n短期价值：这件事情在短期给我带来的帮助大不大\n长期价值：这件事情在长期给我带来的帮助大不大\n投产比：这件事情的投入产出比是怎么样的\n更多其他维度',
+    '这件事在当下和未来分别值多少？投入产出大致如何？',
+    {type:'tags',recommended:true,options:['短期价值','长期价值','高投产比','低投产比'],analysisPrompt:'请重点分析：每项任务的短期价值、长期价值和投产比；哪些任务投入大但价值低；哪些值得加码。可以和我提问几轮问题，去了解我的精力分配情况。最后根据实际情况给出 1-3 个建议。（建议方式采用混合精度做事法：最重要的事情用更大的精度去做，不太重要的事情粗糙做）'}),
+  D('task_method','tasks','action','执行方法',
+    '写出具体步骤',
+    '确定性流程可以标准化；不确定性决策需要信息和判断。',
+    {type:'tags',core:true,recommended:true,options:['确定性流程','不确定性决策'],analysisPrompt:'请重点分析：哪些任务属于确定性的工作流程，哪些需要我面对不确定性进行判断和决策；确定性流程里哪一步最适合标准化或交给 AI；不确定性决策缺什么信息，是否可以沉淀系统知识库。可以问我几轮问题挖掘更多信息，最后给出 1-3 个动作建议。'}),
+  D('task_blocker','tasks','risk','常见卡点',
+    '最容易卡在哪、烦在哪、哪件事情会让自己容易内耗。',
+    '写具体卡点，不要写“效率低”这种抽象词。',
+    {recommended:true,analysisPrompt:'请重点分析：最常出现的卡点、问题或烦恼；它们集中在哪些任务和环节；根因是什么；可以向我提问几轮问题，然后最后按照情况给出相应的建议。'})
+];
+
+function normalizeDimensionRecord(item = {}) {
+  const known = BUILTIN_DIMENSIONS.find(builtin => builtin.id === item.id) || {};
+  return {
+    id:String(item.id || known.id || uid('dim')),
+    scope:['project','tasks','both'].includes(item.scope) ? item.scope : (known.scope || 'both'),
+    group:String(item.group || known.group || 'structure'),
+    title:String(item.title || known.title || '未命名维度'),
+    hint:String(item.hint || known.hint || ''),
+    prompt:String(item.prompt || known.prompt || ''),
+    analysisPrompt:String(item.analysisPrompt ?? known.analysisPrompt ?? (item.custom ? '' : ((item.axis === 'horizontal' || (!item.axis && known.axis === 'horizontal')) ? '' : DEFAULT_ANALYSIS_PROMPT))),
+    type:item.type === 'tags' || (!item.type && known.type === 'tags') ? 'tags' : 'text',
+    axis:item.axis === 'horizontal' || (!item.axis && known.axis === 'horizontal') ? 'horizontal' : 'vertical',
+    core:Boolean(item.core ?? known.core),
+    recommended:Boolean(item.recommended ?? known.recommended),
+    options:Array.isArray(item.options) ? item.options.map(String).slice(0, 12) : [...(known.options || [])],
+    custom:Boolean(item.custom)
+  };
+}
+
+function loadDimensionLibrary() {
+  const builtins = BUILTIN_DIMENSIONS.map(item => ({ ...item, options:[...(item.options || [])] }));
+  try {
+    const raw = localStorage.getItem(DIMS_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(parsed)) {
+      const builtinIds = new Set(builtins.map(item => item.id));
+      const normalized = parsed.map(normalizeDimensionRecord);
+      const custom = normalized.filter(item => item.custom && !builtinIds.has(item.id));
+      if (localStorage.getItem(DIMS_SEED_KEY) !== DIMS_SEED) {
+        localStorage.setItem(DIMS_SEED_KEY, DIMS_SEED);
+        return [...builtins, ...custom];
+      }
+      const list = normalized.filter(item => item.custom || builtinIds.has(item.id));
+      const knownIds = new Set(list.map(item => item.id));
+      builtins.forEach(item => {
+        if (!knownIds.has(item.id)) list.push({ ...item, options:[...(item.options || [])] });
+      });
+      return list;
+    }
+  } catch (error) {}
+  try { localStorage.setItem(DIMS_SEED_KEY, DIMS_SEED); } catch (error) {}
+  return builtins;
+}
+
+function persistDimensionLibrary() {
+  try { localStorage.setItem(DIMS_KEY, JSON.stringify(dimensionLibrary)); } catch (error) {}
+}
+
+let dimensionLibrary = loadDimensionLibrary();
+persistDimensionLibrary();
+let DIM_BY_ID = {};
+function refreshDimensionIndex() {
+  DIM_BY_ID = Object.fromEntries(dimensionLibrary.map(item => [item.id, item]));
+}
+refreshDimensionIndex();
+
+const PROJECT_STEPS = [
+  { key:'goal', type:'text', q:'这个项目的主目标是什么？' },
+  { key:'parts', type:'list', q:'这个项目能拆成哪几个子目标？', noun:'子目标', min:2 },
+  { key:'axes', type:'axes', q:'再从哪个维度竖着切？', min:1 },
+  { key:'analysis', type:'analyze', q:'选一个维度，生成分析提示词' }
+];
+
+const TASK_STEPS = [
+  { key:'period', type:'text', q:'这是哪段时间内的任务？' },
+  { key:'tasks', type:'list', q:'这段时间里，你实际在做什么？', noun:'任务', min:2 },
+  { key:'axes', type:'axes', q:'再从哪个维度竖着切？', min:1 },
+  { key:'analysis', type:'analyze', q:'选一个维度，生成分析提示词' }
+];
+
+const DEFAULT_DIMS = {
+  project: ['project_board','project_rhythm','project_steps','project_issue'],
+  tasks: ['task_nature','task_time','task_frequency','task_value','task_method','task_blocker']
+};
+
+function stepsFor(mode) { return mode === 'tasks' ? TASK_STEPS : PROJECT_STEPS; }
+function meta() { return state.mode ? MODE_META[state.mode] : null; }
+function createState(mode = null) {
+  return {
+    version: 2, id: uid('board'), title: '', titleAuto: true, mode, stage: 'conversation',
+    root: { title:'', result:'', deadline:'' }, segments: [], dimensions: [], cells: {}, analysisPrompts: {},
+    setup: { step:0, maxStep:0, dims: [], completed:false },
+    presetApplied: false, createdAt: Date.now(), updatedAt: Date.now()
+  };
+}
+
+function normalizeState(input) {
+  const base = createState();
+  if (!input || typeof input !== 'object') return base;
+  const mode = input.mode === 'project' || input.mode === 'tasks' ? input.mode : null;
+  let stage = 'conversation';
+  if (input.stage === 'workbench' || input.stage === 'vertical') stage = 'workbench';
+  const segments = Array.isArray(input.segments) ? input.segments
+    .filter(item => item && typeof item === 'object')
+    .map(item => ({ id:String(item.id || uid('seg')), title:String(item.title || ''), result:String(item.result || ''), deadline:String(item.deadline || '') }))
+    .slice(0, 24) : [];
+  const dimensions = Array.isArray(input.dimensions) ? input.dimensions
+    .filter(item => item && typeof item === 'object' && item.id && item.title)
+    .map(item => {
+      const known = DIM_BY_ID[item.id] || {};
+      return {
+        id:String(item.id), title:String(item.title), hint:String(item.hint || known.hint || ''),
+        prompt:String(item.prompt || known.prompt || ''),
+        analysisPrompt:String(item.analysisPrompt || known.analysisPrompt || ''),
+        group:String(item.group || known.group || 'structure'), scope:String(item.scope || known.scope || 'both'),
+        type:item.type === 'tags' ? 'tags' : 'text', options:Array.isArray(item.options) ? item.options.map(String).slice(0,12) : [],
+        custom:Boolean(item.custom)
+      };
+    }).slice(0, 20) : [];
+  const cells = {};
+  if (input.cells && typeof input.cells === 'object') {
+    Object.entries(input.cells).forEach(([key, cell]) => {
+      if (!cell || typeof cell !== 'object') return;
+      const tags = Array.isArray(cell.tags) ? cell.tags.map(String).slice(0,10) : [];
+      const text = String(cell.text || '');
+      if (text.trim() || tags.length) cells[key] = { text, tags };
+    });
+  }
+  const segIds = new Set(segments.map(item => item.id));
+  const dimIds = new Set(dimensions.map(item => item.id));
+  Object.keys(cells).forEach(key => {
+    const [segId, dimId] = key.split('::');
+    if (!segIds.has(segId) || !dimIds.has(dimId)) delete cells[key];
+  });
+  const analysisPrompts = {};
+  if (input.analysisPrompts && typeof input.analysisPrompts === 'object') {
+    Object.entries(input.analysisPrompts).forEach(([dimId, prompt]) => {
+      if ((dimIds.has(dimId) || dimId === OVERALL_ANALYSIS_ID) && typeof prompt === 'string' && prompt.trim()) analysisPrompts[dimId] = prompt;
+    });
+  }
+  const root = {
+    title:String(input.root?.title || ''), result:String(input.root?.result || ''),
+    deadline:String(input.root?.deadline || '')
+  };
+  if (mode && input.stage === 'horizontal') stage = 'conversation';
+  if (!mode) stage = 'conversation';
+  const steps = stepsFor(mode || 'project');
+  let setup = { step:0, maxStep:0, dims: [], completed:false };
+  if (stage === 'conversation' && mode) {
+    if (input.setup && Number.isFinite(Number(input.setup.step))) {
+      setup.step = clamp(Number(input.setup.step), 0, steps.length - 1);
+      setup.maxStep = clamp(Number(input.setup.maxStep ?? setup.step), setup.step, steps.length - 1);
+      if (Array.isArray(input.setup.dims)) setup.dims = input.setup.dims.map(String).filter(id => DIM_BY_ID[id]);
+      setup.completed = Boolean(input.setup.completed);
+    } else {
+      let derived = 0;
+      if (mode === 'project') {
+        if (root.title) derived = 1;
+        if (derived === 1 && segments.filter(item => item.title.trim()).length >= 2) derived = 2;
+      } else {
+        if (root.title) derived = 1;
+        if (derived === 1 && segments.filter(item => item.title.trim()).length >= 2) derived = 2;
+      }
+      setup.step = clamp(derived, 0, steps.length - 1);
+      setup.maxStep = setup.step;
+    }
+  }
+  if (stage === 'workbench') {
+    setup.step = steps.length;
+    setup.maxStep = steps.length;
+    setup.completed = true;
+    if (input.setup && Array.isArray(input.setup.dims) && input.setup.dims.length) setup.dims = input.setup.dims.map(String);
+  }
+  const stateObj = {
+    version:2, id:String(input.id || base.id), title:String(input.title || ''), titleAuto:input.titleAuto !== false,
+    mode, stage, root, segments, dimensions, cells, analysisPrompts, setup,
+    presetApplied:Boolean(input.presetApplied), createdAt:Number(input.createdAt || Date.now()),
+    updatedAt:Number(input.updatedAt || Date.now())
+  };
+  stateObj.title = stateObj.title || deriveTitle(mode, root);
+  return stateObj;
+}
+
+function deriveTitle(mode, root) {
+  const value = (root?.title || '').trim();
+  if (mode === 'project') return (value || MODE_META.project.defaultTitle).slice(0, 80);
+  if (!value) return MODE_META.tasks.defaultTitle;
+  if (value.includes('任务')) return value.slice(0, 80);
+  return `${value}的任务集`.slice(0, 80);
+}
+
+function loadLibrary() {
+  try {
+    const raw = localStorage.getItem(LIB_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    const list = Array.isArray(parsed) ? parsed.map(normalizeState).filter(item => item.mode) : [];
+    return list.sort((a, b) => b.updatedAt - a.updatedAt);
+  } catch (error) { return []; }
+}
+function persistLibrary() {
+  try { localStorage.setItem(LIB_KEY, JSON.stringify(library.slice(0, 60))); } catch (error) {}
+}
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return { autosave:true, ...(raw ? JSON.parse(raw) : {}) };
+  } catch (error) { return { autosave:true }; }
+}
+function persistSettings() {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (error) {}
+}
+
+let library = loadLibrary();
+let settings = loadSettings();
+let state = createState();
+const ui = {
+  screen:'landing', modal:null, sheet:null, saveTimer:null, search:'', customOpen:false,
+  dimReplace:null, dimEditing:null, dimEditingAxis:null, dimLibMode:'project', vaxisCut:null,
+  historySelected:new Set()
+};
+
+function segmentById(id) { return state.segments.find(item => item.id === id); }
+function cellKey(segId, dimId) { return `${segId}::${dimId}`; }
+function getCell(segId, dimId) { return state.cells[cellKey(segId, dimId)] || { text:'', tags:[] }; }
+function isCellFilled(cell) { return Boolean((cell.text || '').trim() || (cell.tags || []).length); }
+function allCellCount() { return state.segments.length * state.dimensions.length; }
+function filledCellCount() {
+  let count = 0;
+  state.segments.forEach(segment => state.dimensions.forEach(dimension => {
+    if (isCellFilled(getCell(segment.id, dimension.id))) count += 1;
+  }));
+  return count;
+}
+function completion() {
+  const total = allCellCount();
+  return total ? Math.round(filledCellCount() / total * 100) : 0;
+}
+function nowLabel() { return new Date().toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }); }
+function formatDate(value) {
+  const d = new Date(value || Date.now());
+  return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+function displayTitle(board) { return board?.title || deriveTitle(board?.mode, board?.root); }
+
+function updateSaveLabel(text) {
+  const el = $('#saveState');
+  if (el) el.textContent = text;
+}
+function save() {
+  if (!state.mode) return;
+  state.updatedAt = Date.now();
+  state.title = deriveTitle(state.mode, state.root);
+  try {
+    localStorage.setItem(CURRENT_KEY, JSON.stringify(state));
+    library = [state, ...library.filter(item => item.id !== state.id)].slice(0, 60);
+    persistLibrary();
+    updateSaveLabel(`已保存 · ${nowLabel()}`);
+  } catch (error) {
+    updateSaveLabel('保存失败');
+  }
+}
+function queueSave() {
+  if (!state.mode) return;
+  state.updatedAt = Date.now();
+  if (!settings.autosave) { updateSaveLabel('未保存 · 自动保存已关闭'); return; }
+  updateSaveLabel('保存中…');
+  clearTimeout(ui.saveTimer);
+  ui.saveTimer = setTimeout(save, 320);
+}
+function saveNow(silent = false) {
+  clearTimeout(ui.saveTimer);
+  save();
+  if (!silent) toast('已保存', 'success');
+}
+function toast(message, kind = '') {
+  const node = document.createElement('div');
+  node.className = `toast ${kind}`.trim();
+  node.textContent = message;
+  $('#toastStack').appendChild(node);
+  setTimeout(() => { node.style.opacity = '0'; node.style.transform = 'translateY(6px)'; node.style.transition = '.2s'; }, 2200);
+  setTimeout(() => node.remove(), 2500);
+}
+function makeSegment(title = '', result = '', deadline = '') { return { id:uid('seg'), title, result, deadline }; }
+function dimensionSnapshot(id) {
+  const source = DIM_BY_ID[id];
+  if (!source) return null;
+  return { ...source, options:[...(source.options || [])] };
+}
+function libraryItemsForMode() {
+  return dimensionLibrary.filter(item => item.axis !== 'horizontal' && (item.scope === state.mode || item.scope === 'both'));
+}
+
+function renderAll() {
+  renderTopBar();
+  renderMain();
+  renderModal();
+  renderDimensionEditor();
+  renderSheet();
+}
+
+function renderTopBar() {
+  const context = $('#barContext');
+  const show = ui.screen !== 'landing' && Boolean(state.mode);
+  context.hidden = !show;
+  if (show) {
+    $('#barMode').textContent = MODE_META[state.mode].chip;
+    $('#barTitle').textContent = state.root.title ? displayTitle(state) : '新的拆解';
+  }
+}
+
+function renderMain() {
+  const main = $('#appMain');
+  if (ui.screen === 'landing' || !state.mode) {
+    main.innerHTML = landingHTML();
+    return;
+  }
+  main.innerHTML = state.stage === 'workbench' ? workbenchHTML() : conversationHTML();
+}
+
+function landingHTML() {
+  const last = library[0];
+  return `
+    <section class="landing page">
+      <div class="landing-mark"><i></i></div>
+      <div class="kicker">一横一竖 · 切切切</div>
+      <h1>你想<em>拆解</em>一件什么样的事情？</h1>
+      <div class="mode-grid">
+        <button class="mode-card" data-mode="project">
+          <span class="mode-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <h2>项目</h2>
+          <span class="mode-arrow"><span>project</span><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>
+        </button>
+        <button class="mode-card" data-mode="tasks">
+          <span class="mode-icon"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
+          <h2>个人任务</h2>
+          <span class="mode-arrow"><span>tasks</span><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>
+        </button>
+      </div>
+      ${last ? `<button class="continue-last" data-open-board="${esc(last.id)}">继续上次：${esc(displayTitle(last))}</button>` : ''}
+    </section>`;
+}
+
+function ensureSetupDims() {
+  if (!Array.isArray(state.setup.dims)) state.setup.dims = [];
+  state.setup.dims = state.setup.dims.filter(id => DIM_BY_ID[id]);
+  const synced = state.setup.dims.map(id => state.dimensions.find(item => item.id === id) || dimensionSnapshot(id)).filter(Boolean);
+  state.dimensions = synced;
+  return state.setup.dims;
+}
+
+function stepAnswer(step) {
+  if (!step) return '';
+  if (step.key === 'goal' || step.key === 'period') return state.root.title;
+  if (step.key === 'done') return state.root.result;
+  if (step.key === 'deadline') return state.root.deadline;
+  if (step.key === 'parts' || step.key === 'tasks') return state.segments.map(item => item.title).filter(Boolean);
+  if (step.key === 'axes') {
+    const ids = Array.isArray(state.setup.dims) ? state.setup.dims : [];
+    return ids.map(id => DIM_BY_ID[id]?.title).filter(Boolean);
+  }
+  return '';
+}
+
+function offerHTML(id, selected) {
+  const item = DIM_BY_ID[id];
+  if (!item) return '';
+  const badge = item.core ? '核心' : item.recommended ? '推荐' : '进阶';
+  return `<button class="offer-card ${selected ? 'selected' : ''}" type="button" data-offer-dim="${esc(id)}">
+    <span class="offer-check">✓</span>
+    <span>
+      <h3>${esc(item.title)}<span class="dim-badge">${badge}</span></h3>
+      <p>${esc(item.hint)}</p>
+      <small>${esc(item.prompt)}</small>
+    </span>
+  </button>`;
+}
+
+function axisBlockHTML(value = '', index = 0) {
+  return `<div class="axis-block" data-axis-block style="--i:${index + 1}">
+    <span class="axis-index">${String(index + 1).padStart(2, '0')}</span>
+    <button class="axis-remove" type="button" data-axis-del aria-label="删除这一块">×</button>
+    <textarea data-axis-title rows="4" spellcheck="false" aria-label="第 ${index + 1} 项">${esc(value)}</textarea>
+  </div>`;
+}
+
+function axisHTML() {
+  const tasks = state.mode === 'tasks';
+  const minBlocks = tasks ? 4 : 3;
+  const values = state.segments.map(item => item.title);
+  while (values.length < minBlocks) values.push('');
+  return `<div class="axis-stage">
+    <div class="axis-track" id="axisTrack">
+      <div class="axis-block main">
+        <div class="axis-block-label">${tasks ? '时间范围' : '主目标'}</div>
+        <textarea class="axis-main-copy" data-axis-root rows="3" spellcheck="false" aria-label="${tasks ? '时间范围' : '主目标'}">${esc(state.root.title)}</textarea>
+      </div>
+      <div class="axis-scroll" id="axisScroll">
+        <div class="axis-track-inner" id="axisTrackInner">
+          ${values.map(axisBlockHTML).join('')}
+        </div>
+      </div>
+      <button class="axis-add" type="button" data-axis-add aria-label="切出一栏">
+        <span class="axis-add-arrow" aria-hidden="true"></span>
+        <span class="axis-add-plus" aria-hidden="true">＋</span>
+      </button>
+      <div class="axis-slice-line" id="axisSliceLine" aria-hidden="true"></div>
+      <div class="axis-cut-flash" id="axisCutFlash" hidden></div>
+    </div>
+  </div>`;
+}
+
+function vaxisRowHTML(dimension, index) {
+  const cells = state.segments.map((segment, segmentIndex) => {
+    const cell = getCell(segment.id, dimension.id);
+    return `<div class="vaxis-cell" contenteditable="plaintext-only" role="textbox" spellcheck="false" ${dimensionTipAttrs(dimension)}
+      data-vcell-seg="${esc(segment.id)}" data-vcell-dim="${esc(dimension.id)}"
+      aria-label="${esc(dimension.title)}：第 ${segmentIndex + 1} 项">${esc(cell.text || '')}</div>`;
+  }).join('');
+  const cutting = ui.vaxisCut === dimension.id ? ' is-cutting' : '';
+  return `<div class="vaxis-row${cutting}" data-vdim="${esc(dimension.id)}">
+    <div class="vaxis-label" ${dimensionTipAttrs(dimension)}>
+      <div class="vaxis-label-top">
+        <span class="vaxis-index">${String(index + 1).padStart(2, '0')}</span>
+        <span class="vaxis-title">${esc(dimension.title)}</span>
+      </div>
+      <span class="vaxis-hint">${esc(dimension.hint)}</span>
+      <button class="vaxis-remove" type="button" data-vdim-del="${esc(dimension.id)}" aria-label="移除这一行">×</button>
+    </div>
+    ${cells}
+  </div>`;
+}
+
+function verticalStageHTML() {
+  const ids = ensureSetupDims();
+  const tasks = state.mode === 'tasks';
+  const count = Math.max(1, state.segments.length);
+  const cells = state.segments.map((segment, index) => `<div class="summary-cell" style="--i:${index}">
+    <span class="summary-index">${String(index + 1).padStart(2, '0')}</span>
+    <div class="summary-edit" contenteditable="plaintext-only" role="textbox" aria-label="第 ${index + 1} 项" data-summary-seg="${esc(segment.id)}">${esc(segment.title)}</div>
+  </div>`).join('');
+  const rows = ids.map((id, index) => {
+    const dimension = state.dimensions.find(item => item.id === id) || DIM_BY_ID[id];
+    return dimension ? vaxisRowHTML(dimension, index) : '';
+  }).join('');
+  return `<div class="vstage" style="--seg-count:${count}">
+    <div class="vaxis-area">
+      <div class="axis-summary">
+        <div class="summary-main">
+          <div class="axis-block-label">${tasks ? '时间范围' : '主目标'}</div>
+          <div class="summary-edit" contenteditable="plaintext-only" role="textbox" aria-label="${tasks ? '时间范围' : '主目标'}" data-summary-root>${esc(state.root.title)}</div>
+        </div>
+        ${cells}
+      </div>
+      <button class="col-cut" type="button" data-col-add aria-label="增加一列">
+        <span class="col-cut-plus" aria-hidden="true">＋</span>
+        <span class="col-cut-arrow" aria-hidden="true">↓</span>
+      </button>
+      <div class="vaxis-list" id="vaxisList">${rows}</div>
+    </div>
+    <button class="vcut-bar" type="button" data-vertical-add aria-label="切出一条竖轴">
+      <span class="vcut-rule" aria-hidden="true"></span>
+      <span class="vcut-add" aria-hidden="true"><span class="vcut-plus">＋</span><span class="vcut-arrow">→</span></span>
+      <span class="vcut-rule" aria-hidden="true"></span>
+    </button>
+  </div>`;
+}
+
+function cellPromptText(cell) {
+  const text = String(cell?.text || '').trim();
+  const tags = (cell?.tags || []).filter(Boolean).join(' / ');
+  return [tags, text].filter(Boolean).join(' · ') || '（未填写）';
+}
+
+function analysisRowHTML(dimension, index) {
+  const cells = state.segments.map(segment => `<div class="analysis-cell">${esc(cellPromptText(getCell(segment.id, dimension.id)))}</div>`).join('');
+  return `<div class="analysis-line">
+    <div class="analysis-row">
+      <div class="vaxis-label analysis-label" ${dimensionTipAttrs(dimension)}>
+        <div class="vaxis-label-top">
+          <span class="vaxis-index">${String(index + 1).padStart(2, '0')}</span>
+          <span class="vaxis-title">${esc(dimension.title)}</span>
+        </div>
+        ${dimension.hint ? `<span class="vaxis-hint">${esc(dimension.hint)}</span>` : ''}
+      </div>
+      ${cells}
+    </div>
+    <button class="analyze-btn" type="button" data-analyze-dim="${esc(dimension.id)}" aria-label="分析 ${esc(dimension.title)}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1.1 5.8 3.2 7.9 9 9-5.8 1.1-7.9 3.2-9 9-1.1-5.8-3.2-7.9-9-9 5.8-1.1 7.9-3.2 9-9Z"/></svg>
+    </button>
+  </div>`;
+}
+
+function analysisStageHTML() {
+  const tasks = state.mode === 'tasks';
+  const count = Math.max(1, state.segments.length);
+  const cells = state.segments.map((segment, index) => `<div class="summary-cell" style="--i:${index}">
+    <span class="summary-index">${String(index + 1).padStart(2, '0')}</span>
+    <b>${esc(segment.title)}</b>
+  </div>`).join('');
+  return `<div class="analysis-stage" style="--seg-count:${count}">
+    <div class="analysis-list">
+      <div class="analysis-line">
+        <div class="axis-summary analysis-summary">
+          <div class="summary-main">
+            <div class="axis-block-label">${tasks ? '时间范围' : '主目标'}</div>
+            <b>${esc(state.root.title)}</b>
+          </div>
+          ${cells}
+        </div>
+        <button class="analyze-btn analyze-all-btn" type="button" data-analyze-all data-hover-tip data-tip-title="综合分析" data-tip="汇总当前拆解的全部横轴、竖轴、标签和分析要求，生成一份可编辑、可复制的综合提示词。" aria-label="综合分析全部内容">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2.5c.8 4.4 2.3 5.9 6.7 6.7-4.4.8-5.9 2.3-6.7 6.7-.8-4.4-2.3-5.9-6.7-6.7C7.7 9.2 9.2 7.7 10 2.5Z"/><path d="M17.5 13c.45 2.5 1.3 3.35 3.8 3.8-2.5.45-3.35 1.3-3.8 3.8-.45-2.5-1.3-3.35-3.8-3.8 2.5-.45 3.35-1.3 3.8-3.8Z"/></svg>
+        </button>
+      </div>
+      ${state.dimensions.map((dimension, index) => analysisRowHTML(dimension, index)).join('')}
+    </div>
+  </div>`;
+}
+
+function analysisMatrixText() {
+  const noun = state.mode === 'tasks' ? '任务' : '子目标';
+  return state.dimensions.map(dimension => {
+    const lines = state.segments.map((segment, index) => {
+      const name = segment.title || `未命名${noun} ${index + 1}`;
+      return `${String(index + 1).padStart(2, '0')}. ${name}：${cellPromptText(getCell(segment.id, dimension.id))}`;
+    });
+    return `## ${dimension.title}\n${lines.join('\n')}`;
+  }).join('\n\n');
+}
+
+function analysisRowText(dimensionId) {
+  const noun = state.mode === 'tasks' ? '任务' : '子目标';
+  return state.segments.map((segment, index) => {
+    const name = segment.title || `未命名${noun} ${index + 1}`;
+    return `${String(index + 1).padStart(2, '0')}. ${name}：${cellPromptText(getCell(segment.id, dimensionId))}`;
+  }).join('\n');
+}
+
+function buildAnalysisPrompt(dimensionId) {
+  const dimension = state.dimensions.find(item => item.id === dimensionId) || DIM_BY_ID[dimensionId];
+  if (!dimension) return '';
+  const tasks = state.mode === 'tasks';
+  const modeLabel = tasks ? '单人任务集' : '单个项目';
+  const rootLabel = tasks ? '时间范围' : '主目标';
+  const noun = tasks ? '任务' : '子目标';
+  const segments = state.segments.map((segment, index) => `${String(index + 1).padStart(2, '0')}. ${segment.title || `未命名${noun}`}`).join('\n');
+  const instructions = String(dimension.analysisPrompt || DIM_BY_ID[dimensionId]?.analysisPrompt || DEFAULT_ANALYSIS_PROMPT).trim();
+  return `你是一名业务拆解分析师。
+
+下面是一份完整的${modeLabel}拆解。请只围绕「${dimension.title}」这一维度做系统分析。
+
+【拆解类型】${modeLabel}
+【${rootLabel}】${state.root.title || '（未填写）'}
+【横轴：${noun}】
+${segments || '（未填写）'}
+
+【完整拆解】
+${analysisMatrixText() || '（未填写）'}
+
+【本次分析维度】${dimension.title}
+【这个维度的内容】
+${analysisRowText(dimensionId) || '（未填写）'}
+
+【分析要求】
+${instructions}`;
+}
+
+function buildOverallAnalysisPrompt() {
+  const tasks = state.mode === 'tasks';
+  const modeLabel = tasks ? '单人任务集' : '单个项目';
+  const rootLabel = tasks ? '时间范围' : '主目标';
+  const noun = tasks ? '任务' : '子目标';
+  const segments = state.segments.map((segment, index) => `${String(index + 1).padStart(2, '0')}. ${segment.title || `未命名${noun}`}`).join('\n');
+  const extraRoot = [
+    state.root.result ? `${tasks ? '观察范围' : '完成标准'}：${state.root.result}` : '',
+    state.root.deadline && state.root.deadline !== state.root.title ? `${tasks ? '时间范围补充' : '截止时间'}：${state.root.deadline}` : ''
+  ].filter(Boolean).join('\n');
+  const dimensionFocus = state.dimensions.map((dimension, index) => {
+    const focus = String(dimension.analysisPrompt || DIM_BY_ID[dimension.id]?.analysisPrompt || '').trim();
+    return `${String(index + 1).padStart(2, '0')}. ${dimension.title}${focus ? `\n   分析重点：${focus}` : ''}`;
+  }).join('\n');
+  return `你是一名业务拆解分析师。下面是一份完整的${modeLabel}拆解。请把所有内容作为一个整体，做一次综合、全面、有侧重的分析，而不是逐项复述。
+
+【拆解类型】${modeLabel}
+【${rootLabel}】${state.root.title || '（未填写）'}
+${extraRoot ? `${extraRoot}\n` : ''}
+【横轴：${noun}】
+${segments || '（未填写）'}
+
+【全部拆解内容】
+${analysisMatrixText() || '（未填写）'}
+
+【各维度分析视角】
+${dimensionFocus || '（暂无维度）'}
+
+【分析原则】
+1. 以「${state.root.title || rootLabel}」为最终判断标准，根据内容与目标的关联度、影响范围和作用大小自行加权，不要平均对待每个维度。
+2. 横向比较各${noun}，纵向串联各维度，找出重复、冲突、缺口、失衡、依赖关系和真正的瓶颈。
+3. 综合权衡投入、时间、结果/价值、风险与可执行性，明确哪些部分最值得保留或加码，哪些应该删减、合并或延后。
+4. 每个判断尽量引用具体的${noun}、维度或格子内容作为依据，避免空泛建议。
+5. 未填写的内容视为“信息缺口”，不要臆造；必要时先提出最关键的 3-5 个澄清问题，再基于现有信息给出初步判断。
+
+【输出结构】
+一、一句话结论
+二、关键发现（按重要性排序，并说明依据）
+三、优先级与取舍（保留/加码、删减/合并/延后）
+四、主要风险与信息缺口
+五、接下来最值得做的 1-3 个动作（具体、可执行、可验收）`;
+}
+
+function ensureAnalysisPrompt(dimensionId) {
+  if (!state.analysisPrompts || typeof state.analysisPrompts !== 'object') state.analysisPrompts = {};
+  const saved = state.analysisPrompts[dimensionId];
+  if (typeof saved === 'string' && saved.trim()) return saved;
+  return buildAnalysisPrompt(dimensionId);
+}
+
+function ensureOverallAnalysisPrompt() {
+  if (!state.analysisPrompts || typeof state.analysisPrompts !== 'object') state.analysisPrompts = {};
+  const saved = state.analysisPrompts[OVERALL_ANALYSIS_ID];
+  if (typeof saved === 'string' && saved.trim()) return saved;
+  return buildOverallAnalysisPrompt();
+}
+
+function askHTML(current, steps) {
+  const step = steps[current];
+  const last = current === steps.length - 1;
+  const back = current > 0 ? `<button class="btn btn-quiet" type="button" data-prev-step><svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>上一步</button>` : '';
+  let field = '';
+  if (step.type === 'text') {
+    const value = stepAnswer(step);
+    field = `<input class="line-input" name="answer" value="${esc(value)}" placeholder="${esc(step.placeholder || '')}" autocomplete="off">`;
+  } else if (step.type === 'list') {
+    field = axisHTML();
+  } else if (step.type === 'axes') {
+    field = verticalStageHTML();
+  } else if (step.type === 'analyze') {
+    field = analysisStageHTML();
+  }
+  const primary = step.type === 'analyze' ? '' : `<button class="btn btn-primary" type="submit">${step.type === 'axes' ? '\u8fdb\u5165\u5206\u6790' : '继续'}<svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>`;
+  return `<div class="ask">
+    <div class="ask-kicker">step ${String(current + 1).padStart(2, '0')} / ${String(steps.length).padStart(2, '0')}</div>
+    <h2>${esc(step.q)}</h2>
+    <form class="ask-form${['list', 'axes', 'analyze'].includes(step.type) ? ' axis-form' : ''}" id="askForm">
+      ${field}
+      <div class="ask-error" id="askError"></div>
+      <div class="ask-actions">
+        ${primary}
+        ${back}
+        ${step.optional ? '<button class="skip-link" type="button" data-skip-step>暂时跳过</button>' : ''}
+      </div>
+    </form>
+  </div>`;
+}
+
+function conversationHTML() {
+  const steps = stepsFor(state.mode);
+  const current = clamp(state.setup.step || 0, 0, steps.length - 1);
+  const wide = ['list', 'axes', 'analyze'].includes(steps[current]?.type) ? ' wide' : '';
+  return `<section class="conversation page${wide}">
+    <div class="transcript">
+      ${askHTML(current, steps)}
+    </div>
+  </section>`;
+}
+
+function focusAsk() {
+  requestAnimationFrame(() => {
+    if (window.innerWidth < 860) return;
+    const text = $('.ask-form > .line-input');
+    if (text) { text.focus({ preventScroll:true }); return; }
+    const axisInput = $$('.ask-form [data-axis-title]').find(input => !input.value.trim());
+    if (axisInput) { axisInput.focus({ preventScroll:true }); return; }
+  });
+}
+
+function startBoard(mode) {
+  if (!MODE_META[mode]) return;
+  state = createState(mode);
+  state.title = deriveTitle(mode, state.root);
+  ui.screen = 'board';
+  ui.modal = null;
+  ui.sheet = null;
+  ui.search = '';
+  ui.customOpen = false;
+  save();
+  renderAll();
+  focusAsk();
+}
+
+function goHome() {
+  if (state.mode) save();
+  ui.screen = 'landing';
+  ui.modal = null;
+  ui.sheet = null;
+  renderAll();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function openBoard(id) {
+  const found = library.find(item => item.id === id);
+  if (!found) { toast('这份拆解已经不在了', 'error'); return; }
+  state = normalizeState(clone(found));
+  state.title = deriveTitle(state.mode, state.root);
+  ui.screen = 'board';
+  ui.modal = null;
+  ui.sheet = null;
+  save();
+  renderAll();
+  if (state.stage === 'conversation') focusAsk();
+  else window.scrollTo({ top:0 });
+}
+
+function syncSegments(titles) {
+  const previous = state.segments;
+  const next = titles.map((title, index) => {
+    if (previous[index]) return { ...previous[index], title };
+    return makeSegment(title);
+  });
+  const ids = new Set(next.map(item => item.id));
+  Object.keys(state.cells).forEach(key => {
+    if (!ids.has(key.split('::')[0])) delete state.cells[key];
+  });
+  state.segments = next;
+}
+
+function syncDimensions(ids) {
+  const previous = state.dimensions;
+  state.dimensions = ids.map(id => previous.find(item => item.id === id) || dimensionSnapshot(id)).filter(Boolean);
+  const keep = new Set(state.dimensions.map(item => item.id));
+  Object.keys(state.cells).forEach(key => {
+    if (!keep.has(key.split('::')[1])) delete state.cells[key];
+  });
+}
+
+function applyStep(step, value) {
+  if (step.key === 'goal') state.root.title = value;
+  else if (step.key === 'done') state.root.result = value;
+  else if (step.key === 'deadline') state.root.deadline = value;
+  else if (step.key === 'period') { state.root.title = value; state.root.deadline = value; state.root.result = ''; }
+  else if (step.key === 'parts' || step.key === 'tasks') syncSegments(value);
+  else if (step.key === 'axes') { state.setup.dims = value; syncDimensions(value); }
+  state.title = deriveTitle(state.mode, state.root);
+  state.presetApplied = true;
+}
+
+function setRootTitle(value) {
+  state.root.title = String(value || '');
+  if (state.mode === 'tasks') state.root.deadline = state.root.title;
+  state.title = deriveTitle(state.mode, state.root);
+  const barTitle = $('#barTitle');
+  if (barTitle) barTitle.textContent = state.title;
+}
+
+function syncAxisInlineInputs(form = $('#askForm')) {
+  if (!form || !state.mode) return;
+  const rootField = $('[data-axis-root]', form);
+  if (rootField) setRootTitle(rootField.value);
+  const blocks = $$('#axisTrack .axis-block:not(.main)', form);
+  if (!blocks.length) return;
+  const values = blocks.map(block => $('[data-axis-title]', block)?.value || '');
+  while (state.segments.length < values.length) state.segments.push(makeSegment(''));
+  values.forEach((value, index) => { state.segments[index].title = value; });
+}
+
+function showAskError(message) {
+  const error = $('#askError');
+  if (!error) return;
+  error.textContent = message;
+  error.classList.add('show');
+}
+
+function axisValues(form = $('#askForm')) {
+  if (!form) return [];
+  return $$('[data-axis-title]', form).map(input => input.value.trim()).filter(Boolean);
+}
+
+function submitCurrentStep() {
+  const steps = stepsFor(state.mode);
+  const current = clamp(state.setup.step || 0, 0, steps.length - 1);
+  const step = steps[current];
+  const form = $('#askForm');
+  if (!step || !form) return;
+  if (step.type === 'analyze') return;
+  let value = '';
+  if (step.type === 'text') {
+    value = ($('.line-input', form)?.value || '').trim();
+    if (['goal', 'period'].includes(step.key) && !value) { showAskError('写一句就行，先把这件事说清楚。'); return; }
+  } else if (step.type === 'list') {
+    syncAxisInlineInputs(form);
+    value = axisValues(form);
+    if (value.length < (step.min || 2)) { showAskError(`至少写 ${step.min || 2} 项，才能切出横轴。`); return; }
+  } else if (step.type === 'axes') {
+    value = [...(state.setup.dims || [])];
+    if (value.length < (step.min || 1)) { showAskError('先从中间切一条竖轴。'); return; }
+  }
+  applyStep(step, value);
+  const wasEditing = current < state.setup.maxStep;
+  if (wasEditing) {
+    state.setup.step = state.setup.maxStep;
+  } else {
+    state.setup.step = current + 1;
+    state.setup.maxStep = Math.max(state.setup.maxStep, state.setup.step);
+  }
+  if (state.setup.step >= steps.length) {
+    finishSetup();
+    return;
+  }
+  if (steps[state.setup.step]?.type === 'analyze') state.setup.completed = true;
+  save();
+  renderTopBar();
+  renderMain();
+  focusAsk();
+}
+
+function previousStep() {
+  const steps = stepsFor(state.mode);
+  const current = clamp(state.setup.step || 0, 0, steps.length - 1);
+  if (current <= 0) return;
+  const step = steps[current];
+  const form = $('#askForm');
+  if (step?.type === 'text') {
+    applyStep(step, ($('.line-input', form)?.value || '').trim());
+  } else if (step?.type === 'list') {
+    syncAxisInlineInputs(form);
+    applyStep(step, axisValues(form));
+  }
+  state.setup.step = current - 1;
+  save();
+  renderTopBar();
+  renderMain();
+  focusAsk();
+}
+
+function finishSetup() {
+  const steps = stepsFor(state.mode);
+  state.stage = 'conversation';
+  state.setup.step = steps.length - 1;
+  state.setup.maxStep = steps.length - 1;
+  state.setup.completed = true;
+  state.title = deriveTitle(state.mode, state.root);
+  save();
+  ui.screen = 'board';
+  ui.sheet = null;
+  ui.modal = null;
+  renderAll();
+  toast('横轴和竖轴已完成，进入分析', 'success');
+}
+
+function editStep(index) {
+  const steps = stepsFor(state.mode);
+  if (index < 0 || index >= steps.length) return;
+  state.setup.step = index;
+  state.setup.maxStep = Math.max(state.setup.maxStep, index);
+  queueSave();
+  renderMain();
+  focusAsk();
+}
+
+let axisDragState = null;
+let axisClickLock = 0;
+let axisFlashToken = 0;
+
+function axisBlocks() {
+  return $$('#axisTrack .axis-block:not(.main)');
+}
+
+function renumberAxisBlocks() {
+  axisBlocks().forEach((block, index) => {
+    block.style.setProperty('--i', index + 1);
+    const num = $('.axis-index', block);
+    if (num) num.textContent = String(index + 1).padStart(2, '0');
+    const input = $('[data-axis-title]', block);
+    if (input) input.setAttribute('aria-label', `第 ${index + 1} 项`);
+  });
+}
+
+function revealAxisBlock(block) {
+  const scroll = $('#axisScroll');
+  if (!scroll || !block) return;
+  const view = scroll.getBoundingClientRect();
+  const rect = block.getBoundingClientRect();
+  const padding = 22;
+  if (rect.right + padding > view.right) {
+    scroll.scrollBy({ left: rect.right + padding - view.right, behavior:'smooth' });
+  } else if (rect.left - padding < view.left) {
+    scroll.scrollBy({ left: rect.left - padding - view.left, behavior:'smooth' });
+  }
+}
+
+function flashAxisCut(left) {
+  const flash = $('#axisCutFlash');
+  if (!flash) return;
+  const token = ++axisFlashToken;
+  flash.hidden = false;
+  flash.style.left = `${left}px`;
+  flash.style.animation = 'none';
+  void flash.offsetWidth;
+  flash.style.animation = '';
+  const done = () => {
+    if (token !== axisFlashToken) return;
+    flash.hidden = true;
+    flash.removeEventListener('animationend', done);
+  };
+  flash.addEventListener('animationend', done);
+  setTimeout(done, 650);
+}
+
+function addAxisBlock(afterBlock = null, options = {}) {
+  const track = $('#axisTrack');
+  const add = $('[data-axis-add]', track?.closest('.axis-stage') || document);
+  const inner = $('#axisTrackInner', track || document);
+  if (!track || !add || !inner) return null;
+  const target = afterBlock && afterBlock.classList?.contains('axis-block') ? afterBlock : null;
+  const next = target ? target.nextElementSibling : null;
+  const blocks = axisBlocks();
+  const before = new Map(blocks.map(block => [block, block.getBoundingClientRect()]));
+  const trackRect = track.getBoundingClientRect();
+  const boundaryX = options.flashClientX ?? (target ? target.getBoundingClientRect().right : add.getBoundingClientRect().left);
+  const holder = document.createElement('div');
+  holder.innerHTML = axisBlockHTML('', blocks.length).trim();
+  const block = holder.firstElementChild;
+  if (next) inner.insertBefore(block, next);
+  else inner.appendChild(block);
+  renumberAxisBlocks();
+  block.classList.add('cut-in');
+  block.addEventListener('animationend', () => {
+    block.classList.remove('cut-in');
+    block.classList.add('entered');
+  }, { once:true });
+  flashAxisCut(boundaryX - trackRect.left);
+  requestAnimationFrame(() => {
+    blocks.forEach(oldBlock => {
+      const oldRect = before.get(oldBlock);
+      const nextRect = oldBlock.getBoundingClientRect();
+      const dx = oldRect.left - nextRect.left;
+      if (Math.abs(dx) > .5) {
+        oldBlock.animate(
+          [{ transform:`translateX(${dx}px)` }, { transform:'translateX(0)' }],
+          { duration:340, easing:'cubic-bezier(.2,.8,.25,1)' }
+        );
+      }
+    });
+    revealAxisBlock(block);
+  });
+  if (options.focus !== false) {
+    const input = $('[data-axis-title]', block);
+    if (input) {
+      requestAnimationFrame(() => {
+        input.focus({ preventScroll:true });
+        input.setSelectionRange(input.value.length, input.value.length);
+      });
+    }
+  }
+  return block;
+}
+
+function removeAxisBlock(block) {
+  if (!block) return;
+  if (axisBlocks().length <= 1) {
+    const input = $('[data-axis-title]', block);
+    if (input) {
+      input.value = '';
+      input.focus({ preventScroll:true });
+    }
+    return;
+  }
+  block.classList.add('cut-out');
+  setTimeout(() => {
+    block.remove();
+    renumberAxisBlocks();
+  }, 210);
+}
+
+function startAxisDrag(event) {
+  if (event.button !== 0 || event.pointerType === 'touch') return;
+  const track = event.target.closest('#axisTrack');
+  if (!track) return;
+  const add = event.target.closest('[data-axis-add]');
+  const block = event.target.closest('.axis-block:not(.main)');
+  if (!add && !block) return;
+  if (!add && event.target.closest('textarea,button,input,select')) return;
+  const rect = track.getBoundingClientRect();
+  const line = $('#axisSliceLine', track);
+  const blade = $('#axisBlade');
+  axisDragState = {
+    pointerId:event.pointerId, track, add, block, line, blade,
+    startX:event.clientX, startY:event.clientY,
+    startTop:clamp(event.clientY - rect.top, 0, rect.height),
+    localX:clamp(event.clientX - rect.left, 3, rect.width - 3),
+    moved:false, cut:false
+  };
+  window.addEventListener('pointermove', moveAxisDrag, { passive:false });
+  window.addEventListener('pointerup', endAxisDrag);
+  window.addEventListener('pointercancel', endAxisDrag);
+}
+
+function moveAxisDrag(event) {
+  const drag = axisDragState;
+  if (!drag || event.pointerId !== drag.pointerId) return;
+  const dy = event.clientY - drag.startY;
+  const dx = event.clientX - drag.startX;
+  if (!drag.moved && Math.abs(dy) < 6 && Math.abs(dx) < 6) return;
+  if (!drag.moved) {
+    drag.moved = true;
+    document.documentElement.classList.add('axis-slicing');
+    drag.blade?.classList.add('show');
+    drag.track.classList.add('slicing');
+  }
+  if (event.cancelable) event.preventDefault();
+  if (drag.blade) {
+    drag.blade.style.left = `${event.clientX}px`;
+    drag.blade.style.top = `${event.clientY}px`;
+  }
+  const rect = drag.track.getBoundingClientRect();
+  const currentTop = clamp(event.clientY - rect.top, 0, rect.height);
+  if (drag.line) {
+    drag.line.style.left = `${drag.localX}px`;
+    drag.line.style.top = `${Math.min(drag.startTop, currentTop)}px`;
+    drag.line.style.height = `${Math.abs(currentTop - drag.startTop)}px`;
+  }
+  if (!drag.cut && dy >= 82) {
+    drag.cut = true;
+    axisClickLock = performance.now() + 500;
+    if (drag.line) {
+      drag.line.style.top = '0px';
+      drag.line.style.height = `${rect.height}px`;
+    }
+    addAxisBlock(drag.block, {
+      flashClientX: rect.left + drag.localX,
+      focus:true
+    });
+  }
+}
+
+function endAxisDrag(event) {
+  const drag = axisDragState;
+  if (!drag || event.pointerId !== drag.pointerId) return;
+  if (drag.moved) axisClickLock = performance.now() + 380;
+  drag.blade?.classList.remove('show');
+  drag.track.classList.remove('slicing');
+  document.documentElement.classList.remove('axis-slicing');
+  if (drag.line) {
+    drag.line.style.top = '0px';
+    drag.line.style.height = '0px';
+  }
+  window.removeEventListener('pointermove', moveAxisDrag);
+  window.removeEventListener('pointerup', endAxisDrag);
+  window.removeEventListener('pointercancel', endAxisDrag);
+  axisDragState = null;
+}
+
+function dimensionTipAttrs(dimension) {
+  const tip = String(dimension?.hint || dimension?.prompt || '').trim();
+  if (!tip) return '';
+  return `data-hover-tip data-tip-title="${esc(dimension.title || '维度说明')}" data-tip="${esc(tip)}"`;
+}
+
+function cellHTML(segId, dimension) {
+  const cell = getCell(segId, dimension.id);
+  const filled = isCellFilled(cell);
+  if (!filled) {
+    return `<button class="matrix-cell empty" type="button" data-open-cell data-cell-seg="${esc(segId)}" data-cell-dim="${esc(dimension.id)}" ${dimensionTipAttrs(dimension)}><span class="cell-plus">＋</span><div>点击填写</div></button>`;
+  }
+  const tags = (cell.tags || []).map(tag => `<span class="cell-tag">${esc(tag)}</span>`).join('');
+  const text = (cell.text || '').trim();
+  return `<button class="matrix-cell" type="button" data-open-cell data-cell-seg="${esc(segId)}" data-cell-dim="${esc(dimension.id)}" ${dimensionTipAttrs(dimension)}>
+    ${tags ? `<div class="cell-tags">${tags}</div>` : ''}
+    ${text ? `<div class="cell-text">${esc(text)}</div>` : ''}
+    <span class="cell-mark">↗</span>
+  </button>`;
+}
+
+function matrixHTML() {
+  if (!state.dimensions.length) {
+    return `<div class="matrix-empty">
+      <div class="empty-icon">＋</div>
+      <h3>竖轴还没有开刀</h3>
+      <p>选几个维度，把每一列看深一层。</p>
+      <button class="btn btn-primary" type="button" data-action="dims">选择竖轴维度</button>
+    </div>`;
+  }
+  if (!state.segments.length) {
+    return `<div class="matrix-empty">
+      <div class="empty-icon">＋</div>
+      <h3>横轴还是空的</h3>
+      <p>先加一列，再开始填。</p>
+      <button class="btn btn-primary" type="button" data-action="add-seg">加一列</button>
+    </div>`;
+  }
+  const headers = state.segments.map((segment, index) => {
+    const sub = state.mode === 'tasks' ? [segment.deadline, segment.result].filter(Boolean).join(' · ') : '';
+    return `<button class="matrix-head" type="button" data-edit-seg="${esc(segment.id)}" title="编辑这一列">
+      <div class="head-top"><span class="head-index">${String(index + 1).padStart(2, '0')}</span><span class="head-edit">编辑</span></div>
+      <div class="head-title">${esc(segment.title || '未命名')}</div>
+      ${sub ? `<div class="head-sub">${esc(sub)}</div>` : ''}
+    </button>`;
+  }).join('');
+  const rows = state.dimensions.map(dimension => `
+    <button class="row-label" type="button" data-pick-dim="${esc(dimension.id)}" data-dim-label="${esc(dimension.id)}" ${dimensionTipAttrs(dimension)} aria-label="更换维度：${esc(dimension.title)}">
+      <div class="row-label-top"><span class="dim-dot ${esc(dimension.group || 'structure')}"></span><span class="row-title">${esc(dimension.title)}</span><span class="row-pick">换</span></div>
+      <div class="row-hint">${esc(dimension.hint)}</div>
+    </button>
+    ${state.segments.map(segment => cellHTML(segment.id, dimension)).join('')}`).join('');
+  return `<div class="matrix" style="--seg-count:${state.segments.length}">
+    <div class="matrix-corner"><span>横轴 / 竖轴</span><span>${state.dimensions.length} × ${state.segments.length}</span></div>
+    ${headers}
+    ${rows}
+  </div>`;
+}
+
+function workbenchHTML() {
+  const m = meta();
+  const percent = completion();
+  const filled = filledCellCount();
+  const total = allCellCount();
+  return `<section class="workbench page">
+    <div class="print-title">${esc(displayTitle(state))}</div>
+    <div class="wb-head">
+      <div class="wb-title-wrap">
+        <div class="wb-kicker">${esc(m.label)} / 十字拆解</div>
+        <h1 class="wb-title">${esc(displayTitle(state))}</h1>
+        <div class="wb-meta">
+          <span class="mode-chip">${esc(m.chip)}</span>
+          <span><b>${state.segments.length}</b> 列</span>
+          <span><b id="wbDimCount">${state.dimensions.length}</b> 个维度</span>
+          <span>完成 <b id="wbCompletion">${percent}%</b></span>
+          <span><span id="wbFilled">${filled} / ${total}</span> 格</span>
+          <span id="saveState">已保存 · ${nowLabel()}</span>
+          <button class="title-edit" type="button" data-action="edit-board">编辑主目标</button>
+        </div>
+      </div>
+      <div class="wb-actions">
+        <button class="btn btn-sm" type="button" data-action="dims">＋ 竖轴维度</button>
+        <button class="btn btn-sm" type="button" data-action="add-seg">＋ 一列</button>
+        <button class="btn btn-sm btn-dark" type="button" data-action="summary">收口</button>
+      </div>
+    </div>
+    <div class="matrix-wrap" id="matrixWrap">${matrixHTML()}</div>
+    <div class="scroll-hint">← 左右滑动查看完整矩阵 →</div>
+  </section>`;
+}
+
+function refreshCounts() {
+  const percent = completion();
+  const dimCount = $('#wbDimCount');
+  const completionEl = $('#wbCompletion');
+  const filledEl = $('#wbFilled');
+  if (dimCount) dimCount.textContent = String(state.dimensions.length);
+  if (completionEl) completionEl.textContent = `${percent}%`;
+  if (filledEl) filledEl.textContent = `${filledCellCount()} / ${allCellCount()}`;
+}
+
+function addSegment() {
+  const segment = makeSegment('');
+  state.segments.push(segment);
+  save();
+  renderMain();
+  openSheet({ type:'segment', segId:segment.id, isNew:true });
+}
+
+function addCanvasColumn() {
+  const segment = makeSegment('');
+  state.segments.push(segment);
+  save();
+  renderTopBar();
+  renderMain();
+  requestAnimationFrame(() => {
+    const segmentId = CSS.escape(segment.id);
+    const summary = document.querySelector(`[data-summary-seg="${segmentId}"]`);
+    const cells = [summary?.closest('.summary-cell'), ...$$(`[data-vcell-seg="${segmentId}"]`)].filter(Boolean);
+    cells.forEach(cell => {
+      cell.animate([
+        { opacity:0, transform:'translateX(16px)', clipPath:'inset(0 0 0 100%)' },
+        { opacity:1, transform:'translateX(-2px)', clipPath:'inset(0 0 0 0)', offset:.72 },
+        { opacity:1, transform:'none', clipPath:'inset(0 0 0 0)' }
+      ], { duration:520, easing:'cubic-bezier(.16,.84,.25,1)' });
+    });
+    if (summary) {
+      summary.focus({ preventScroll:true });
+      const range = document.createRange();
+      range.selectNodeContents(summary);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  });
+}
+
+function discardBlankSegment(id) {
+  const segment = segmentById(id);
+  if (!segment) return false;
+  const hasData = state.dimensions.some(dimension => isCellFilled(getCell(id, dimension.id)));
+  if (segment.title.trim() || segment.result.trim() || segment.deadline.trim() || hasData) return false;
+  state.segments = state.segments.filter(item => item.id !== id);
+  Object.keys(state.cells).forEach(key => { if (key.startsWith(`${id}::`)) delete state.cells[key]; });
+  save();
+  return true;
+}
+
+function removeSegment(id) {
+  const segment = segmentById(id);
+  if (!segment) return;
+  const hasData = state.dimensions.some(dimension => isCellFilled(getCell(id, dimension.id)));
+  if (hasData && !confirm('这一列已经有内容，删除后无法恢复，继续吗？')) return false;
+  state.segments = state.segments.filter(item => item.id !== id);
+  Object.keys(state.cells).forEach(key => { if (key.startsWith(`${id}::`)) delete state.cells[key]; });
+  save();
+  return true;
+}
+
+function writeCell(segId, dimId, cell) {
+  const key = cellKey(segId, dimId);
+  const text = String(cell.text || '');
+  const tags = Array.isArray(cell.tags) ? cell.tags : [];
+  if (!text.trim() && !tags.length) delete state.cells[key];
+  else state.cells[key] = { text, tags };
+  queueSave();
+}
+
+function updateCellButton(segId, dimId) {
+  const button = document.querySelector(`[data-open-cell][data-cell-seg="${CSS.escape(segId)}"][data-cell-dim="${CSS.escape(dimId)}"]`);
+  const dimension = state.dimensions.find(item => item.id === dimId);
+  if (button && dimension) button.outerHTML = cellHTML(segId, dimension);
+  refreshCounts();
+}
+
+function openCell(segId, dimId) {
+  openSheet({ type:'cell', segId, dimId });
+}
+
+function openAnalysisSheet(dimId) {
+  if (!dimId) return;
+  ensureAnalysisPrompt(dimId);
+  openSheet({ type:'analysis', dimId });
+}
+
+function openOverallAnalysisSheet() {
+  ensureOverallAnalysisPrompt();
+  openSheet({ type:'analysis', dimId: OVERALL_ANALYSIS_ID, overall:true });
+}
+
+function openSheet(sheet) {
+  ui.sheet = sheet;
+  renderSheet();
+}
+
+function closeSheet() {
+  const previous = ui.sheet;
+  ui.sheet = null;
+  renderSheet();
+  if (!previous || state.stage !== 'workbench') return;
+  if (previous.type === 'segment' && previous.isNew) discardBlankSegment(previous.segId);
+  if (previous.type === 'cell') {
+    refreshCounts();
+    return;
+  }
+  renderMain();
+  refreshCounts();
+}
+
+function closeModal() {
+  if (ui.dimEditing) closeDimensionEditor();
+  ui.modal = null;
+  ui.search = '';
+  ui.customOpen = false;
+  ui.dimReplace = null;
+  ui.dimEditing = null;
+  ui.historySelected.clear();
+  closeHistoryExportMenu();
+  renderModal();
+}
+
+function openModal(type, options = {}) {
+  ui.modal = type;
+  ui.search = '';
+  ui.customOpen = false;
+  ui.dimReplace = options.replaceId || null;
+  ui.dimEditing = null;
+  if (type === 'history') ui.historySelected.clear();
+  renderModal();
+  renderDimensionEditor();
+}
+
+function closeHistoryExportMenu() {
+  const menu = $('#historyExportMenu');
+  if (menu) menu.hidden = true;
+  $('[data-history-export-toggle]')?.setAttribute('aria-expanded', 'false');
+}
+
+function analysisStats() {
+  const totals = { passive:0, periodic:0, uncertain:0, riskFilled:0, opportunityFilled:0 };
+  state.segments.forEach(segment => {
+    state.dimensions.forEach(dimension => {
+      const cell = getCell(segment.id, dimension.id);
+      if (!isCellFilled(cell)) return;
+      if (dimension.id === 'task_time' && cell.tags.includes('随机被动')) totals.passive += 1;
+      if (dimension.id === 'task_frequency' && cell.tags.includes('周期性')) totals.periodic += 1;
+      if (dimension.id === 'task_method' && cell.tags.includes('不确定性决策')) totals.uncertain += 1;
+      if (dimension.group === 'risk') totals.riskFilled += 1;
+      if (dimension.group === 'opportunity') totals.opportunityFilled += 1;
+    });
+  });
+  return totals;
+}
+
+function missingCells(limit = 6) {
+  const list = [];
+  state.segments.forEach(segment => state.dimensions.forEach(dimension => {
+    if (!isCellFilled(getCell(segment.id, dimension.id)) && list.length < limit) list.push({ segment, dimension });
+  }));
+  return list;
+}
+
+function insightHTML() {
+  const stats = analysisStats();
+  const percent = completion();
+  if (state.mode === 'tasks') {
+    if (stats.passive >= 2) return '<b>被动时间正在切碎你的注意力</b><p>已标记多条“随机被动”任务。先看它们能否合并处理、设固定响应窗口，或交给别人。</p>';
+    if (stats.uncertain >= 2) return '<b>不确定性决策占比不低</b><p>这些任务需要判断，而不是执行。它们更值得留整块时间，不适合塞进碎片时间。</p>';
+    if (percent >= 70) return '<b>横轴已经足够具体</b><p>先把“随机被动”和“确定性流程”的任务做批处理，再用整块时间处理不确定性决策。</p>';
+    return '<b>先别排优先级</b><p>继续把空白格填完。任务集的价值不在“先做哪个”，而在看清你每天到底在交换什么。</p>';
+  }
+  if (stats.riskFilled >= 2) return '<b>风险已经显形</b><p>优先处理会同时影响多个子目标的风险，而不是平均用力。</p>';
+  if (percent >= 70) return '<b>拆解已接近可行动</b><p>下一步把关键节点和依赖关系补齐，再决定砍哪块、主推哪块。</p>';
+  return '<b>还没到分析的时候</b><p>先把每一列都看一遍，再补齐竖轴空白格。不要用抽象判断替代具体事实。</p>';
+}
+
+function generateExitPrompt(kind) {
+  const m = meta();
+  const rows = state.segments.map(segment => {
+    const values = state.dimensions.map(dimension => {
+      const cell = getCell(segment.id, dimension.id);
+      return `${dimension.title}：${[...cell.tags, cell.text].filter(Boolean).join('；') || '未填'}`;
+    });
+    return `- ${segment.title || '未命名'}｜${values.join('｜')}`;
+  }).join('\n');
+  const resultLine = state.mode === 'tasks' && state.root.result ? `${m.result}：${state.root.result}\n` : '';
+  const deadlineLine = state.mode === 'tasks' && state.root.deadline && state.root.deadline !== state.root.title ? `${m.deadline}：${state.root.deadline}\n` : '';
+  const base = `我正在拆解${m.label}「${state.root.title || state.title}」。\n模式：${m.label}\n${m.root}：${state.root.title}\n${resultLine}${deadlineLine}\n横轴与竖轴数据：\n${rows}\n`;
+  if (kind === 'ai') return `${base}\n请基于以上拆解，找出 3 个最适合交给 AI 的环节。每个环节说明：1）重复/机械的具体动作；2）输入是什么；3）期望输出；4）如何验收；5）预计节省的时间。优先选择确定性流程。`;
+  if (kind === 'plan') return `${base}\n请基于以上拆解，帮我制定一个下周可执行的优化计划。要求：1）只选 2–3 个发力点；2）每个发力点写清改什么、谁来做、何时完成；3）给出可观察的验收指标；4）不要泛泛而谈“提升效率”。`;
+  return `${base}\n请基于以上拆解，回答三个问题：1）哪些子目标/任务应该加码；2）哪些应该砍掉、延后或降低标准；3）哪些必须继续观察、暂时不要拍板。请引用具体格子里的信息作为依据。`;
+}
+
+function cellSheetHTML() {
+  const segment = segmentById(ui.sheet.segId);
+  const dimension = state.dimensions.find(item => item.id === ui.sheet.dimId);
+  if (!segment || !dimension) return '';
+  const cell = getCell(segment.id, dimension.id);
+  const tags = (dimension.options || []).map(tag => `<button class="quick-tag ${cell.tags.includes(tag) ? 'selected' : ''}" type="button" data-cell-tag="${esc(tag)}">${esc(tag)}</button>`).join('');
+  return `<div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-head-copy">
+        <div class="sheet-kicker">fill one cell</div>
+        <h2>${esc(dimension.title)}</h2>
+        <p>${esc(segment.title || '未命名')}</p>
+      </div>
+      <button class="sheet-close" type="button" data-close-sheet aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="sheet-body">
+      <div class="editor-context">
+        <div class="ctx-seg">${esc(segment.title || '未命名')}</div>
+        <h3>${esc(dimension.title)}</h3>
+        <p>${esc(dimension.hint)}</p>
+      </div>
+      ${tags ? `<div class="quick-tags">${tags}</div>` : ''}
+      <textarea class="cell-area" id="cellText" placeholder="${esc(dimension.prompt)}">${esc(cell.text)}</textarea>
+      <div class="editor-hint"><b>提示：</b>${esc(dimension.prompt)}</div>
+    </div>
+    <div class="sheet-foot">
+      <button class="danger-link" type="button" data-clear-cell>清空这一格</button>
+      <button class="btn btn-sm btn-primary" type="button" data-close-sheet>完成</button>
+    </div>
+  </div>`;
+}
+
+function segmentSheetHTML() {
+  const segment = segmentById(ui.sheet.segId);
+  if (!segment) return '';
+  const index = state.segments.findIndex(item => item.id === segment.id);
+  const m = meta();
+  return `<div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-head-copy">
+        <div class="sheet-kicker">horizontal / ${String(index + 1).padStart(2, '0')}</div>
+        <h2>${ui.sheet.isNew ? '新加一列' : '编辑这一列'}</h2>
+        <p>${esc(m.noun)} · 横轴决定你从哪里切下去。</p>
+      </div>
+      <button class="sheet-close" type="button" data-close-sheet aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-field">
+        <label>${esc(m.noun)}</label>
+        <textarea id="segTitle" data-seg-field="title" placeholder="${esc(m.nounPlaceholder)}">${esc(segment.title)}</textarea>
+      </div>
+      ${state.mode === 'tasks' ? `
+      <div class="sheet-field">
+        <label>补充说明（可选）</label>
+        <input id="segResult" data-seg-field="result" value="${esc(segment.result)}" placeholder="这件事的补充信息">
+      </div>
+      <div class="sheet-field">
+        <label>时间点（可选）</label>
+        <input id="segDeadline" data-seg-field="deadline" value="${esc(segment.deadline)}" placeholder="什么时候做">
+      </div>` : ''}
+    </div>
+    <div class="sheet-foot">
+      <button class="danger-link" type="button" data-delete-seg="${esc(segment.id)}">删除这一列</button>
+      <button class="btn btn-sm btn-primary" type="button" data-close-sheet>完成</button>
+    </div>
+  </div>`;
+}
+
+function boardSheetHTML() {
+  const m = meta();
+  return `<div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-head-copy">
+        <div class="sheet-kicker">board settings</div>
+        <h2>编辑${state.mode === 'project' ? '主目标' : '任务集'}</h2>
+        <p>这张矩阵最上面要写清楚的那句话。</p>
+      </div>
+      <button class="sheet-close" type="button" data-close-sheet aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-field">
+        <label>${state.mode === 'project' ? '主目标' : '时间范围 / 任务集名称'}</label>
+        <textarea id="boardTitleField" data-root-field="title">${esc(state.root.title)}</textarea>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <span class="note-line">改动会自动保存</span>
+      <button class="btn btn-sm btn-primary" type="button" data-close-sheet>完成</button>
+    </div>
+  </div>`;
+}
+
+function summarySheetHTML() {
+  const percent = completion();
+  const filled = filledCellCount();
+  const total = allCellCount();
+  const stats = analysisStats();
+  const missing = missingCells(6);
+  const missingHTML = missing.length ? missing.map(item => `
+    <button type="button" data-jump-cell="${esc(item.segment.id)}" data-jump-dim="${esc(item.dimension.id)}">
+      <span>${esc(item.segment.title || '未命名')}</span><span style="color:var(--faint)">/</span><span>${esc(item.dimension.title)}</span><span>→</span>
+    </button>`).join('') : '<div class="note-line" style="padding:8px 0">所有格子都已填写。</div>';
+  return `<div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-head-copy">
+        <div class="sheet-kicker">summary / 收口</div>
+        <h2>这次拆解说明了什么</h2>
+        <p>先看完成度，再从三个出口里选一个。</p>
+      </div>
+      <button class="sheet-close" type="button" data-close-sheet aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="sheet-body">
+      <div class="summary-hero">
+        <div class="ring" style="--pct:${percent}%"><b>${percent}<small>%</small></b></div>
+        <div class="summary-copy">
+          <strong>${filled} / ${total} 格已填写</strong>
+          <span>${state.segments.length} 列横轴 · ${state.dimensions.length} 个竖轴维度</span>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><b>${state.segments.length}</b><span>${state.mode === 'project' ? '子目标' : '任务'}</span></div>
+        <div class="stat"><b>${state.dimensions.length}</b><span>观察维度</span></div>
+        <div class="stat"><b>${state.mode === 'tasks' ? stats.passive : stats.riskFilled}</b><span>${state.mode === 'tasks' ? '被动任务' : '风险格'}</span></div>
+      </div>
+      <div class="summary-block">
+        <div class="summary-title"><h3>一个观察</h3><span>来自已填内容</span></div>
+        <div class="insight">${insightHTML()}</div>
+      </div>
+      <div class="summary-block">
+        <div class="summary-title"><h3>三个出口</h3><span>同一个发力点</span></div>
+        <div class="exit"><b>A｜做业务决策</b><p>知道砍哪、主推哪、哪块别死磕。把这张图当作取舍依据。</p><button class="btn btn-sm" type="button" data-copy-exit="decision">复制决策问题</button></div>
+        <div class="exit"><b>B｜交给 AI 提效</b><p>把重复、机械的环节交给 AI。先找确定性流程和高频任务。</p><button class="btn btn-sm" type="button" data-copy-exit="ai">复制 AI 提效提示词</button></div>
+        <div class="exit"><b>C｜定优化计划</b><p>基于发力点，定下周 / 下月的具体改法，而不是泛泛地“提高效率”。</p><button class="btn btn-sm" type="button" data-copy-exit="plan">复制优化计划提示词</button></div>
+      </div>
+      <div class="summary-block">
+        <div class="summary-title"><h3>还空着的格子</h3><span>${Math.max(0, total - filled)} 格</span></div>
+        <div class="missing">${missingHTML}</div>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-sm" type="button" data-action="export-md">导出 Markdown</button>
+      <button class="btn btn-sm btn-primary" type="button" data-close-sheet>完成</button>
+    </div>
+  </div>`;
+}
+
+function analysisSheetHTML() {
+  const dimId = ui.sheet?.dimId;
+  const overall = dimId === OVERALL_ANALYSIS_ID;
+  const dimension = state.dimensions.find(item => item.id === dimId) || DIM_BY_ID[dimId];
+  if (!overall && !dimension) return '';
+  const prompt = overall ? ensureOverallAnalysisPrompt() : ensureAnalysisPrompt(dimId);
+  return `<div class="sheet analysis-sheet">
+    <div class="sheet-head">
+      <div class="sheet-head-copy">
+        <div class="sheet-kicker">${overall ? 'overall analysis prompt' : 'analysis prompt'}</div>
+        <h2>${overall ? '综合分析' : esc(dimension.title)}</h2>
+      </div>
+      <button class="sheet-close" type="button" data-close-sheet aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="sheet-body">
+      <div class="analysis-prompt-field">
+        <textarea id="analysisPromptText" spellcheck="false" aria-label="分析提示词">${esc(prompt)}</textarea>
+      </div>
+    </div>
+    <div class="sheet-foot">
+      <button class="text-link" type="button" data-analysis-regen>重新生成</button>
+      <button class="btn btn-sm btn-primary" type="button" data-copy-analysis>复制提示词</button>
+    </div>
+  </div>`;
+}
+
+function renderSheet() {
+  const layer = $('#sheetLayer');
+  const root = $('#sheetRoot');
+  document.body.classList.toggle('locked', Boolean(ui.sheet || ui.modal || ui.dimEditing));
+  if (!ui.sheet) {
+    layer.hidden = true;
+    root.innerHTML = '';
+    return;
+  }
+  let html = '';
+  if (ui.sheet.type === 'cell') html = cellSheetHTML();
+  else if (ui.sheet.type === 'segment') html = segmentSheetHTML();
+  else if (ui.sheet.type === 'board') html = boardSheetHTML();
+  else if (ui.sheet.type === 'summary') html = summarySheetHTML();
+  else if (ui.sheet.type === 'analysis') html = analysisSheetHTML();
+  if (!html) {
+    layer.hidden = true;
+    root.innerHTML = '';
+    ui.sheet = null;
+    return;
+  }
+  layer.hidden = false;
+  root.innerHTML = html;
+  if (ui.sheet.type === 'cell') requestAnimationFrame(() => $('#cellText')?.focus());
+}
+
+function boardCompletion(board) {
+  const total = (board.segments || []).length * (board.dimensions || []).length;
+  if (!total) return 0;
+  let filled = 0;
+  board.segments.forEach(segment => board.dimensions.forEach(dimension => {
+    const cell = board.cells?.[`${segment.id}::${dimension.id}`];
+    if (cell && ((cell.text || '').trim() || (cell.tags || []).length)) filled += 1;
+  }));
+  return Math.round(filled / total * 100);
+}
+
+function selectedHistoryIds() {
+  const known = new Set(library.map(board => board.id));
+  const ids = [...ui.historySelected].filter(id => known.has(id));
+  ui.historySelected = new Set(ids);
+  return ids;
+}
+
+function selectedHistoryBoards() {
+  const ids = new Set(selectedHistoryIds());
+  return library.filter(board => ids.has(board.id));
+}
+
+function syncHistorySelectionUI() {
+  const ids = selectedHistoryIds();
+  const selected = new Set(ids);
+  const total = library.length;
+  const allSelected = total > 0 && ids.length === total;
+  const selectAll = $('#historySelectAll');
+  if (selectAll) {
+    selectAll.checked = allSelected;
+    selectAll.indeterminate = ids.length > 0 && !allSelected;
+    selectAll.disabled = total === 0;
+  }
+  const count = $('#historySelectedCount');
+  if (count) count.textContent = `已选 ${ids.length} 份`;
+  $$('[data-history-export-toggle], [data-history-delete]').forEach(button => { button.disabled = ids.length === 0; });
+  if (!ids.length) closeHistoryExportMenu();
+  $$('#historyList [data-history-item]').forEach(item => {
+    const isSelected = selected.has(item.dataset.historyItem);
+    item.classList.toggle('selected', isSelected);
+    const checkbox = $('input[data-history-check]', item);
+    if (checkbox) checkbox.checked = isSelected;
+  });
+}
+
+function historyHTML() {
+  const selected = new Set(selectedHistoryIds());
+  const items = library.length ? library.map(board => {
+    const active = board.id === state.id ? ' current' : '';
+    const checked = selected.has(board.id) ? ' checked' : '';
+    const selectedClass = checked ? ' selected' : '';
+    const complete = board.stage === 'workbench' || Boolean(board.setup?.completed);
+    const progress = complete ? `${boardCompletion(board)}%` : '草稿';
+    const stageLabel = complete ? '已完成' : '引导中';
+    return `<div class="history-item${active}${selectedClass}" data-history-item="${esc(board.id)}">
+      <label class="history-check" title="选择">
+        <input type="checkbox" data-history-check="${esc(board.id)}" aria-label="选择「${esc(displayTitle(board))}」"${checked}>
+      </label>
+      <button class="history-main" type="button" data-open-board="${esc(board.id)}">
+        <div class="history-title">${esc(displayTitle(board))}</div>
+        <div class="history-meta">
+          <span class="mini-chip">${esc(MODE_META[board.mode].label)}</span>
+          <span>${esc(formatDate(board.updatedAt))}</span>
+          <span>${stageLabel}</span>
+        </div>
+      </button>
+      <span class="history-progress">${progress}</span>
+      <button class="history-del" type="button" data-delete-board="${esc(board.id)}" title="删除">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>
+      </button>
+    </div>`;
+  }).join('') : `<div class="history-empty"><b>还没有拆过什么</b>从一件真实的事情开始，横轴切开，竖轴看深。</div>`;
+  return `<div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-copy">
+        <div class="kicker">library</div>
+        <h2>历史库</h2>
+        <p>每次拆解都会自动留在这里。</p>
+      </div>
+      <button class="sheet-close" type="button" data-close-modal aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="history-toolbar">
+        <label class="history-select-all">
+          <input type="checkbox" id="historySelectAll" data-history-select-all aria-label="全选"${library.length ? '' : ' disabled'}>
+          <span>全选</span>
+        </label>
+        <span class="history-selected-count" id="historySelectedCount">已选 ${selected.size} 份</span>
+        <div class="history-toolbar-actions">
+          <button class="btn btn-sm" type="button" data-history-import>导入</button>
+          <div class="history-export-wrap">
+            <button class="btn btn-sm history-export-toggle" type="button" data-history-export-toggle aria-haspopup="menu" aria-expanded="false"${selected.size ? '' : ' disabled'}>
+              导出所选
+              <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
+            </button>
+            <div class="menu-pop history-export-menu" id="historyExportMenu" role="menu" hidden>
+              <button type="button" role="menuitem" data-history-export-format="markdown">Markdown（.md）</button>
+              <button type="button" role="menuitem" data-history-export-format="json">JSON（.json）</button>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-danger-ghost" type="button" data-history-delete${selected.size ? '' : ' disabled'}>删除所选</button>
+        </div>
+      </div>
+      <div class="history-list" id="historyList">${items}</div>
+    </div>
+    <div class="modal-foot">
+      <span class="note-line">${library.length} 份拆解</span>
+      <button class="btn btn-sm btn-primary" type="button" data-new-board>新建拆解</button>
+    </div>
+  </div>`;
+}
+
+function settingsHTML() {
+  const done = library.filter(board => board.stage === 'workbench').length;
+  return `<div class="modal" style="width:min(620px,94vw)">
+    <div class="modal-head">
+      <div class="modal-head-copy">
+        <div class="kicker">settings</div>
+        <h2>设置</h2>
+        <p>只放和你的数据有关的几件事。</p>
+      </div>
+      <button class="sheet-close" type="button" data-close-modal aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-row">
+        <div class="settings-copy"><b>自动保存</b><span>改动后自动写入这台电脑的浏览器。</span></div>
+        <button class="switch ${settings.autosave ? 'on' : ''}" type="button" role="switch" aria-checked="${settings.autosave}" data-toggle-autosave></button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-copy"><b>本地数据</b><span>${library.length} 份拆解 · ${done} 份已进入工作台</span></div>
+        <button class="btn btn-sm" type="button" data-save-now>立即保存</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-copy"><b>清空本地数据</b><span>删除所有历史与当前草稿，无法恢复。</span></div>
+        <button class="danger-link" type="button" data-clear-all>清空</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="note-line">数据只存在本机</span>
+      <button class="btn btn-sm" type="button" data-close-modal>关闭</button>
+    </div>
+  </div>`;
+}
+
+function dimCardHTML(item) {
+  const selected = state.dimensions.some(dim => dim.id === item.id);
+  const badge = item.custom ? '自定义' : item.core ? '核心' : item.recommended ? '推荐' : '进阶';
+  const search = [item.title, item.hint, item.prompt].join(' ').toLowerCase();
+  return `<button class="dim-card ${selected ? 'selected' : ''}" type="button" data-dim-toggle="${esc(item.id)}" data-search="${esc(search)}">
+    <div class="dim-top"><span class="dim-check">✓</span><span class="dim-title">${esc(item.title)}</span><span class="dim-badge">${badge}</span></div>
+    ${item.hint ? `<div class="dim-hint">${esc(item.hint)}</div>` : ''}
+  </button>`;
+}
+
+function dimsHTML() {
+  const base = libraryItemsForMode();
+  const customs = state.dimensions.filter(item => !DIM_BY_ID[item.id]);
+  const items = [...customs, ...base];
+  const replacing = ui.dimReplace ? state.dimensions.find(item => item.id === ui.dimReplace) : null;
+  const setupPick = isSetupDimPick();
+  return `<div class="modal" style="width:min(880px,94vw)">
+    <div class="modal-head">
+      <div class="modal-head-copy">
+        <div class="kicker">vertical axis</div>
+        <h2>${replacing ? '换一个维度' : '竖轴维度'}</h2>
+        <p>${replacing ? `当前：${esc(replacing.title)}` : setupPick ? '选一个维度，切出一行。' : '每多一个维度，就多看见一面。'}</p>
+      </div>
+      <button class="sheet-close" type="button" data-close-modal aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input class="search-input" id="dimSearch" value="${esc(ui.search)}" placeholder="搜索维度">
+      <div class="dim-grid" id="dimGrid">${items.map(dimCardHTML).join('')}</div>
+      <div class="custom-box">
+        <button class="text-link" type="button" data-custom-toggle>＋ 自定义一个维度</button>
+        <div class="custom-form ${ui.customOpen ? 'open' : ''}" id="customForm">
+          <input id="customTitle" class="wide" placeholder="维度名称">
+          <textarea id="customHint" rows="2" placeholder="介绍这个维度"></textarea>
+          <div class="wide"><button class="btn btn-sm btn-primary" type="button" data-add-custom>加入竖轴</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="note-line">已选 <b id="dimSelectedCount">${state.dimensions.length}</b> 个维度</span>
+      <button class="btn btn-sm btn-primary" type="button" data-close-modal>${setupPick ? '关闭' : '完成'}</button>
+    </div>
+  </div>`;
+}
+
+function dimScopeLabel(scope) {
+  if (scope === 'project') return '项目';
+  if (scope === 'tasks') return '个人';
+  return '通用';
+}
+
+function dimensionLibraryItemHTML(item) {
+  return `<div class="library-item">
+    <div class="library-item-copy">
+      <div class="library-item-head"><h3>${esc(item.title)}</h3><span class="library-scope">${dimScopeLabel(item.scope)}</span></div>
+      ${item.hint ? `<small>${esc(item.hint)}</small>` : ''}
+    </div>
+    <div class="library-item-actions">
+      <button class="library-mini" type="button" data-edit-dim="${esc(item.id)}">编辑</button>
+      <button class="library-mini danger" type="button" data-remove-dim="${esc(item.id)}">删除</button>
+    </div>
+  </div>`;
+}
+
+function dimensionLibrarySectionHTML(axis, title, items) {
+  return `<details class="library-section" open>
+    <summary><span>${title}</span><span class="library-section-count">${items.length}</span></summary>
+    <div class="library-section-body">
+      <div class="library-list">${items.length ? items.map(dimensionLibraryItemHTML).join('') : '<div class="library-empty">暂无维度</div>'}</div>
+      <div class="library-toolbar library-toolbar-bottom"><button class="btn btn-sm" type="button" data-add-dim="${axis}">＋ 新增维度</button></div>
+    </div>
+  </details>`;
+}
+
+function dimensionLibraryHTML() {
+  const mode = ui.dimLibMode === 'tasks' ? 'tasks' : 'project';
+  const visible = dimensionLibrary.filter(item => item.scope === mode || item.scope === 'both');
+  const horizontal = visible.filter(item => item.axis === 'horizontal');
+  const vertical = visible.filter(item => item.axis !== 'horizontal');
+  return `<div class="modal" style="width:min(820px,calc(100vw - 20px))">
+    <div class="modal-head">
+      <div class="modal-head-copy">
+        <div class="kicker">dimension library</div>
+        <h2>维度库</h2>
+      </div>
+      <button class="sheet-close" type="button" data-close-modal aria-label="关闭"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="dimlib-topbar">
+        <div class="dimlib-mode" role="tablist" aria-label="维度库模式">
+          <button class="${mode === 'project' ? 'active' : ''}" type="button" role="tab" aria-selected="${mode === 'project'}" data-dimlib-mode="project">项目</button>
+          <button class="${mode === 'tasks' ? 'active' : ''}" type="button" role="tab" aria-selected="${mode === 'tasks'}" data-dimlib-mode="tasks">个人</button>
+        </div>
+        <div class="dimlib-transfer">
+          <button class="btn btn-sm" type="button" data-import-dimensions>导入维度库</button>
+          <button class="btn btn-sm" type="button" data-export-dimensions>导出维度库</button>
+        </div>
+      </div>
+      ${dimensionLibrarySectionHTML('horizontal', '横轴维度', horizontal)}
+      ${dimensionLibrarySectionHTML('vertical', '竖轴维度', vertical)}
+    </div>
+    <div class="modal-foot">
+      <button class="text-link" type="button" data-reset-dims>恢复默认</button>
+      <button class="btn btn-sm btn-primary" type="button" data-close-modal>完成</button>
+    </div>
+  </div>`;
+}
+
+function renderDimensionEditor() {
+  const layer = $('#dimEditLayer');
+  const root = $('#dimEditRoot');
+  if (!layer || !root) return;
+  if (!ui.dimEditing) {
+    layer.hidden = true;
+    root.innerHTML = '';
+    return;
+  }
+  const editing = ui.dimEditing === 'new' ? null : dimensionLibrary.find(item => item.id === ui.dimEditing);
+  const axis = editing?.axis || ui.dimEditingAxis || 'vertical';
+  const defaultScope = ui.dimLibMode === 'tasks' ? 'tasks' : 'project';
+  const scope = editing?.scope || defaultScope;
+  const showPrompt = axis !== 'horizontal';
+  const heading = editing ? '编辑维度' : (axis === 'horizontal' ? '新增横轴维度' : '新增竖轴维度');
+  const promptField = showPrompt ? `<label class="dim-field full">
+      <span>提示词</span>
+      <textarea id="dimLibAnalysisPrompt" placeholder="这个维度要让 AI 重点分析什么">${esc(editing?.analysisPrompt || '')}</textarea>
+    </label>` : '';
+  root.innerHTML = `<div class="modal dim-edit-modal">
+    <div class="modal-head">
+      <div class="modal-head-copy">
+        <div class="kicker">dimension</div>
+        <h2>${heading}</h2>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="dim-edit-form">
+        <label class="dim-field">
+          <span>标题</span>
+          <input id="dimLibTitle" value="${esc(editing?.title || '')}" placeholder="维度名称">
+        </label>
+        <label class="dim-field">
+          <span>范围</span>
+          <select id="dimLibScope">
+            <option value="both" ${scope === 'both' ? 'selected' : ''}>通用</option>
+            <option value="project" ${scope === 'project' ? 'selected' : ''}>项目</option>
+            <option value="tasks" ${scope === 'tasks' ? 'selected' : ''}>个人</option>
+          </select>
+        </label>
+        <label class="dim-field full">
+          <span>填写提示</span>
+          <textarea id="dimLibHint" placeholder="介绍这个维度">${esc(editing?.hint || '')}</textarea>
+        </label>
+        ${promptField}
+      </div>
+    </div>
+    <div class="modal-foot" style="justify-content:flex-end">
+      <button class="btn btn-sm" type="button" data-cancel-dim>取消</button>
+      <button class="btn btn-sm btn-primary" type="button" data-save-dim>保存</button>
+    </div>
+  </div>`;
+  layer.hidden = false;
+  requestAnimationFrame(() => $('#dimLibTitle')?.focus());
+}
+
+function openDimensionEditor(id = null, axis = null) {
+  ui.dimEditing = id || 'new';
+  const item = id ? dimensionLibrary.find(entry => entry.id === id) : null;
+  ui.dimEditingAxis = item?.axis || (axis === 'horizontal' ? 'horizontal' : 'vertical');
+  renderDimensionEditor();
+}
+
+function closeDimensionEditor() {
+  ui.dimEditing = null;
+  ui.dimEditingAxis = null;
+  renderDimensionEditor();
+}
+
+function openDimensionLibrary() {
+  ui.dimLibMode = state.mode === 'tasks' ? 'tasks' : 'project';
+  ui.dimEditing = null;
+  ui.dimEditingAxis = null;
+  openModal('dimlibrary');
+}
+
+function syncSelectedDimensionsFromLibrary() {
+  state.dimensions = state.dimensions.map(item => {
+    const source = DIM_BY_ID[item.id];
+    return source ? { ...source, options:[...(source.options || [])] } : item;
+  });
+}
+
+function saveLibraryDimension() {
+  const title = $('#dimLibTitle')?.value.trim();
+  const scope = $('#dimLibScope')?.value || 'both';
+  if (!title) { toast('给维度起个名字', 'error'); $('#dimLibTitle')?.focus(); return; }
+  const editingId = ui.dimEditing;
+  const current = editingId === 'new' ? null : dimensionLibrary.find(item => item.id === editingId);
+  const hintEl = $('#dimLibHint');
+  const hint = hintEl ? hintEl.value.trim() : (current?.hint || '');
+  const analysisEl = $('#dimLibAnalysisPrompt');
+  const analysisPrompt = analysisEl ? analysisEl.value.trim() : (current?.analysisPrompt || '');
+  if (editingId === 'new') {
+    dimensionLibrary.push(normalizeDimensionRecord({
+      id:uid('custom'), scope, title, hint, prompt:'', analysisPrompt, axis:ui.dimEditingAxis || 'vertical', group:'structure', type:'text', custom:true
+    }));
+  } else {
+    if (!current) return;
+    dimensionLibrary = dimensionLibrary.map(item => item.id === editingId
+      ? normalizeDimensionRecord({ ...item, title, hint, analysisPrompt, scope, axis:item.axis })
+      : item);
+  }
+  persistDimensionLibrary();
+  refreshDimensionIndex();
+  syncSelectedDimensionsFromLibrary();
+  ui.dimEditing = null;
+  ui.dimEditingAxis = null;
+  save();
+  renderAll();
+  toast('维度库已更新', 'success');
+}
+
+function removeLibraryDimension(id) {
+  const item = dimensionLibrary.find(entry => entry.id === id);
+  if (!item) return;
+  if (!confirm(`删除维度「${item.title}」？`)) return;
+  const selected = state.dimensions.find(entry => entry.id === id);
+  const hasData = selected && state.segments.some(segment => isCellFilled(getCell(segment.id, id)));
+  if (hasData && !confirm('这一行已经有内容，删除后会一起清空，继续吗？')) return;
+  dimensionLibrary = dimensionLibrary.filter(entry => entry.id !== id);
+  persistDimensionLibrary();
+  refreshDimensionIndex();
+  state.dimensions = state.dimensions.filter(entry => entry.id !== id);
+  if (Array.isArray(state.setup.dims)) state.setup.dims = state.setup.dims.filter(entry => entry !== id);
+  Object.keys(state.cells).forEach(key => { if (key.endsWith(`::${id}`)) delete state.cells[key]; });
+  if (state.analysisPrompts) delete state.analysisPrompts[id];
+  save();
+  renderAll();
+  toast('维度已删除');
+}
+
+function resetDimensionLibrary() {
+  if (!confirm('恢复默认维度？你新增和修改的内容会被替换。')) return;
+  dimensionLibrary = BUILTIN_DIMENSIONS.map(item => ({ ...item, options:[...(item.options || [])] }));
+  persistDimensionLibrary();
+  refreshDimensionIndex();
+  syncSelectedDimensionsFromLibrary();
+  ui.dimEditing = null;
+  ui.dimEditingAxis = null;
+  save();
+  renderAll();
+  toast('已恢复默认维度', 'success');
+}
+
+function exportDimensionLibrary() {
+  const payload = {
+    type:'business-decomposer.dimension-library',
+    version:1,
+    exportedAt:new Date().toISOString(),
+    dimensions:dimensionLibrary
+  };
+  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  downloadFile(`业务拆解器-维度库-${stamp}.json`, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+  toast(`已导出 ${dimensionLibrary.length} 个维度`, 'success');
+}
+
+function triggerDimensionImport() { $('#dimensionImportFile').click(); }
+
+async function importDimensionLibrary(file) {
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await readTextFile(file));
+    const raw = parsed?.type === 'business-decomposer.dimension-library' && Array.isArray(parsed.dimensions)
+      ? parsed.dimensions
+      : Array.isArray(parsed) ? parsed : Array.isArray(parsed?.dimensions) ? parsed.dimensions : null;
+    if (!raw) throw new Error('format');
+    const imported = raw
+      .filter(item => item && typeof item === 'object' && (String(item.title || '').trim() || item.id))
+      .map(normalizeDimensionRecord);
+    if (!imported.length) throw new Error('empty');
+    const byId = new Map(imported.map(item => [item.id, item]));
+    const existingIds = new Set(dimensionLibrary.map(item => item.id));
+    let updated = 0;
+    dimensionLibrary = dimensionLibrary.map(item => {
+      if (!byId.has(item.id)) return item;
+      updated += 1;
+      return byId.get(item.id);
+    });
+    let added = 0;
+    imported.forEach(item => {
+      if (existingIds.has(item.id)) return;
+      dimensionLibrary.push(item);
+      added += 1;
+    });
+    persistDimensionLibrary();
+    refreshDimensionIndex();
+    syncSelectedDimensionsFromLibrary();
+    save();
+    ui.dimEditing = null;
+    ui.dimEditingAxis = null;
+    renderAll();
+    toast(`维度库已导入：更新 ${updated} 个，新增 ${added} 个`, 'success');
+  } catch (error) {
+    toast('维度库导入失败：不是有效的维度库 JSON', 'error');
+  } finally {
+    $('#dimensionImportFile').value = '';
+  }
+}
+
+function renderModal() {
+  const layer = $('#modalLayer');
+  const root = $('#modalRoot');
+  document.body.classList.toggle('locked', Boolean(ui.sheet || ui.modal || ui.dimEditing));
+  if (!ui.modal) {
+    layer.hidden = true;
+    root.innerHTML = '';
+    return;
+  }
+  let html = '';
+  if (ui.modal === 'history') html = historyHTML();
+  else if (ui.modal === 'settings') html = settingsHTML();
+  else if (ui.modal === 'dims') html = dimsHTML();
+  else if (ui.modal === 'dimlibrary') html = dimensionLibraryHTML();
+  if (!html) {
+    layer.hidden = true;
+    root.innerHTML = '';
+    ui.modal = null;
+    return;
+  }
+  layer.hidden = false;
+  root.innerHTML = html;
+  if (ui.modal === 'history') syncHistorySelectionUI();
+}
+
+function filterDimCards() {
+  const q = (ui.search || '').trim().toLowerCase();
+  $$('#dimGrid .dim-card').forEach(card => {
+    card.hidden = Boolean(q) && !(card.dataset.search || '').includes(q);
+  });
+}
+
+function removeDimension(id) {
+  const dimension = state.dimensions.find(item => item.id === id);
+  if (!dimension) return false;
+  const hasData = state.segments.some(segment => isCellFilled(getCell(segment.id, id)));
+  if (hasData && !confirm(`「${dimension.title}」这一行已有内容，移除会删除这些内容，继续吗？`)) return false;
+  state.dimensions = state.dimensions.filter(item => item.id !== id);
+  Object.keys(state.cells).forEach(key => { if (key.endsWith(`::${id}`)) delete state.cells[key]; });
+  if (state.analysisPrompts) delete state.analysisPrompts[id];
+  save();
+  return true;
+}
+
+function isSetupDimPick() {
+  const steps = stepsFor(state.mode || 'project');
+  return state.stage === 'conversation' && steps[state.setup.step]?.type === 'axes';
+}
+
+function animateVerticalRowCut(id) {
+  requestAnimationFrame(() => {
+    const row = document.querySelector(`[data-vdim="${CSS.escape(id)}"]`);
+    if (row) {
+      if (!row.classList.contains('is-cutting')) {
+        row.classList.remove('is-cutting');
+        void row.offsetWidth;
+        row.classList.add('is-cutting');
+      }
+      setTimeout(() => {
+        row.classList.remove('is-cutting');
+        if (ui.vaxisCut === id) ui.vaxisCut = null;
+      }, 720);
+    }
+    const bar = document.querySelector('.vcut-bar');
+    if (bar) {
+      bar.classList.remove('is-cutting');
+      void bar.offsetWidth;
+      bar.classList.add('is-cutting');
+      setTimeout(() => bar.classList.remove('is-cutting'), 660);
+    }
+  });
+}
+
+function removeSetupDimension(id) {
+  const dimension = state.dimensions.find(item => item.id === id);
+  if (!dimension) return;
+  state.dimensions = state.dimensions.filter(item => item.id !== id);
+  state.setup.dims = (state.setup.dims || []).filter(item => item !== id);
+  Object.keys(state.cells).forEach(key => { if (key.endsWith(`::${id}`)) delete state.cells[key]; });
+  if (state.analysisPrompts) delete state.analysisPrompts[id];
+  save();
+  renderMain();
+}
+
+function animateDimensionCut(id) {
+  requestAnimationFrame(() => {
+    const targets = [
+      document.querySelector(`[data-dim-label="${CSS.escape(id)}"]`),
+      ...$$(`[data-cell-dim="${CSS.escape(id)}"]`)
+    ].filter(Boolean);
+    targets.forEach((element, index) => {
+      element.classList.remove('row-cut-in');
+      void element.offsetWidth;
+      element.style.animationDelay = `${Math.min(index, 8) * 18}ms`;
+      element.classList.add('row-cut-in');
+      setTimeout(() => {
+        element.classList.remove('row-cut-in');
+        element.style.animationDelay = '';
+      }, 760);
+    });
+  });
+}
+
+function replaceVerticalDimension(oldId, newId) {
+  if (oldId === newId) { closeModal(); return; }
+  if (state.dimensions.some(item => item.id === newId)) {
+    toast('这个维度已经在竖轴里了', 'error');
+    return;
+  }
+  const index = state.dimensions.findIndex(item => item.id === oldId);
+  const next = dimensionSnapshot(newId);
+  if (index < 0 || !next) return;
+  const hasData = state.segments.some(segment => isCellFilled(getCell(segment.id, oldId)));
+  if (hasData && !confirm('替换维度会清空这一行已有的内容，继续吗？')) return;
+  state.dimensions[index] = next;
+  if (Array.isArray(state.setup.dims)) {
+    const setupIndex = state.setup.dims.indexOf(oldId);
+    if (setupIndex >= 0) state.setup.dims[setupIndex] = newId;
+    else state.setup.dims.push(newId);
+  }
+  Object.keys(state.cells).forEach(key => { if (key.endsWith(`::${oldId}`)) delete state.cells[key]; });
+  save();
+  closeModal();
+  renderAll();
+  animateDimensionCut(newId);
+  toast('已换维度', 'success');
+}
+
+function toggleDimensionFromModal(id, card) {
+  if (ui.dimReplace) { replaceVerticalDimension(ui.dimReplace, id); return; }
+  const selected = state.dimensions.some(item => item.id === id);
+  if (isSetupDimPick()) {
+    if (selected) { toast('这一维已经在竖轴里了', 'error'); return; }
+    const source = DIM_BY_ID[id];
+    if (!source) return;
+    state.dimensions.push(dimensionSnapshot(id));
+    if (!Array.isArray(state.setup.dims)) state.setup.dims = [];
+    if (!state.setup.dims.includes(id)) state.setup.dims.push(id);
+    state.presetApplied = true;
+    ui.vaxisCut = id;
+    save();
+    closeModal();
+    renderMain();
+    animateVerticalRowCut(id);
+    toast('已切出一条竖轴', 'success');
+    return;
+  }
+  if (selected) {
+    if (!removeDimension(id)) return;
+    card?.classList.remove('selected');
+  } else {
+    const source = DIM_BY_ID[id];
+    if (!source) return;
+    state.dimensions.push(dimensionSnapshot(id));
+    state.presetApplied = true;
+    save();
+    card?.classList.add('selected');
+  }
+  const count = $('#dimSelectedCount');
+  if (count) count.textContent = String(state.dimensions.length);
+  renderMain();
+  if (!selected) animateDimensionCut(id);
+}
+
+function addCustomDimension() {
+  const title = $('#customTitle')?.value.trim();
+  const hint = $('#customHint')?.value.trim();
+  if (!title) { toast('给维度起个名字', 'error'); $('#customTitle')?.focus(); return; }
+  const draft = normalizeDimensionRecord({
+    id:uid('custom'), title, hint, prompt:'', analysisPrompt:'',
+    group:'structure', scope:state.mode || 'both', type:'text', options:[], custom:true
+  });
+  draft.analysisPrompt = '';
+  dimensionLibrary.push(draft);
+  persistDimensionLibrary();
+  refreshDimensionIndex();
+  state.dimensions.push({ ...draft, options:[...draft.options] });
+  if (isSetupDimPick()) {
+    if (!Array.isArray(state.setup.dims)) state.setup.dims = [];
+    if (!state.setup.dims.includes(draft.id)) state.setup.dims.push(draft.id);
+    state.presetApplied = true;
+    ui.customOpen = false;
+    ui.vaxisCut = draft.id;
+    save();
+    closeModal();
+    renderMain();
+    animateVerticalRowCut(draft.id);
+    toast('已切出一条竖轴', 'success');
+    return;
+  }
+  state.presetApplied = true;
+  ui.customOpen = false;
+  save();
+  renderModal();
+  renderMain();
+  animateDimensionCut(draft.id);
+  toast('已加入竖轴', 'success');
+}
+
+function boardMarkdown(board) {
+  const m = board?.mode ? MODE_META[board.mode] : null;
+  if (!m) return `# ${board?.title || '业务拆解'}\n\n还没有选择拆解对象。`;
+  const segments = Array.isArray(board.segments) ? board.segments : [];
+  const dimensions = Array.isArray(board.dimensions) ? board.dimensions : [];
+  const total = segments.length * dimensions.length;
+  let filled = 0;
+  segments.forEach(segment => dimensions.forEach(dimension => {
+    const cell = board.cells?.[`${segment.id}::${dimension.id}`];
+    if (cell && ((cell.text || '').trim() || (cell.tags || []).length)) filled += 1;
+  }));
+  const percent = total ? Math.round(filled / total * 100) : 0;
+  const lines = [
+    `# ${displayTitle(board)}`, '', `- 模式：${m.label}`,
+    `- ${m.root}：${board.root?.title || '未填写'}`,
+    board.mode === 'tasks' && board.root?.result ? `- ${m.result}：${board.root.result}` : '',
+    board.mode === 'tasks' && board.root?.deadline && board.root.deadline !== board.root.title ? `- ${m.deadline}：${board.root.deadline}` : '',
+    `- 完成度：${percent}%（${filled} / ${total} 格）`, '', `## 横轴 · ${segments.length} 列`, ''
+  ].filter(Boolean);
+  segments.forEach((segment, index) => {
+    const extras = board.mode === 'tasks' ? [segment.result, segment.deadline].filter(Boolean).join(' · ') : '';
+    lines.push(`${index + 1}. **${segment.title || '未命名'}**${extras ? `｜${extras}` : ''}`);
+  });
+  lines.push('', '## 竖轴矩阵', '');
+  if (dimensions.length) {
+    const clean = value => String(value || '').replace(/\|/g, '\\|').replace(/\r?\n/g, '<br>');
+    lines.push(`| 维度 | ${segments.map(item => clean(item.title || '未命名')).join(' | ')} |`);
+    lines.push(`| --- | ${segments.map(() => '---').join(' | ')} |`);
+    dimensions.forEach(dimension => {
+      const values = segments.map(segment => {
+        const cell = board.cells?.[`${segment.id}::${dimension.id}`] || { text:'', tags:[] };
+        return clean([...(cell.tags || []), (cell.text || '').trim()].filter(Boolean).join('；'));
+      });
+      lines.push(`| ${clean(dimension.title)} | ${values.join(' | ')} |`);
+    });
+  } else lines.push('_还没有选择竖轴维度。_');
+  lines.push('', '---', `由「业务拆解器」生成 · ${new Date().toLocaleString('zh-CN')}`);
+  return lines.join('\n');
+}
+
+function markdown() { return boardMarkdown(state); }
+
+function safeFilename(name) { return (name || '业务拆解').replace(/[\\/:*?"<>|]/g, '-').slice(0, 60); }
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+function exportMarkdown() {
+  if (!state.mode) { toast('还没有可导出的拆解', 'error'); return; }
+  downloadFile(`${safeFilename(displayTitle(state))}.md`, markdown(), 'text/markdown;charset=utf-8');
+  toast('Markdown 已导出', 'success');
+}
+function exportSelectedBoards(format = 'json') {
+  const boards = selectedHistoryBoards();
+  if (!boards.length) { toast('先勾选要导出的拆解', 'error'); return; }
+  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  if (format === 'markdown') {
+    const content = boards.map(boardMarkdown).join('\n\n\n');
+    downloadFile(`业务拆解器-所选-${boards.length}份-${stamp}.md`, content, 'text/markdown;charset=utf-8');
+    toast(`已导出所选 ${boards.length} 份 Markdown`, 'success');
+    return;
+  }
+  const payload = { type:'business-decomposer.backup', version:2, exportedAt:new Date().toISOString(), boards };
+  downloadFile(`业务拆解器-所选-${boards.length}份-${stamp}.json`, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+  toast(`已导出所选 ${boards.length} 份 JSON`, 'success');
+}
+function triggerImport() { $('#importFile').click(); }
+
+function readTextFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('read'));
+    reader.readAsText(file, 'utf-8');
+  });
+}
+
+async function importJSON(files) {
+  const fileList = (Array.isArray(files) ? files : files ? [files] : []).filter(Boolean);
+  if (!fileList.length) return;
+  const keepHistoryOpen = ui.modal === 'history';
+  const importedById = new Map();
+  let failedFiles = 0;
+  for (const file of fileList) {
+    try {
+      const parsed = JSON.parse(await readTextFile(file));
+      let payloads = [];
+      if (parsed && parsed.type === 'business-decomposer.backup' && Array.isArray(parsed.boards)) payloads = parsed.boards;
+      else if (Array.isArray(parsed)) payloads = parsed;
+      else payloads = [parsed];
+      payloads.forEach(raw => {
+        const board = normalizeState(raw);
+        if (!board.mode || !(board.root.title.trim() || board.segments.length || board.dimensions.length)) return;
+        board.updatedAt = Date.now();
+        importedById.set(board.id, board);
+      });
+    } catch (error) {
+      failedFiles += 1;
+    }
+  }
+  const imported = [...importedById.values()];
+  if (!imported.length) {
+    toast('导入失败：没有找到有效的拆解 JSON', 'error');
+    $('#importFile').value = '';
+    return;
+  }
+  imported.forEach(board => {
+    const index = library.findIndex(item => item.id === board.id);
+    if (index >= 0) library[index] = board;
+    else library.unshift(board);
+  });
+  library.sort((a, b) => b.updatedAt - a.updatedAt);
+  library = library.slice(0, 60);
+  persistLibrary();
+  if (keepHistoryOpen) {
+    ui.historySelected = new Set(imported.map(board => board.id));
+    renderAll();
+  } else {
+    state = normalizeState(clone(imported[0]));
+    state.title = deriveTitle(state.mode, state.root);
+    ui.screen = 'board';
+    ui.modal = null;
+    ui.sheet = null;
+    save();
+    renderAll();
+  }
+  const suffix = failedFiles ? `，${failedFiles} 个文件无法读取` : '';
+  toast(`已导入 ${imported.length} 份拆解${suffix}`, failedFiles ? 'error' : 'success');
+  $('#importFile').value = '';
+}
+
+async function copyText(text, successMessage = '已复制') {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast(successMessage, 'success');
+  } catch (error) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try { document.execCommand('copy'); toast(successMessage, 'success'); }
+    catch (err) { toast('复制失败，请手动选择文本', 'error'); }
+    textarea.remove();
+  }
+}
+
+function clearAllData() {
+  if (!confirm('清空所有历史与当前草稿？这一步无法恢复，建议先导出备份。')) return;
+  library = [];
+  state = createState();
+  try {
+    localStorage.removeItem(LIB_KEY);
+    localStorage.removeItem(CURRENT_KEY);
+  } catch (error) {}
+  ui.screen = 'landing';
+  ui.modal = null;
+  ui.sheet = null;
+  renderAll();
+  toast('本地数据已清空');
+}
+
+function deleteBoard(id) {
+  const board = library.find(item => item.id === id);
+  if (!board) return;
+  if (!confirm(`删除「${displayTitle(board)}」？这一步无法恢复。`)) return;
+  const isCurrent = state.id === id;
+  library = library.filter(item => item.id !== id);
+  ui.historySelected.delete(id);
+  persistLibrary();
+  if (isCurrent) {
+    state = createState();
+    ui.screen = 'landing';
+    try { localStorage.removeItem(CURRENT_KEY); } catch (error) {}
+  }
+  renderAll();
+  toast('已删除');
+}
+
+function deleteSelectedBoards() {
+  const ids = selectedHistoryIds();
+  if (!ids.length) { toast('先勾选要删除的拆解', 'error'); return; }
+  const deleting = new Set(ids);
+  const includesCurrent = ids.includes(state.id);
+  const message = `删除所选的 ${ids.length} 份拆解？${includesCurrent ? '\n当前打开的拆解也在其中。' : ''}\n这一步无法恢复。`;
+  if (!confirm(message)) return;
+  library = library.filter(item => !deleting.has(item.id));
+  persistLibrary();
+  if (includesCurrent) {
+    state = createState();
+    ui.screen = 'landing';
+    try { localStorage.removeItem(CURRENT_KEY); } catch (error) {}
+  }
+  ui.historySelected.clear();
+  renderAll();
+  toast(`已删除 ${ids.length} 份拆解`, 'success');
+}
+
+document.addEventListener('pointerdown', event => {
+  if (event.target.closest('#axisTrack')) startAxisDrag(event);
+});
+
+document.addEventListener('click', event => {
+  const target = event.target;
+  if (target.closest('#brandBtn')) { goHome(); return; }
+  if (!target.closest('.history-export-wrap')) closeHistoryExportMenu();
+
+  const modeButton = target.closest('[data-mode]');
+  if (modeButton) { startBoard(modeButton.dataset.mode); return; }
+
+  const historyCheck = target.closest('[data-history-check]');
+  if (historyCheck) {
+    if (historyCheck.checked) ui.historySelected.add(historyCheck.dataset.historyCheck);
+    else ui.historySelected.delete(historyCheck.dataset.historyCheck);
+    syncHistorySelectionUI();
+    return;
+  }
+
+  const historySelectAll = target.closest('[data-history-select-all]');
+  if (historySelectAll) {
+    ui.historySelected = historySelectAll.checked ? new Set(library.map(board => board.id)) : new Set();
+    syncHistorySelectionUI();
+    return;
+  }
+
+  const historyExportToggle = target.closest('[data-history-export-toggle]');
+  if (historyExportToggle) {
+    const menu = $('#historyExportMenu');
+    if (!menu) return;
+    menu.hidden = !menu.hidden;
+    historyExportToggle.setAttribute('aria-expanded', String(!menu.hidden));
+    return;
+  }
+  const historyExportFormat = target.closest('[data-history-export-format]');
+  if (historyExportFormat) {
+    closeHistoryExportMenu();
+    exportSelectedBoards(historyExportFormat.dataset.historyExportFormat);
+    return;
+  }
+  if (target.closest('[data-history-import]')) { triggerImport(); return; }
+  if (target.closest('[data-history-delete]')) { deleteSelectedBoards(); return; }
+
+  const openBoardButton = target.closest('[data-open-board]');
+  if (openBoardButton) { openBoard(openBoardButton.dataset.openBoard); return; }
+
+  const deleteBoardButton = target.closest('[data-delete-board]');
+  if (deleteBoardButton) { deleteBoard(deleteBoardButton.dataset.deleteBoard); return; }
+
+  const editStepButton = target.closest('[data-edit-step]');
+  if (editStepButton) { editStep(Number(editStepButton.dataset.editStep)); return; }
+
+  if (target.closest('[data-prev-step]')) { previousStep(); return; }
+
+  if (target.closest('[data-col-add]')) { addCanvasColumn(); return; }
+  if (target.closest('[data-axis-add]')) {
+    if (performance.now() >= axisClickLock) addAxisBlock();
+    return;
+  }
+  if (target.closest('[data-vertical-add]')) { openModal('dims'); return; }
+  const vdimDelete = target.closest('[data-vdim-del]');
+  if (vdimDelete) { removeSetupDimension(vdimDelete.dataset.vdimDel); return; }
+  const axisDelete = target.closest('[data-axis-del]');
+  if (axisDelete) { removeAxisBlock(axisDelete.closest('.axis-block')); return; }
+
+  if (target.closest('[data-skip-step]')) {
+    const form = $('#askForm');
+    const input = $('.line-input', form);
+    if (input) input.value = '';
+    form?.requestSubmit();
+    return;
+  }
+
+  const openCellButton = target.closest('[data-open-cell]');
+  if (openCellButton) { openCell(openCellButton.dataset.cellSeg, openCellButton.dataset.cellDim); return; }
+
+  if (target.closest('[data-analyze-all]')) { openOverallAnalysisSheet(); return; }
+
+  const analyzeButton = target.closest('[data-analyze-dim]');
+  if (analyzeButton) { openAnalysisSheet(analyzeButton.dataset.analyzeDim); return; }
+
+  if (target.closest('[data-copy-analysis]')) {
+    const text = $('#analysisPromptText')?.value || '';
+    if (text.trim()) copyText(text, '提示词已复制');
+    return;
+  }
+
+  if (target.closest('[data-analysis-regen]')) {
+    const dimId = ui.sheet?.dimId;
+    if (!dimId) return;
+    const prompt = dimId === OVERALL_ANALYSIS_ID ? buildOverallAnalysisPrompt() : buildAnalysisPrompt(dimId);
+    state.analysisPrompts[dimId] = prompt;
+    const field = $('#analysisPromptText');
+    if (field) field.value = prompt;
+    queueSave();
+    toast('已按当前内容重新生成', 'success');
+    return;
+  }
+
+  const editSegButton = target.closest('[data-edit-seg]');
+  if (editSegButton) { openSheet({ type:'segment', segId:editSegButton.dataset.editSeg }); return; }
+
+  const jumpCell = target.closest('[data-jump-cell]');
+  if (jumpCell) { openCell(jumpCell.dataset.jumpCell, jumpCell.dataset.jumpDim); return; }
+
+  const cellTag = target.closest('[data-cell-tag]');
+  if (cellTag && ui.sheet?.type === 'cell') {
+    const { segId, dimId } = ui.sheet;
+    const cell = getCell(segId, dimId);
+    const tags = new Set(cell.tags || []);
+    const tag = cellTag.dataset.cellTag;
+    if (tags.has(tag)) tags.delete(tag);
+    else tags.add(tag);
+    writeCell(segId, dimId, { text:cell.text || '', tags:[...tags] });
+    cellTag.classList.toggle('selected', tags.has(tag));
+    updateCellButton(segId, dimId);
+    return;
+  }
+
+  const pickDimension = target.closest('[data-pick-dim]');
+  if (pickDimension) { openModal('dims', { replaceId:pickDimension.dataset.pickDim }); return; }
+
+  if (target.closest('[data-clear-cell]') && ui.sheet?.type === 'cell') {
+    const { segId, dimId } = ui.sheet;
+    writeCell(segId, dimId, { text:'', tags:[] });
+    const area = $('#cellText');
+    if (area) area.value = '';
+    $$('.quick-tag', $('#sheetRoot')).forEach(tag => tag.classList.remove('selected'));
+    updateCellButton(segId, dimId);
+    refreshCounts();
+    return;
+  }
+
+  const deleteSegmentButton = target.closest('[data-delete-seg]');
+  if (deleteSegmentButton) {
+    if (removeSegment(deleteSegmentButton.dataset.deleteSeg)) {
+      closeSheet();
+      toast('这一列已删除');
+    }
+    return;
+  }
+
+  if (target.closest('[data-close-sheet]')) { closeSheet(); return; }
+  if (target.closest('[data-close-modal]')) { closeModal(); return; }
+
+  if (target.closest('[data-open-history]')) { openModal('history'); return; }
+  if (target.closest('[data-open-dim-library]')) { openDimensionLibrary(); return; }
+  if (target.closest('[data-open-settings]')) { openModal('settings'); return; }
+  if (target.closest('[data-new-board]')) { closeModal(); goHome(); return; }
+
+  const autosaveButton = target.closest('[data-toggle-autosave]');
+  if (autosaveButton) {
+    settings.autosave = !settings.autosave;
+    persistSettings();
+    autosaveButton.classList.toggle('on', settings.autosave);
+    autosaveButton.setAttribute('aria-checked', String(settings.autosave));
+    if (settings.autosave) saveNow(true);
+    else updateSaveLabel('未保存 · 自动保存已关闭');
+    toast(settings.autosave ? '已开启自动保存' : '已关闭自动保存');
+    return;
+  }
+  if (target.closest('[data-save-now]')) { saveNow(); return; }
+  if (target.closest('[data-clear-all]')) { clearAllData(); return; }
+
+  const dimToggle = target.closest('[data-dim-toggle]');
+  if (dimToggle) { toggleDimensionFromModal(dimToggle.dataset.dimToggle, dimToggle); return; }
+
+  const dimLibMode = target.closest('[data-dimlib-mode]');
+  if (dimLibMode) {
+    ui.dimLibMode = dimLibMode.dataset.dimlibMode === 'tasks' ? 'tasks' : 'project';
+    ui.dimEditing = null;
+    ui.dimEditingAxis = null;
+    renderModal();
+    return;
+  }
+  if (target.closest('[data-import-dimensions]')) { triggerDimensionImport(); return; }
+  if (target.closest('[data-export-dimensions]')) { exportDimensionLibrary(); return; }
+  const addDim = target.closest('[data-add-dim]');
+  if (addDim) { openDimensionEditor(null, addDim.dataset.addDim); return; }
+  const editDim = target.closest('[data-edit-dim]');
+  if (editDim) { openDimensionEditor(editDim.dataset.editDim); return; }
+  const removeDim = target.closest('[data-remove-dim]');
+  if (removeDim) { removeLibraryDimension(removeDim.dataset.removeDim); return; }
+  if (target.closest('[data-save-dim]')) { saveLibraryDimension(); return; }
+  if (target.closest('[data-cancel-dim]')) { closeDimensionEditor(); return; }
+  if (target.closest('[data-reset-dims]')) { resetDimensionLibrary(); return; }
+
+  if (target.closest('[data-custom-toggle]')) {
+    ui.customOpen = !ui.customOpen;
+    $('#customForm')?.classList.toggle('open', ui.customOpen);
+    if (ui.customOpen) $('#customTitle')?.focus();
+    return;
+  }
+  if (target.closest('[data-add-custom]')) { addCustomDimension(); return; }
+
+  const copyExit = target.closest('[data-copy-exit]');
+  if (copyExit) { copyText(generateExitPrompt(copyExit.dataset.copyExit), '提示词已复制'); return; }
+
+  const actionButton = target.closest('[data-action]');
+  if (actionButton) {
+    const action = actionButton.dataset.action;
+    if (action === 'dims') openModal('dims');
+    else if (action === 'add-seg') addSegment();
+    else if (action === 'summary') { ui.sheet = { type:'summary' }; renderSheet(); }
+    else if (action === 'edit-board') openSheet({ type:'board' });
+    else if (action === 'export-md') exportMarkdown();
+    return;
+  }
+
+  if (target === $('#sheetLayer')) { closeSheet(); return; }
+  if (target === $('#modalLayer')) { closeModal(); return; }
+});
+
+document.addEventListener('submit', event => {
+  if (event.target.id === 'askForm') {
+    event.preventDefault();
+    submitCurrentStep();
+  }
+});
+
+document.addEventListener('input', event => {
+  const target = event.target;
+  if (target.matches('[data-axis-root], [data-axis-title]')) {
+    syncAxisInlineInputs(target.closest('#askForm') || $('#askForm'));
+    queueSave();
+    return;
+  }
+  if (target.matches('[data-summary-root]')) {
+    setRootTitle(target.textContent || '');
+    queueSave();
+    return;
+  }
+  if (target.matches('[data-summary-seg]')) {
+    const segment = segmentById(target.dataset.summarySeg);
+    if (segment) {
+      segment.title = target.textContent || '';
+      queueSave();
+    }
+    return;
+  }
+  if (target.matches('[data-vcell-seg]')) {
+    const segId = target.dataset.vcellSeg;
+    const dimId = target.dataset.vcellDim;
+    const cell = getCell(segId, dimId);
+    writeCell(segId, dimId, { text:target.innerText || '', tags:cell.tags || [] });
+    return;
+  }
+  if (target.id === 'cellText' && ui.sheet?.type === 'cell') {
+    const { segId, dimId } = ui.sheet;
+    const cell = getCell(segId, dimId);
+    writeCell(segId, dimId, { text:target.value, tags:cell.tags || [] });
+    updateCellButton(segId, dimId);
+    refreshCounts();
+    return;
+  }
+  if (target.id === 'analysisPromptText' && ui.sheet?.type === 'analysis') {
+    state.analysisPrompts[ui.sheet.dimId] = target.value;
+    queueSave();
+    return;
+  }
+  if (target.matches('[data-seg-field]') && ui.sheet?.type === 'segment') {
+    const segment = segmentById(ui.sheet.segId);
+    if (segment) {
+      segment[target.dataset.segField] = target.value;
+      queueSave();
+    }
+    return;
+  }
+  if (target.matches('[data-root-field]') && ui.sheet?.type === 'board') {
+    state.root[target.dataset.rootField] = target.value;
+    if (state.mode === 'tasks' && target.dataset.rootField === 'title') state.root.deadline = target.value;
+    state.title = deriveTitle(state.mode, state.root);
+    queueSave();
+    const barTitle = $('#barTitle');
+    if (barTitle) barTitle.textContent = state.title;
+    const wbTitle = $('.wb-title');
+    if (wbTitle) wbTitle.textContent = state.title;
+    return;
+  }
+  if (target.id === 'dimSearch') { ui.search = target.value; filterDimCards(); return; }
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    if (!$('#historyExportMenu')?.hidden) { closeHistoryExportMenu(); return; }
+    if (ui.dimEditing) return;
+    if (ui.sheet) { closeSheet(); return; }
+    if (ui.modal) { closeModal(); return; }
+  }
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+    event.preventDefault();
+    saveNow();
+  }
+});
+
+document.addEventListener('pointerover', event => {
+  const target = event.target.closest?.('[data-hover-tip]');
+  if (!target || target === hoverTipTarget) return;
+  scheduleHoverTip(target, event.clientX, event.clientY);
+});
+
+document.addEventListener('pointerout', event => {
+  const target = event.target.closest?.('[data-hover-tip]');
+  if (!target || target !== hoverTipTarget) return;
+  const next = event.relatedTarget?.closest?.('[data-hover-tip]');
+  if (next === target) return;
+  hideHoverTip();
+});
+
+document.addEventListener('focusin', event => {
+  const target = event.target.closest?.('[data-hover-tip]');
+  if (!target || target.matches('[contenteditable]')) return;
+  const rect = target.getBoundingClientRect();
+  scheduleHoverTip(target, rect.left + rect.width / 2, rect.top + Math.min(rect.height / 2, 28));
+});
+
+document.addEventListener('focusout', event => {
+  const target = event.target.closest?.('[data-hover-tip]');
+  if (!target) return;
+  const next = event.relatedTarget?.closest?.('[data-hover-tip]');
+  if (next === target) return;
+  hideHoverTip();
+});
+
+document.addEventListener('pointerdown', hideHoverTip, true);
+window.addEventListener('scroll', hideHoverTip, true);
+window.addEventListener('resize', hideHoverTip);
+
+$('#importFile').addEventListener('change', event => importJSON(Array.from(event.target.files || [])));
+$('#dimensionImportFile').addEventListener('change', event => importDimensionLibrary(event.target.files?.[0]));
+window.addEventListener('beforeunload', () => { if (state.mode) save(); });
+
+function migrateCustomDimensions() {
+  const known = new Set(dimensionLibrary.map(item => item.id));
+  let changed = false;
+  [state, ...library].forEach(board => {
+    (board?.dimensions || []).forEach(dimension => {
+      if (!dimension?.id || !dimension.custom || known.has(dimension.id)) return;
+      dimensionLibrary.push(normalizeDimensionRecord({ ...dimension, custom:true }));
+      known.add(dimension.id);
+      changed = true;
+    });
+  });
+  if (changed) {
+    persistDimensionLibrary();
+    refreshDimensionIndex();
+  }
+}
+
+migrateCustomDimensions();
+renderAll();
+</script>
+</body>
+</html>

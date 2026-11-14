@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>能力测试 · AI航海研习社</title>
+<meta name="description" content="能力测试：从技能、思维、结果三条线，找到你现在的 AI 能力位置。">
+<meta name="theme-color" content="#F3F3ED">
+<link rel="icon" href="assets/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="prefetch" href="route.html">
+<link rel="stylesheet" href="assets/css/site.css?v=20261106-105">
+<link rel="stylesheet" href="assets/css/pages.css?v=20261106-105">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('sp-case-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+    } catch (e) {}
+  })();
+</script>
+<script>
+  (function () {
+    try {
+      if (sessionStorage.getItem('site-page-transition') === '1') {
+        document.documentElement.classList.add('page-enter');
+        sessionStorage.removeItem('site-page-transition');
+      }
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html" aria-label="AI航海研习社 首页">
+      <span class="brand-mark">1X100</span>
+      <span class="brand-text"><b>AI航海研习社</b><span>AI SAILING CLUB</span></span>
+    </a>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="route.html" class="active">学习</a>
+      <a href="cases.html">赋能</a>
+      <a href="exchange.html">交流</a>
+      <a href="about.html" class="nav-about">关于</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="mobileMenu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <button class="settings-btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false" title="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/></svg>
+        <span>设置</span>
+      </button>
+      <div class="settings-panel" id="settingsPanel" hidden>
+        <div class="set-row">
+          <span class="set-label"><b>能力报告</b><i>查看报告 / 重新测试</i></span>
+          <div class="set-actions">
+            <button class="set-mini" id="viewAbilityReport" type="button">查看报告</button>
+            <button class="set-mini" id="retakeAbilityTest" type="button">重新测试</button>
+          </div>
+        </div>
+        <div class="set-row">
+          <span class="set-label"><b>界面</b><i>亮色 / 暗色</i></span>
+          <div class="seg" role="group" aria-label="界面主题">
+            <button class="seg-btn" type="button" data-theme-set="light">亮色</button>
+            <button class="seg-btn" type="button" data-theme-set="dark">暗色</button>
+          </div>
+        </div>
+        <div class="set-row set-row-version">
+          <span class="set-label"><b>版本更新</b><i>当前 <span data-site-version>20261106-105</span> · 清除旧缓存</i></span>
+          <button class="set-action" type="button" data-check-update>检查更新</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <div class="wrap">
+    <a href="route.html" class="active"><span>01</span>学习</a>
+    <a href="cases.html"><span>02</span>赋能</a>
+    <a href="exchange.html"><span>03</span>交流</a>
+    <a href="about.html"><span>04</span>关于</a>
+  </div>
+</div>
+
+<main class="assessment-page">
+  <div class="assessment-shell">
+    <div class="assessment-top">
+      <a class="back-link" href="route.html">← 返回学习</a>
+      <span id="quizLine">技能 · 工具使用</span>
+    </div>
+
+    <section class="assessment-card" aria-live="polite">
+      <div class="assessment-progress">
+        <span id="quizProgressText">01 / 24</span>
+        <div><i id="quizBar"></i></div>
+      </div>
+      <p class="assessment-kicker" id="quizKicker">ABILITY TEST / 技能</p>
+      <h1 id="quizQuestion">准备开始</h1>
+      <div class="assessment-options" id="quizOptions"></div>
+      <div class="assessment-nav">
+        <button class="qbtn" id="quizPrev" type="button">← 上一题</button>
+        <button class="qbtn primary" id="quizNext" type="button">下一题 →</button>
+      </div>
+    </section>
+
+    <p class="assessment-note">没有标准答案，按真实情况选。测完生成报告。</p>
+  </div>
+</main>
+
+<script src="assets/js/common.js?v=20261106-105"></script>
+<script src="assets/js/assessment.js?v=20261106-105"></script>
+<script src="assets/js/test.js?v=20261106-105"></script>
+<script src="assets/js/update.js?v=20261106-105"></script>
+<script src="assets/js/page-transition.js?v=20261106-105"></script>
+</body>
+</html>

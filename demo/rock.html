@@ -1,0 +1,3836 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Push Rock 3d</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe id="codex-visualization" sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer" title="Push Rock 3d" data-srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Push Rock 3d&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;script type=&quot;application/json&quot; id=&quot;codex-visualization-widget-state&quot;&gt;__CODEX_VISUALIZATION_WIDGET_STATE__&lt;/script&gt;
+&lt;script&gt;(() =&gt; {
+  const root = document.documentElement;
+  const mediaQuery = globalThis.matchMedia(&quot;(prefers-color-scheme: dark)&quot;);
+  const apply = Reflect.apply;
+  const isArray = Array.isArray;
+  const hasOwn = Object.hasOwn;
+  const parentWindow = globalThis.parent;
+  const stringify = JSON.stringify;
+  const parse = JSON.parse;
+  const encode = TextEncoder.prototype.encode.bind(new TextEncoder());
+  const initialStateElement = document.getElementById(
+    &quot;codex-visualization-widget-state&quot;,
+  );
+  const initialGlobals = parse(initialStateElement?.textContent ?? &quot;{}&quot;);
+  initialStateElement?.remove();
+  /** @type {Record&lt;string, unknown&gt; | null} */
+  let state = initialGlobals.widgetState ?? null;
+  const statePersistence = initialGlobals.statePersistence ?? &quot;none&quot;;
+  let nextStateRequestId = 0;
+  /** @type {Map&lt;number, { resolve: () =&gt; void; reject: (error: Error) =&gt; void; timeout: ReturnType&lt;typeof globalThis.setTimeout&gt;; serializedState: string }&gt;} */
+  const pendingStateWrites = new Map();
+  const persistenceError = () =&gt;
+    Object.assign(
+      new Error(&quot;The host could not persist the widget state update&quot;),
+      {
+        code: -32000,
+        data: { code: &quot;widget_state_persistence_failed&quot;, retryable: false },
+      },
+    );
+  /**
+   * @param {object} prototype
+   * @param {string} property
+   */
+  const getPrototypeGetter = (prototype, property) =&gt; {
+    // oxlint-disable-next-line typescript/unbound-method -- invoked through captured Reflect.apply
+    const getter = Object.getOwnPropertyDescriptor(prototype, property)?.get;
+    if (getter == null) {
+      throw new Error(`Missing ${property} getter`);
+    }
+    return getter;
+  };
+  const getMessageData = getPrototypeGetter(MessageEvent.prototype, &quot;data&quot;);
+  const getMessagePorts = getPrototypeGetter(MessageEvent.prototype, &quot;ports&quot;);
+  const getMessageSource = getPrototypeGetter(MessageEvent.prototype, &quot;source&quot;);
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const addHostMessageListener = MessagePort.prototype.addEventListener;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const postHostMessage = MessagePort.prototype.postMessage;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const startHostPort = MessagePort.prototype.start;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const stopMessagePropagation = Event.prototype.stopImmediatePropagation;
+  /** @type {MessagePort | null} */
+  let hostPort = null;
+  const postToHost = (type, payload) =&gt; {
+    if (hostPort != null) {
+      apply(postHostMessage, hostPort, [{ type, ...payload }]);
+    }
+  };
+  const openExternal = ({ href }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;open-external&quot;, { href });
+    }
+  };
+  const sendFollowUpMessage = ({ context, prompt, title }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;follow-up&quot;, { context, prompt, title });
+    }
+    return Promise.resolve();
+  };
+  /**
+   * @param {Record&lt;string, unknown&gt; | ((previous: Record&lt;string, unknown&gt; | null) =&gt; Record&lt;string, unknown&gt;)} next
+   * @returns {Promise&lt;void&gt;}
+   */
+  const setWidgetState = async (next) =&gt; {
+    const nextState = typeof next === &quot;function&quot; ? next(state) : next;
+    if (
+      nextState == null ||
+      typeof nextState !== &quot;object&quot; ||
+      isArray(nextState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const inputState = stringify(
+      nextState,
+      (_key, /** @type {unknown} */ value) =&gt; {
+        if (
+          typeof value === &quot;undefined&quot; ||
+          typeof value === &quot;function&quot; ||
+          typeof value === &quot;symbol&quot; ||
+          (typeof value === &quot;number&quot; &amp;&amp; !Number.isFinite(value))
+        ) {
+          throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+        }
+        return value;
+      },
+    );
+    const parsedState = parse(inputState);
+    if (
+      parsedState == null ||
+      typeof parsedState !== &quot;object&quot; ||
+      isArray(parsedState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const storedState = {
+      modelContent: null,
+      privateContent: null,
+      ...parsedState,
+    };
+    const serializedState = stringify(storedState);
+    if (encode(serializedState).length &gt; 16 * 1024) {
+      throw new TypeError(
+        &quot;Widget state must be a JSON object of at most 16 KiB&quot;,
+      );
+    }
+    if (
+      hasOwn(storedState, &quot;imageIds&quot;) &amp;&amp;
+      (!isArray(storedState.imageIds) ||
+        storedState.imageIds.some(
+          (/** @type {unknown} */ id) =&gt; typeof id !== &quot;string&quot;,
+        ))
+    ) {
+      throw new TypeError(&quot;Widget state imageIds must be an array of strings&quot;);
+    }
+    if (storedState.imageIds?.length &gt; 0) {
+      throw Object.assign(
+        new TypeError(&quot;Visualization state does not support image attachments&quot;),
+        { code: -32602, data: { code: &quot;images_unsupported&quot; } },
+      );
+    }
+    state = storedState;
+    globalThis.openai.widgetState = state;
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: { widgetState: state } },
+      }),
+    );
+    if (statePersistence === &quot;none&quot;) {
+      throw persistenceError();
+    }
+    const id = ++nextStateRequestId;
+    return new Promise((resolve, reject) =&gt; {
+      const timeout = globalThis.setTimeout(() =&gt; {
+        pendingStateWrites.delete(id);
+        reject(persistenceError());
+      }, 30_000);
+      pendingStateWrites.set(id, { resolve, reject, timeout, serializedState });
+      postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+    });
+  };
+  const syncTheme = () =&gt; {
+    const theme = mediaQuery.matches ? &quot;dark&quot; : &quot;light&quot;;
+    root.dataset.theme = theme;
+    globalThis.openai = {
+      ...globalThis.openai,
+      openExternal,
+      sendFollowUpMessage,
+      setWidgetState,
+      theme,
+      visualizationStyleVariables: {},
+      visualizationTheme: theme,
+      widgetState: state,
+      statePersistence,
+      stateModelContext: &quot;none&quot;,
+    };
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: globalThis.openai },
+      }),
+    );
+  };
+  const sendHeight = () =&gt; {
+    postToHost(&quot;height&quot;, {
+      height: Math.ceil(
+        Math.max(
+          document.body.scrollHeight,
+          document.body.getBoundingClientRect().height,
+        ),
+      ),
+    });
+  };
+
+  globalThis.addEventListener(
+    &quot;message&quot;,
+    (event) =&gt; {
+      const data = apply(getMessageData, event, []);
+      const ports = apply(getMessagePorts, event, []);
+      const source = apply(getMessageSource, event, []);
+      if (
+        hostPort != null ||
+        source !== parentWindow ||
+        typeof data !== &quot;object&quot; ||
+        data?.type !== &quot;codex-visualization-initialize&quot; ||
+        !isArray(ports) ||
+        ports.length !== 1
+      ) {
+        return;
+      }
+      apply(stopMessagePropagation, event, []);
+      const nextHostPort = ports[0];
+      try {
+        apply(addHostMessageListener, nextHostPort, [
+          &quot;message&quot;,
+          (event) =&gt; {
+            const data = apply(getMessageData, event, []);
+            if (typeof data === &quot;object&quot; &amp;&amp; data?.type === &quot;measure&quot;) {
+              sendHeight();
+            } else if (
+              typeof data === &quot;object&quot; &amp;&amp;
+              data?.type === &quot;widget-state-result&quot;
+            ) {
+              /** @type {unknown} */
+              const id = data.id;
+              if (typeof id !== &quot;number&quot;) {
+                return;
+              }
+              const pending = pendingStateWrites.get(id);
+              if (pending != null) {
+                pendingStateWrites.delete(id);
+                globalThis.clearTimeout(pending.timeout);
+                if (data.ok === true) {
+                  pending.resolve();
+                } else {
+                  pending.reject(persistenceError());
+                }
+              }
+            }
+          },
+        ]);
+        apply(startHostPort, nextHostPort, []);
+      } catch {
+        return;
+      }
+      hostPort = nextHostPort;
+      for (const [id, { serializedState }] of pendingStateWrites) {
+        postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+      }
+      sendHeight();
+    },
+    { capture: true },
+  );
+  document.currentScript?.remove();
+  mediaQuery.addEventListener(&quot;change&quot;, syncTheme);
+  globalThis.addEventListener(&quot;click&quot;, (event) =&gt; {
+    if (event.defaultPrevented) {
+      return;
+    }
+    let element = null;
+    if (event.target instanceof globalThis.Element) {
+      element = event.target;
+    } else if (event.target instanceof globalThis.Node) {
+      element = event.target.parentElement;
+    }
+    const link = element?.closest(&quot;a[href]&quot;);
+    const href = link?.getAttribute(&quot;href&quot;);
+    if (href == null) {
+      return;
+    }
+    if (href.startsWith(&quot;#&quot;)) {
+      let id;
+      try {
+        id = decodeURIComponent(href.slice(1));
+      } catch {
+        return;
+      }
+      const target = id.length === 0 ? root : document.getElementById(id);
+      if (
+        target == null ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      event.preventDefault();
+      postToHost(&quot;scroll-to&quot;, {
+        top: target.getBoundingClientRect().top + globalThis.scrollY,
+      });
+      return;
+    }
+    event.preventDefault();
+    openExternal({ href });
+  });
+  new ResizeObserver(sendHeight).observe(document.body);
+  syncTheme();
+})();
+&lt;/script&gt;
+&lt;style&gt;
+  #rock-goal-sim {
+    display: flex; flex-direction: row; gap: 14px; align-items: stretch;
+    width: 100%; height: 100vh; box-sizing: border-box; padding: 12px 14px;
+  }
+  #rock-goal-sim .rgs-side {
+    flex: 0 0 clamp(272px, 24%, 352px); max-width: 352px; min-width: 0;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto; overscroll-behavior: contain; padding-right: 4px;
+  }
+  #rock-goal-sim .rgs-stage { position: relative; flex: 1 1 auto; min-width: 0; min-height: 260px; }
+  #rock-goal-sim canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  @media (max-width: 900px) {
+    #rock-goal-sim { flex-direction: column; height: auto; }
+    #rock-goal-sim .rgs-side { flex: none; max-width: none; overflow: visible; padding-right: 0; }
+    #rock-goal-sim .rgs-stage { flex: none; width: 100%; aspect-ratio: 2; min-height: 240px; }
+  }
+  #rock-goal-sim .rgs-overlay { position: absolute; inset: 0; pointer-events: none; }
+  #rock-goal-sim .rgs-badge {
+    position: absolute; transform: translate(-50%, -100%);
+    pointer-events: auto; cursor: pointer; font: inherit; font-size: 11px; line-height: 1.25;
+    padding: 2px 7px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--popover); color: var(--popover-foreground); white-space: nowrap; opacity: 0.75;
+  }
+  #rock-goal-sim .rgs-badge[aria-pressed=&quot;true&quot;] { background: var(--primary); color: var(--primary-foreground); border-color: transparent; opacity: 1; }
+  #rock-goal-sim .rgs-dot { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; }
+  #rock-goal-sim .rgs-dot-ext { background: var(--viz-series-1); }
+  #rock-goal-sim .rgs-dot-int { background: var(--viz-series-4); }
+  #rock-goal-sim .rgs-dot-start { background: var(--viz-series-5); }
+  #rock-goal-sim .rgs-dot-wear { background: var(--viz-series-3); }
+  #rock-goal-sim .rgs-dot-goal { background: var(--viz-series-2); }
+
+  #rock-goal-sim .rgs-net {
+    display: flex; flex-direction: column; gap: 2px; flex: 0 0 auto;
+    padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px;
+    background: color-mix(in oklab, var(--foreground) 4%, transparent);
+  }
+  #rock-goal-sim .rgs-net-head { display: flex; align-items: center; gap: 8px; }
+  #rock-goal-sim .rgs-net-label { font-size: 13.5px; font-weight: 700; color: var(--foreground); letter-spacing: 0.02em; }
+  #rock-goal-sim .rgs-net-value { margin-left: auto; font-size: 19px; font-weight: 650; }
+  #rock-goal-sim .rgs-net-value[data-sign=&quot;neg&quot;] { color: var(--destructive); }
+  #rock-goal-sim .rgs-spark {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; padding: 0; cursor: pointer;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--background); color: #7c3aed;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: transform 120ms ease, border-color 120ms ease;
+  }
+  #rock-goal-sim .rgs-spark:hover { border-color: #7c3aed; transform: translateY(-1px); }
+  #rock-goal-sim .rgs-spark:active { transform: translateY(0); }
+
+  #rock-goal-sim .rgs-overview { display: flex; flex-direction: column; gap: 12px; }
+  #rock-goal-sim .rgs-overview[hidden], #rock-goal-sim .rgs-detail[hidden], #rock-goal-sim .rgs-detail-empty[hidden],
+  #rock-goal-sim .rgs-share[hidden], #rock-goal-sim .rgs-share-msg[hidden] { display: none; }
+  #rock-goal-sim .rgs-block { display: flex; flex-direction: column; gap: 2px; }
+  #rock-goal-sim .rgs-block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 2px 2px; }
+  #rock-goal-sim .rgs-block-title { font-weight: 600; }
+
+  #rock-goal-sim .rgs-prow {
+    display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+    padding: 7px 8px; border: 1px solid transparent; border-radius: 8px;
+    background: none; color: inherit; font: inherit; cursor: pointer;
+  }
+  #rock-goal-sim .rgs-prow:hover { background: color-mix(in oklab, var(--foreground) 6%, transparent); }
+  #rock-goal-sim .rgs-prow-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #rock-goal-sim .rgs-subitems {
+    display: flex; flex-direction: column; gap: 2px;
+    margin: 1px 0 3px 20px; padding-left: 8px;
+    border-left: 1px solid var(--border);
+  }
+  #rock-goal-sim .rgs-subitem {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+    width: 100%; box-sizing: border-box; text-align: left;
+    font: inherit; font-size: 11px; line-height: 1.5; opacity: 0.7;
+    padding: 2px 6px; border: 0; border-radius: 6px;
+    background: none; color: inherit; cursor: pointer;
+  }
+  #rock-goal-sim .rgs-subitem:hover {
+    opacity: 1; background: color-mix(in oklab, var(--foreground) 8%, transparent);
+  }
+  #rock-goal-sim .rgs-subitem-empty { justify-content: flex-start; }
+  #rock-goal-sim .rgs-subitem-name {
+    flex: 1 1 auto; min-width: 0;
+    white-space: normal; overflow-wrap: anywhere;
+  }
+  #rock-goal-sim .rgs-subitem-val { flex: 0 0 auto; }
+  #rock-goal-sim .rgs-prow-val { flex: 0 0 auto; }
+  #rock-goal-sim .rgs-prow-caret {
+    flex: 0 0 auto; opacity: 0.45; font-size: 13px;
+    transition: transform 120ms ease;
+  }
+  #rock-goal-sim .rgs-prow[aria-expanded=&quot;true&quot;] .rgs-prow-caret { transform: rotate(90deg); }
+
+  #rock-goal-sim .rgs-detail { display: flex; flex-direction: column; gap: 10px; }
+  #rock-goal-sim .rgs-detail-head { display: flex; align-items: center; gap: 8px; }
+  #rock-goal-sim .rgs-back-btn {
+    flex: 0 0 auto; padding: 5px 13px; font-weight: 600;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--popover); color: var(--popover-foreground);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+    transition: background 120ms ease, transform 80ms ease;
+  }
+  #rock-goal-sim .rgs-back-btn:hover { background: color-mix(in oklab, var(--popover) 86%, var(--foreground)); }
+  #rock-goal-sim .rgs-back-btn:active { transform: translateY(1px); }
+  #rock-goal-sim .rgs-back-btn[data-saved=&quot;1&quot;] { border-color: var(--primary); color: var(--primary); }
+  #rock-goal-sim .rgs-box-btn {
+    font-weight: 600;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: color-mix(in oklab, var(--foreground) 7%, transparent);
+  }
+  #rock-goal-sim .rgs-box-btn:hover { background: color-mix(in oklab, var(--foreground) 14%, transparent); }
+  #rock-goal-sim .rgs-bottom { margin-top: auto; padding-top: 6px; display: flex; flex-direction: column; gap: 8px; }
+  #rock-goal-sim .rgs-bottom .btn { width: 100%; justify-content: center; }
+  #rock-goal-sim .rgs-detail-title { flex: 1 1 auto; min-width: 0; font-weight: 600; }
+  #rock-goal-sim .rgs-factor-list { display: flex; flex-direction: column; gap: 8px; }
+  #rock-goal-sim .rgs-factor {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px;
+  }
+  #rock-goal-sim .rgs-factor-top { display: flex; align-items: center; gap: 6px; }
+  #rock-goal-sim .rgs-factor-name { flex: 1 1 auto; min-width: 0; }
+  #rock-goal-sim .rgs-factor-slider { display: flex; align-items: center; gap: 8px; }
+  #rock-goal-sim .rgs-factor-slider .form-range { flex: 1 1 auto; min-width: 0; }
+  #rock-goal-sim .rgs-factor-num { flex: 0 0 64px; width: 64px; }
+  #rock-goal-sim .rgs-factor-del { flex: 0 0 auto; padding-left: 7px; padding-right: 7px; }
+  #rock-goal-sim .rgs-detail-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  #rock-goal-sim .rgs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+  #rock-goal-sim .rgs-row .nav { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+  #rock-goal-sim .rgs-row .btn { width: 100%; justify-content: center; }
+  #rock-goal-sim .rgs-name-input { grid-column: 1 / -1; }
+  #rock-goal-sim .rgs-factor-steps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  #rock-goal-sim .rgs-step {
+    display: flex; align-items: baseline; justify-content: center; gap: 4px;
+    font: inherit; font-size: 11px; line-height: 1.2; cursor: pointer; white-space: nowrap;
+    width: 100%; box-sizing: border-box;
+    padding: 3px 4px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--foreground); opacity: 0.72;
+  }
+  #rock-goal-sim .rgs-step:hover { opacity: 1; background: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  #rock-goal-sim .rgs-step-num { font-weight: 600; font-variant-numeric: tabular-nums; }
+  #rock-goal-sim .rgs-modal {
+    position: fixed; inset: 0; z-index: 50; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; background: rgba(0, 0, 0, 0.32);
+  }
+  #rock-goal-sim .rgs-modal-card {
+    width: min(340px, 100%); box-sizing: border-box;
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 13px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--background); color: var(--foreground);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
+  }
+  #rock-goal-sim .rgs-modal-title { font-weight: 600; }
+  #rock-goal-sim .rgs-modal-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  #rock-goal-sim .rgs-tag {
+    font: inherit; font-size: 11px; line-height: 1.25; cursor: pointer; white-space: nowrap;
+    padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border);
+    background: transparent; color: var(--foreground); opacity: 0.75;
+  }
+  #rock-goal-sim .rgs-tag:hover { opacity: 1; background: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  #rock-goal-sim .rgs-modal-strength { display: flex; flex-direction: column; gap: 7px; }
+  #rock-goal-sim .rgs-modal-foot { display: flex; justify-content: flex-end; gap: 8px; }
+  #rock-goal-sim .rgs-detail-hint {
+    flex: 0 0 auto; font-size: 11px; line-height: 1.25; white-space: nowrap;
+    padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--popover); color: var(--popover-foreground);
+  }
+  #rock-goal-sim [hidden] { display: none !important; }
+  #rock-goal-sim .rgs-share {
+    flex: none; display: flex; flex-direction: column; gap: 8px;
+    padding: 9px; border: 1px solid var(--border); border-radius: 8px;
+  }
+  #rock-goal-sim .rgs-share-text {
+    width: 100%; resize: vertical; font-size: 11px; line-height: 1.45;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    word-break: break-all;
+  }
+  #rock-goal-sim .rgs-share-acts { grid-template-columns: 1fr 1fr; }
+  #rock-goal-sim .rgs-share-acts .rgs-span { grid-column: 1 / -1; }
+  #rock-goal-sim .rgs-share-msg { margin: 0; }
+  #rock-goal-sim .rgs-share-msg[data-bad=&quot;1&quot;] { color: var(--destructive); }
+  #rock-goal-sim .rgs-advice-card { width: min(560px, 100%); }
+  #rock-goal-sim .rgs-advice-text {
+    width: 100%; box-sizing: border-box; height: 300px; resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px; line-height: 1.6;
+  }
+  #rock-goal-sim .rgs-advice-foot { display: flex; align-items: center; gap: 8px; }
+  #rock-goal-sim .rgs-advice-msg { margin: 0 auto 0 0; }
+  #rock-goal-sim .rgs-advice-msg[data-bad=&quot;1&quot;] { color: var(--destructive); }
+&lt;/style&gt;&lt;div id=&quot;rock-goal-sim&quot;&gt;
+  &lt;div class=&quot;rgs-side&quot;&gt;
+    &lt;div class=&quot;rgs-row&quot;&gt;
+      &lt;div class=&quot;nav nav-pills&quot; id=&quot;rgs-targets&quot; role=&quot;radiogroup&quot; aria-label=&quot;当前目标&quot;&gt;&lt;/div&gt;
+      &lt;input class=&quot;form-control rgs-name-input&quot; id=&quot;rgs-target-name&quot; type=&quot;text&quot; placeholder=&quot;给当前目标起个名字&quot; aria-label=&quot;当前目标名称&quot;&gt;
+      &lt;button class=&quot;btn&quot; id=&quot;rgs-add-target&quot; type=&quot;button&quot; data-tooltip=&quot;新建一个目标，右边会多出一条属于它的斜坡。&quot;&gt;＋ 创建目标&lt;/button&gt;
+      &lt;button class=&quot;btn btn-ghost&quot; id=&quot;rgs-del-target&quot; type=&quot;button&quot; data-tooltip=&quot;删掉当前选中的目标，它的斜坡和石头一起消失。&quot;&gt;删除当前目标&lt;/button&gt;
+      &lt;button class=&quot;btn&quot; id=&quot;rgs-save-target&quot; type=&quot;button&quot; data-tooltip=&quot;把当前目标的名称和全部因素打包成一段参数，复制到剪贴板，方便存档或发给别人。&quot;&gt;保存参数&lt;/button&gt;
+      &lt;button class=&quot;btn&quot; id=&quot;rgs-load-target&quot; type=&quot;button&quot; data-tooltip=&quot;粘贴一段保存好的参数，还原成目标。&quot;&gt;导入参数&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;rgs-share&quot; id=&quot;rgs-share&quot; hidden&gt;
+      &lt;textarea class=&quot;form-control rgs-share-text&quot; id=&quot;rgs-share-text&quot; rows=&quot;3&quot; spellcheck=&quot;false&quot; aria-label=&quot;目标的参数文本&quot; placeholder=&quot;把保存时复制的那段参数粘贴到这里&quot;&gt;&lt;/textarea&gt;
+      &lt;div class=&quot;rgs-row rgs-share-acts&quot;&gt;
+        &lt;button class=&quot;btn&quot; id=&quot;rgs-share-new&quot; type=&quot;button&quot;&gt;生成新目标&lt;/button&gt;
+        &lt;button class=&quot;btn btn-ghost&quot; id=&quot;rgs-share-apply&quot; type=&quot;button&quot;&gt;覆盖当前目标&lt;/button&gt;
+        &lt;button class=&quot;btn btn-ghost rgs-span&quot; id=&quot;rgs-share-close&quot; type=&quot;button&quot;&gt;关闭&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;p class=&quot;text-small text-muted rgs-share-msg&quot; id=&quot;rgs-share-msg&quot; data-bad=&quot;0&quot; hidden&gt;&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;rgs-net&quot;&gt;
+      &lt;div class=&quot;rgs-net-head&quot;&gt;
+        &lt;span class=&quot;rgs-net-label&quot;&gt;最终合力&lt;/span&gt;
+        &lt;button class=&quot;rgs-spark&quot; id=&quot;rgs-advice&quot; type=&quot;button&quot; aria-label=&quot;生成优化提问&quot; data-tooltip=&quot;把现在这套动力阻力情况变成一段提问，内容可以自己改，再复制给 AI 帮你想下一步怎么优化。&quot;&gt;&lt;svg width=&quot;14&quot; height=&quot;14&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M12 0c.9 6.3 5.7 11.1 12 12-6.3.9-11.1 5.7-12 12-.9-6.3-5.7-11.1-12-12C6.3 11.1 11.1 6.3 12 0Z&quot; fill=&quot;currentColor&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+        &lt;span class=&quot;rgs-net-value tabular-nums&quot; id=&quot;rgs-net&quot; data-sign=&quot;pos&quot;&gt;0 N&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;rgs-overview&quot; id=&quot;rgs-overview&quot;&gt;
+      &lt;div class=&quot;rgs-block&quot;&gt;
+        &lt;div class=&quot;rgs-block-head&quot;&gt;
+          &lt;span class=&quot;rgs-block-title&quot;&gt;动力&lt;/span&gt;
+          &lt;span class=&quot;text-small text-muted&quot;&gt;合计 &lt;span class=&quot;tabular-nums&quot; id=&quot;rgs-sum-drive&quot;&gt;0 N&lt;/span&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;button class=&quot;rgs-prow&quot; id=&quot;rgs-prow-int&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;
+          &lt;span class=&quot;rgs-dot rgs-dot-int&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-name&quot;&gt;内部动力&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-val tabular-nums&quot; id=&quot;rgs-val-int&quot;&gt;0 N&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-caret&quot; aria-hidden=&quot;true&quot;&gt;›&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;button class=&quot;rgs-prow&quot; id=&quot;rgs-prow-ext&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;
+          &lt;span class=&quot;rgs-dot rgs-dot-ext&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-name&quot;&gt;外部动力&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-val tabular-nums&quot; id=&quot;rgs-val-ext&quot;&gt;0 N&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-caret&quot; aria-hidden=&quot;true&quot;&gt;›&lt;/span&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;rgs-block&quot;&gt;
+        &lt;div class=&quot;rgs-block-head&quot;&gt;
+          &lt;span class=&quot;rgs-block-title&quot;&gt;阻力&lt;/span&gt;
+          &lt;span class=&quot;text-small text-muted&quot;&gt;合计 &lt;span class=&quot;tabular-nums&quot; id=&quot;rgs-sum-resist&quot;&gt;0 N&lt;/span&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;button class=&quot;rgs-prow&quot; id=&quot;rgs-prow-goal&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;
+          &lt;span class=&quot;rgs-dot rgs-dot-goal&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-name&quot;&gt;目标难度&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-val tabular-nums&quot; id=&quot;rgs-val-goal&quot;&gt;0 N&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-caret&quot; aria-hidden=&quot;true&quot;&gt;›&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;button class=&quot;rgs-prow&quot; id=&quot;rgs-prow-start&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;
+          &lt;span class=&quot;rgs-dot rgs-dot-start&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-name&quot;&gt;启动门槛&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-val tabular-nums&quot; id=&quot;rgs-val-start&quot;&gt;0 N&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-caret&quot; aria-hidden=&quot;true&quot;&gt;›&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;button class=&quot;rgs-prow&quot; id=&quot;rgs-prow-wear&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;
+          &lt;span class=&quot;rgs-dot rgs-dot-wear&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-name&quot;&gt;内耗阻力&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-val tabular-nums&quot; id=&quot;rgs-val-wear&quot;&gt;0 N&lt;/span&gt;
+          &lt;span class=&quot;rgs-prow-caret&quot; aria-hidden=&quot;true&quot;&gt;›&lt;/span&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;rgs-detail&quot; id=&quot;rgs-detail&quot; hidden&gt;
+      &lt;div class=&quot;rgs-detail-head&quot;&gt;
+        &lt;span class=&quot;rgs-detail-title&quot; id=&quot;rgs-detail-title&quot;&gt;目标 A · 内部动力&lt;/span&gt;
+        &lt;span class=&quot;rgs-detail-hint&quot; id=&quot;rgs-detail-hint&quot; hidden&gt;&lt;/span&gt;
+        &lt;button class=&quot;btn rgs-back-btn&quot; id=&quot;rgs-back&quot; type=&quot;button&quot; data-tooltip=&quot;改完存一下，回到前面那一屏。&quot;&gt;保存&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;rgs-factor-list&quot; id=&quot;rgs-factor-list&quot;&gt;&lt;/div&gt;
+      &lt;p class=&quot;rgs-detail-empty text-small text-muted&quot; id=&quot;rgs-detail-empty&quot; hidden&gt;还没有因素。点下面的「创建因素」加一个。&lt;/p&gt;
+      &lt;div class=&quot;rgs-detail-foot&quot;&gt;
+        &lt;button class=&quot;btn&quot; id=&quot;rgs-add-factor&quot; type=&quot;button&quot;&gt;创建因素&lt;/button&gt;
+        &lt;span class=&quot;text-small text-muted&quot;&gt;这一项合计 &lt;span class=&quot;tabular-nums&quot; id=&quot;rgs-detail-sum&quot;&gt;0 N&lt;/span&gt;&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;rgs-bottom&quot;&gt;
+      &lt;div class=&quot;rgs-row&quot;&gt;
+        &lt;button class=&quot;btn rgs-box-btn&quot; id=&quot;rgs-reset&quot; type=&quot;button&quot; data-tooltip=&quot;把石头放回坡底起点，不改参数。&quot;&gt;复位&lt;/button&gt;
+        &lt;button class=&quot;btn rgs-box-btn&quot; id=&quot;rgs-defaults&quot; type=&quot;button&quot; data-tooltip=&quot;清掉浏览器里存的设置，回到最开始的三个目标。&quot;&gt;恢复默认&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;button class=&quot;btn rgs-box-btn&quot; id=&quot;rgs-demo-scatter&quot; type=&quot;button&quot; data-tooltip=&quot;示意三心二意：每个目标只推到半坡就换，最后都滚回坡底。&quot;&gt;演示：三心二意&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;rgs-stage&quot; id=&quot;rgs-stage&quot;&gt;
+      &lt;canvas id=&quot;rgs-canvas&quot; role=&quot;img&quot; aria-label=&quot;3D 斜坡推石头模型：每块石头代表一个目标。点石头可选中目标，按住石头不放就持续推；箭头表示推力、重力沿坡分量、摩擦和念头撕扯阻力&quot;&gt;&lt;/canvas&gt;
+      &lt;div class=&quot;rgs-overlay&quot; id=&quot;rgs-overlay&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;div class=&quot;rgs-modal&quot; id=&quot;rgs-advice-modal&quot; hidden&gt;
+    &lt;div class=&quot;rgs-modal-card rgs-advice-card&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;rgs-advice-title&quot;&gt;
+      &lt;span class=&quot;rgs-modal-title&quot; id=&quot;rgs-advice-title&quot;&gt;优化提问&lt;/span&gt;
+      &lt;textarea class=&quot;form-control rgs-advice-text&quot; id=&quot;rgs-advice-text&quot; spellcheck=&quot;false&quot; aria-label=&quot;可复制的提问&quot;&gt;&lt;/textarea&gt;
+      &lt;div class=&quot;rgs-advice-foot&quot;&gt;
+        &lt;p class=&quot;text-small text-muted rgs-advice-msg&quot; id=&quot;rgs-advice-msg&quot; hidden&gt;&lt;/p&gt;
+        &lt;button class=&quot;btn&quot; id=&quot;rgs-advice-copy&quot; type=&quot;button&quot;&gt;复制提问&lt;/button&gt;
+        &lt;button class=&quot;btn btn-ghost&quot; id=&quot;rgs-advice-close&quot; type=&quot;button&quot;&gt;关闭&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;rgs-modal&quot; id=&quot;rgs-modal&quot; hidden&gt;
+    &lt;div class=&quot;rgs-modal-card&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;rgs-modal-title&quot;&gt;
+      &lt;span class=&quot;rgs-modal-title&quot; id=&quot;rgs-modal-title&quot;&gt;新建因素&lt;/span&gt;
+      &lt;div class=&quot;rgs-modal-tags&quot; id=&quot;rgs-modal-tags&quot; hidden&gt;&lt;/div&gt;
+      &lt;input class=&quot;form-control&quot; id=&quot;rgs-modal-name&quot; type=&quot;text&quot; placeholder=&quot;这个因素叫什么&quot; aria-label=&quot;因素名字&quot;&gt;
+      &lt;div class=&quot;rgs-modal-strength&quot; id=&quot;rgs-modal-strength&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;rgs-modal-foot&quot;&gt;
+        &lt;button class=&quot;btn btn-ghost&quot; id=&quot;rgs-modal-cancel&quot; type=&quot;button&quot;&gt;取消&lt;/button&gt;
+        &lt;button class=&quot;btn&quot; id=&quot;rgs-modal-add&quot; type=&quot;button&quot;&gt;添加&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type=&quot;importmap&quot;&gt;
+{&quot;imports&quot;:{
+  &quot;three&quot;:&quot;https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js&quot;,
+  &quot;three/addons/&quot;:&quot;https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/&quot;
+}}
+&lt;/script&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+import * as THREE from &quot;three&quot;;
+import { OrbitControls } from &quot;three/addons/controls/OrbitControls.js&quot;;
+
+const HOST = document.getElementById(&quot;rock-goal-sim&quot;);
+if (HOST) boot();
+
+function boot() {
+  const G = 9.8;
+  const RAMP = 6.0;
+  const PLATEAU = 3.0;
+  const S_TOP = RAMP + PLATEAU;
+  const ROCK_R = 0.5;
+  const ROLL = 1.4;
+  const S_MIN = -4.9;
+  const S_MAX = S_TOP;
+  const START_S = -1.55;
+  const SLAB_Z = 1.9;
+  const SLAB_T = 1.3;
+  const LANE_W = 1.9;             // 一条坡的宽度
+  const LANE_MIN = 3;             // 画面至少占三条坡的宽度，不随目标多少缩水
+  const MAX_TARGETS = 8;
+  const PERSON_GAP = 0.85;
+  const PERSON_SPEED = 3.4;
+  const N_PER_M = 85;
+  const SOFT_START = -0.35;
+  const DAMP_START = 98;
+  const DAMP_TOP = 260;
+  const TOP_SOFT = 0.7;
+  const HOLD_V = 0.45;
+  const CAP_BASE = 0.45;
+  const CAP_PER_N = 1 / 150;
+  const CAP_MAX = 2.6;
+  const PUSH_SOFT = 0.35;
+  const M_REF = 30;
+  const MU_LO = 0.02;
+  const MU_HI = 0.28;
+
+  const canvas = document.getElementById(&quot;rgs-canvas&quot;);
+  const overlay = document.getElementById(&quot;rgs-overlay&quot;);
+  const stage = document.getElementById(&quot;rgs-stage&quot;);
+  function defaultName(i) { return &quot;目标 &quot; + String.fromCharCode(65 + (i % 26)); }
+  // 目标少的时候也摆满三条坡的宽度：1 个居中，2 个分居两侧，3 个及以上依次往右排
+  function laneSlot(i, n) {
+    if (n &gt;= 3) return i;
+    if (n === 2) return i === 0 ? 0 : 2;
+    return 1;
+  }
+  function laneZ(slot) { return (slot - 1) * LANE_W; }
+  function trackTotal() { return Math.max(LANE_MIN, TARGETS.length); }
+  function targetZ(i) { return laneZ(laneSlot(i, TARGETS.length)); }
+  // 只剩一个目标时，让斜坡铺满整条宽度（和底板一样宽），多个目标再恢复一条一道
+  function laneWidthFactor() { return TARGETS.length === 1 ? LANE_MIN : 1; }
+  function tname(i) {
+    const t = TARGETS[i];
+    return (t &amp;&amp; t.name) ? t.name : defaultName(i);
+  }
+  function laneCenterZ() {
+    const n = TARGETS.length;
+    if (!n) return 0;
+    let sum = 0;
+    for (let i = 0; i &lt; n; i++) sum += targetZ(i);
+    return sum / n;
+  }
+
+  const el = {
+    net: document.getElementById(&quot;rgs-net&quot;),
+    sumDrive: document.getElementById(&quot;rgs-sum-drive&quot;),
+    sumResist: document.getElementById(&quot;rgs-sum-resist&quot;),
+    valExt: document.getElementById(&quot;rgs-val-ext&quot;),
+    valInt: document.getElementById(&quot;rgs-val-int&quot;),
+    valStart: document.getElementById(&quot;rgs-val-start&quot;),
+    valWear: document.getElementById(&quot;rgs-val-wear&quot;),
+    valGoal: document.getElementById(&quot;rgs-val-goal&quot;),
+    overview: document.getElementById(&quot;rgs-overview&quot;),
+    detail: document.getElementById(&quot;rgs-detail&quot;),
+    detailTitle: document.getElementById(&quot;rgs-detail-title&quot;),
+    detailSum: document.getElementById(&quot;rgs-detail-sum&quot;),
+    detailHint: document.getElementById(&quot;rgs-detail-hint&quot;),
+    detailEmpty: document.getElementById(&quot;rgs-detail-empty&quot;),
+    factorList: document.getElementById(&quot;rgs-factor-list&quot;),
+    nameInput: document.getElementById(&quot;rgs-target-name&quot;),
+    targetsBox: document.getElementById(&quot;rgs-targets&quot;),
+    addTarget: document.getElementById(&quot;rgs-add-target&quot;),
+    delTarget: document.getElementById(&quot;rgs-del-target&quot;)
+  };
+  const probe = document.createElement(&quot;span&quot;);
+  probe.setAttribute(&quot;aria-hidden&quot;, &quot;true&quot;);
+  probe.style.display = &quot;none&quot;;
+  HOST.appendChild(probe);
+  const probeStyle = getComputedStyle(probe);
+
+  function cssVar(name) {
+    probe.style.color = &quot;rgb(1, 2, 3)&quot;;
+    probe.style.color = &quot;var(&quot; + name + &quot;)&quot;;
+    const c = probeStyle.color;
+    if (!c || c === &quot;rgb(1, 2, 3)&quot;) {
+      probe.style.color = &quot;&quot;;
+      return getComputedStyle(HOST).color;
+    }
+    return c;
+  }
+  function num(v, scale) {
+    if (v === undefined) return 0;
+    const f = parseFloat(v);
+    if (!isFinite(f)) return 0;
+    return String(v).indexOf(&quot;%&quot;) &gt;= 0 ? f / 100 * scale : f;
+  }
+  function alphaOf(v) {
+    if (v === undefined) return 1;
+    const f = parseFloat(v);
+    if (!isFinite(f)) return 1;
+    return String(v).indexOf(&quot;%&quot;) &gt;= 0 ? f / 100 : f;
+  }
+  function parse(str) {
+    const s = String(str).trim();
+    let m = s.match(/^rgba?\(([^)]+)\)$/);
+    if (m) {
+      const p = m[1].split(/[ ,\/]+/).filter(Boolean);
+      return { r: num(p[0], 255), g: num(p[1], 255), b: num(p[2], 255), a: p.length &gt; 3 ? alphaOf(p[3]) : 1 };
+    }
+    m = s.match(/^color\(\s*srgb\s+([^)]+)\)$/);
+    if (m) {
+      const p = m[1].split(/[ \/]+/).filter(Boolean);
+      return { r: num(p[0], 1) * 255, g: num(p[1], 1) * 255, b: num(p[2], 1) * 255, a: p.length &gt; 3 ? alphaOf(p[3]) : 1 };
+    }
+    if (s.indexOf(&quot;transparent&quot;) === 0) return { r: 0, g: 0, b: 0, a: 0 };
+    return { r: 128, g: 128, b: 128, a: 1 };
+  }
+  function hexOf(c) {
+    const f = function (v) { return Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, &quot;0&quot;); };
+    return &quot;#&quot; + f(c.r) + f(c.g) + f(c.b);
+  }
+  function over(fg, bg) {
+    const a = fg.a;
+    return { r: fg.r * a + bg.r * (1 - a), g: fg.g * a + bg.g * (1 - a), b: fg.b * a + bg.b * (1 - a), a: 1 };
+  }
+  function mix(c1, c2, t) {
+    return { r: c1.r + (c2.r - c1.r) * t, g: c1.g + (c2.g - c1.g) * t, b: c1.b + (c2.b - c1.b) * t, a: 1 };
+  }
+
+  const palette = {};
+  function readPalette() {
+    const bg = parse(cssVar(&quot;--background&quot;));
+    const fg = over(parse(cssVar(&quot;--foreground&quot;)), bg);
+    const muted = over(parse(cssVar(&quot;--muted&quot;)), bg);
+    const mutedFg = over(parse(cssVar(&quot;--muted-foreground&quot;)), bg);
+    palette.fg = hexOf(fg);
+    palette.terrain = hexOf(mix(bg, muted, 1.55));
+    palette.terrainTop = hexOf(mix(bg, mutedFg, 0.72));
+    palette.rock = hexOf(mix(fg, muted, 0.3));
+    palette.person = hexOf(fg);
+    palette.push = hexOf(over(parse(cssVar(&quot;--viz-series-1&quot;)), bg));
+    palette.push2 = hexOf(over(parse(cssVar(&quot;--viz-series-4&quot;)), bg));
+  }
+  readPalette();
+
+  if (!canvas) return;
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  } catch (err) {
+    stage.innerHTML = &quot;&lt;p class=&#x27;text-small text-muted&#x27;&gt;当前环境不支持 WebGL，无法显示 3D 场景。&lt;/p&gt;&quot;;
+    return;
+  }
+  renderer.setClearAlpha(0);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 2, 0.5, 200);
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.09;
+  controls.enablePan = false;
+  controls.minDistance = 8;
+  controls.maxDistance = 45;
+  controls.minPolarAngle = 0.2;
+  controls.maxPolarAngle = Math.PI / 2 - 0.06;
+  controls.target.set(1.95, 1.5, 0);
+  camera.position.set(-5.6, 8.3, 12.0);
+  // 默认机位。画面竖直方向（屏幕向上）与默认机位，用于整体上移构图。
+  const CAM_BASE_TGT = controls.target.clone();
+  const CAM_OFF = camera.position.clone().sub(CAM_BASE_TGT);
+  const CAM_DIR = CAM_OFF.clone().normalize();
+  const CAM_RIGHT = new THREE.Vector3().crossVectors(CAM_DIR, new THREE.Vector3(0, 1, 0)).normalize();
+  const CAM_UP = new THREE.Vector3().crossVectors(CAM_RIGHT, CAM_DIR).normalize();
+  const FRAME_LIFT = 0.115;
+  let framed = false;
+  controls.update();
+
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x777788, 1.2);
+  scene.add(hemi);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 2.1);
+  dirLight.position.set(-7, 17, 10);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.set(2048, 2048);
+  dirLight.shadow.camera.left = -15;
+  dirLight.shadow.camera.right = 15;
+  dirLight.shadow.camera.top = 15;
+  dirLight.shadow.camera.bottom = -15;
+  dirLight.shadow.camera.near = 1;
+  dirLight.shadow.camera.far = 60;
+  dirLight.shadow.bias = -0.0004;
+  dirLight.shadow.normalBias = 0.08;
+  scene.add(dirLight);
+
+  const matTerrain = new THREE.MeshStandardMaterial({ color: palette.terrain, roughness: 0.97, metalness: 0 });
+  const matSide = new THREE.MeshStandardMaterial({ color: palette.terrainTop, roughness: 1, metalness: 0 });
+  const matPerson = new THREE.MeshStandardMaterial({ color: palette.person, roughness: 0.55, metalness: 0 });
+  const matRock = new THREE.MeshStandardMaterial({ color: palette.rock, roughness: 0.9, metalness: 0.02, flatShading: true });
+  const matMark = new THREE.MeshBasicMaterial({ color: palette.terrainTop });
+  const matSoft = new THREE.MeshStandardMaterial({ color: palette.terrainTop, roughness: 1, metalness: 0 });
+  const matRing = new THREE.MeshBasicMaterial({ color: palette.push, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
+
+  const slabs = [];
+  function ensureSlabs(n) {
+    while (slabs.length &lt; n) {
+      const group = new THREE.Group();
+      scene.add(group);
+      const surf = new THREE.Mesh(new THREE.BufferGeometry(), matTerrain);
+      surf.receiveShadow = true;
+      const flank = new THREE.Mesh(new THREE.BufferGeometry(), matSide);
+      const markB = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.04, SLAB_Z * 0.94), matMark);
+      const markT = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.04, SLAB_Z * 0.94), matMark);
+      const goal = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.05, SLAB_Z * 0.94), matMark);
+      const stop = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.62, SLAB_Z), matSide);
+      stop.castShadow = true;
+      const soft = new THREE.Mesh(
+        new THREE.BoxGeometry(Math.abs(SOFT_START - (S_MIN - 0.85)), 0.035, SLAB_Z), matSoft);
+      group.add(surf, flank, markB, markT, goal, stop, soft);
+      slabs.push({ group: group, surf: surf, flank: flank, markB: markB, markT: markT,
+                   goal: goal, stop: stop, soft: soft, theta: -1 });
+    }
+    for (let i = 0; i &lt; slabs.length; i++) slabs[i].group.visible = i &lt; n;
+  }
+  function invalidateSlabs() {
+    for (let i = 0; i &lt; slabs.length; i++) slabs[i].theta = -1;
+  }
+  // 目标少的时候，坡只占中间一两道，用一块底板把「三条坡的宽度」撑住
+  const padGeo = new THREE.BoxGeometry(1, SLAB_T - 0.05, 1);
+  const pad = new THREE.Mesh(padGeo, matSide);
+  pad.receiveShadow = true;
+  scene.add(pad);
+  function updatePad() {
+    let topX = 0;
+    for (let i = 0; i &lt; TARGETS.length; i++) topX = Math.max(topX, RAMP * Math.cos(params(i).theta));
+    const backX = S_MIN - 0.85;
+    const endX = topX + PLATEAU + 0.7;
+    pad.scale.set(endX - backX, 1, trackTotal() * LANE_W);
+    pad.position.set((backX + endX) / 2, -(SLAB_T - 0.05) / 2 - 0.02, laneCenterZ());
+  }
+
+  function buildSlab(i, theta) {
+    const sl = slabs[i];
+    if (Math.abs(theta - sl.theta) &lt; 1e-5) return;
+    sl.theta = theta;
+    const c = Math.cos(theta), s = Math.sin(theta);
+    const topX = RAMP * c, topY = RAMP * s;
+    const endX = topX + PLATEAU + 0.7;
+    const backX = S_MIN - 0.85;
+    // 实心楔形：底边水平。之前底边连到 [endX, topY - SLAB_T]，
+    // 坡度一大这条斜边就会穿过坡面，轮廓自交，挤出来的实体是破的。
+    const prof = [
+      [backX, 0], [0, 0], [topX, topY], [endX, topY],
+      [endX, -SLAB_T], [backX, -SLAB_T]
+    ];
+    const shape = new THREE.Shape();
+    shape.moveTo(prof[0][0], prof[0][1]);
+    for (let i = 1; i &lt; prof.length; i++) shape.lineTo(prof[i][0], prof[i][1]);
+    shape.closePath();
+    sl.surf.geometry.dispose();
+    sl.surf.geometry = new THREE.ExtrudeGeometry(shape, { depth: SLAB_Z, bevelEnabled: false }).translate(0, 0, -SLAB_Z / 2);
+    sl.flank.geometry.dispose();
+    sl.flank.geometry = new THREE.ExtrudeGeometry(shape, { depth: SLAB_Z + 0.004, bevelEnabled: false }).translate(0, -0.002, -SLAB_Z / 2 - 0.002);
+    sl.markB.position.set(0, 0.02, 0);
+    sl.markT.position.set(topX, topY + 0.02, 0);
+    sl.goal.position.set(topX + PLATEAU - 0.85, topY + 0.03, 0);
+    sl.stop.position.set(endX - 0.38, topY + 0.3, 0);
+    sl.soft.position.set((SOFT_START + backX) / 2, 0.018, 0);
+  }
+  const rocks = [];
+  const rockGeo = new THREE.IcosahedronGeometry(ROCK_R, 1);
+  const ringGeo = new THREE.RingGeometry(ROCK_R * 1.22, ROCK_R * 1.5, 40);
+  function ensureRocks(n) {
+    while (rocks.length &lt; n) {
+      const idx = rocks.length;
+      const mat = matRock.clone();
+      const m = new THREE.Mesh(rockGeo, mat);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      scene.add(m);
+      const ring = new THREE.Mesh(ringGeo, matRing);
+      ring.rotation.x = -Math.PI / 2;
+      ring.visible = false;
+      scene.add(ring);
+      rocks.push({ s: START_S, start: START_S, v: 0, rot: idx * 1.7 + 0.5, z: 0,
+                   done: false, mesh: m, ring: ring, mat: mat, last: null });
+    }
+    for (let i = 0; i &lt; rocks.length; i++) rocks[i].mesh.visible = i &lt; n;
+  }
+
+  const bumpGeo = new THREE.IcosahedronGeometry(1, 0);
+  const matBump = new THREE.MeshStandardMaterial({ color: palette.terrainTop, roughness: 1, metalness: 0, flatShading: true });
+  const BUMPS = [];
+  let bumpSeed = 20240918;
+  function bumpRnd() {
+    bumpSeed = (bumpSeed * 1103515245 + 12345) &amp; 0x7fffffff;
+    return bumpSeed / 0x7fffffff;
+  }
+  function ensureBumps(n) {
+    while (BUMPS.length &lt; n * 34) {
+      const ti = Math.floor(BUMPS.length / 34);
+      const bs = S_MIN + 0.35 + bumpRnd() * (S_TOP - S_MIN - 0.8);
+      const bz = (bumpRnd() - 0.5) * (SLAB_Z - 0.8);
+      const sc = 0.05 + bumpRnd() * 0.08;
+      const rank = bumpRnd();
+      const bm = new THREE.Mesh(bumpGeo, matBump);
+      bm.scale.set(sc, sc * (0.6 + bumpRnd() * 0.5), sc);
+      bm.visible = false;
+      bm.castShadow = true;
+      bm.receiveShadow = true;
+      scene.add(bm);
+      BUMPS.push({ ti: ti, s: bs, z: bz, sc: sc, rank: rank, mesh: bm });
+    }
+    for (let i = 0; i &lt; BUMPS.length; i++) if (BUMPS[i].ti &gt;= n) BUMPS[i].mesh.visible = false;
+  }
+
+  const person = { s: START_S - PERSON_GAP, z: 0, phase: 0, reach: 0, speed: 0 };
+  const personRoot = new THREE.Group();
+  scene.add(personRoot);
+
+  function limb(parent, len, radius, atY, atZ) {
+    const g = new THREE.Group();
+    g.position.set(0, atY, atZ || 0);
+    const geo = new THREE.CapsuleGeometry(radius, Math.max(0.02, len - radius * 2), 4, 10);
+    geo.translate(0, -len / 2, 0);
+    const m = new THREE.Mesh(geo, matPerson);
+    m.castShadow = true;
+    g.add(m);
+    parent.add(g);
+    return g;
+  }
+
+  const HIP_Y = 0.94;
+  const torso = new THREE.Group();
+  torso.position.set(0, HIP_Y, 0);
+  personRoot.add(torso);
+  const torsoMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.32, 4, 12), matPerson);
+  torsoMesh.position.set(0, 0.28, 0);
+  torsoMesh.castShadow = true;
+  torso.add(torsoMesh);
+  const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.135, 16, 12), matPerson);
+  headMesh.position.set(0, 0.63, 0);
+  headMesh.castShadow = true;
+  torso.add(headMesh);
+
+  const armL = limb(torso, 0.62, 0.055, 0.52, 0.15);
+  const armR = limb(torso, 0.62, 0.055, 0.52, -0.15);
+  const legL = limb(personRoot, 0.94, 0.075, HIP_Y, 0.11);
+  const legR = limb(personRoot, 0.94, 0.075, HIP_Y, -0.11);
+
+  const arrowGroup = new THREE.Group();
+  scene.add(arrowGroup);
+  function makeArrow(color) {
+    const a = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 1, color, 0.28, 0.16);
+    a.visible = false;
+    arrowGroup.add(a);
+    return a;
+  }
+  const arrowPush = makeArrow(palette.push);
+  const arrowPush2 = makeArrow(palette.push2);
+  const allArrows = [arrowPush, arrowPush2];
+  const tmpColor = new THREE.Color();
+  const v3 = new THREE.Vector3();
+  const dirVec = new THREE.Vector3();
+  const originVec = new THREE.Vector3();
+
+  const badges = [];
+  function ensureBadges(n) {
+    while (badges.length &lt; n) {
+      const idx = badges.length;
+      const b = document.createElement(&quot;button&quot;);
+      b.type = &quot;button&quot;;
+      b.className = &quot;rgs-badge&quot;;
+      b.textContent = tname(idx);
+      b.setAttribute(&quot;aria-pressed&quot;, &quot;false&quot;);
+      b.addEventListener(&quot;click&quot;, function () { setFocus(idx); });
+      overlay.appendChild(b);
+      badges.push(b);
+    }
+    for (let i = 0; i &lt; badges.length; i++) {
+      badges[i].textContent = tname(i);
+      if (i &gt;= n) badges[i].style.display = &quot;none&quot;;
+    }
+  }
+
+  let focus = 0;
+  let pushing = false;
+  let demo = null;
+  let openKey = null;
+
+  // 每个目标各有一套「因素」。因素值相加 = 这一项的力，单位都是 N。
+  const BUCKETS = [
+    { key: &quot;ext&quot;,   name: &quot;外部动力&quot;, side: &quot;drive&quot;, suggest: [
+      &quot;有人给我正反馈&quot;, &quot;有人认可我&quot;, &quot;有人期待我&quot;, &quot;有明确的奖励&quot;, &quot;有榜样在前面&quot;, &quot;有人需要我&quot; ] },
+    { key: &quot;int&quot;,   name: &quot;内部动力&quot;, side: &quot;drive&quot;, suggest: [
+      &quot;我自己真的想做&quot;, &quot;我对这件事很好奇&quot;, &quot;我觉得这事有意思&quot;, &quot;我觉得这事有意义&quot;, &quot;我想证明自己&quot;, &quot;不做我会不甘心&quot; ] },
+    { key: &quot;start&quot;, name: &quot;启动门槛&quot;, side: &quot;resist&quot;, hint: &quot;重量&quot;, suggest: [
+      &quot;开始那一下的心理成本&quot;, &quot;要准备的东西太多&quot;, &quot;不知道从哪下手&quot;, &quot;需要先做很多铺垫&quot;, &quot;怕第一步就做错&quot;, &quot;启动要花的时间成本&quot; ] },
+    { key: &quot;wear&quot;,  name: &quot;内耗阻力&quot;, side: &quot;resist&quot;, hint: &quot;路况&quot;, suggest: [
+      &quot;边做边走神&quot;, &quot;老想到别的事&quot;, &quot;反复怀疑自己&quot;, &quot;怕做不好&quot;, &quot;同时惦记好几件事&quot;, &quot;情绪和状态起伏&quot; ] },
+    { key: &quot;goal&quot;,  name: &quot;目标难度&quot;, side: &quot;resist&quot;, hint: &quot;坡度&quot;, suggest: [
+      &quot;这件事本身的难度&quot;, &quot;要学的东西很多&quot;, &quot;以前没做过&quot;, &quot;需要的时间很长&quot;, &quot;没有现成的方法&quot;, &quot;要求特别高&quot; ] }
+  ];
+  const BUCKET_BY_KEY = {};
+  BUCKETS.forEach(function (b) { BUCKET_BY_KEY[b.key] = b; });
+  const FACTOR_MAX = 150;
+
+  function fx(name, value) { return { name: name, value: value }; }
+  const TARGETS = [
+    {
+      name: &quot;游戏&quot;,
+      factors: {
+        int:   [fx(&quot;我就是想玩&quot;, 90), fx(&quot;我觉得打通关会很爽&quot;, 50)],
+        ext:   [fx(&quot;朋友都在玩，能一起聊&quot;, 50), fx(&quot;我觉得它每次的升级反馈给的很足&quot;, 25)],
+        goal:  [fx(&quot;还是有点难度，有挑战性&quot;, 50)],
+        start: [fx(&quot;点开就能玩&quot;, 10)],
+        wear:  [fx(&quot;玩的时候会惦记没做完的事&quot;, 30)]
+      }
+    },
+    {
+      name: &quot;公司项目&quot;,
+      factors: {
+        int:   [fx(&quot;这件事我认可&quot;, 60), fx(&quot;想做出点成绩&quot;, 30)],
+        ext:   [fx(&quot;有明确的奖惩机制&quot;, 80), fx(&quot;老板和同事都在看&quot;, 40), fx(&quot;截止时间摆在那&quot;, 20)],
+        goal:  [fx(&quot;需求本身很复杂&quot;, 90)],
+        start: [fx(&quot;要先等别人配合&quot;, 60)],
+        wear:  [fx(&quot;会议和杂事把时间切碎，我感觉很烦&quot;, 50)]
+      }
+    },
+    {
+      name: &quot;自己写论文&quot;,
+      factors: {
+        int:   [fx(&quot;写完论文我就可以放假了&quot;, 70), fx(&quot;有点想学习&quot;, 10)],
+        ext:   [fx(&quot;暂时没人给我反馈&quot;, 20)],
+        goal:  [fx(&quot;我压根不知道往哪个方向写&quot;, 80)],
+        start: [fx(&quot;打开文档就开始刷手机&quot;, 80)],
+        wear:  [fx(&quot;担心老师对自己失望，担心写不好&quot;, 40), fx(&quot;想要写好，又想学到东西，又想轻松写好，各种念头撕扯&quot;, 100)]
+      }
+    }
+  ];
+
+  const STORE_KEY = &quot;rock-goal-sim-state-v2&quot;;
+  let storageOK = true;
+
+  function saveState() {
+    if (!storageOK) return;
+    try {
+      const targets = [];
+      for (let i = 0; i &lt; TARGETS.length; i++) {
+        const t = TARGETS[i];
+        const f = {};
+        for (let bi = 0; bi &lt; BUCKETS.length; bi++) {
+          const key = BUCKETS[bi].key;
+          const list = t.factors[key] || [];
+          const arr = [];
+          for (let k = 0; k &lt; list.length; k++) arr.push({ name: list[k].name, value: list[k].value });
+          f[key] = arr;
+        }
+        targets.push({ name: t.name, factors: f });
+      }
+      localStorage.setItem(STORE_KEY, JSON.stringify({ v: 2, focus: focus, targets: targets }));
+    } catch (err) {
+      storageOK = false;
+    }
+  }
+  // 读存档，没有就返回 0
+  function loadState() {
+    let data = null;
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) data = JSON.parse(raw);
+    } catch (err) {
+      storageOK = false;
+      return 0;
+    }
+    if (!data || !data.targets || !data.targets.length) return 0;
+    const list = [];
+    const src = data.targets.slice(0, MAX_TARGETS);
+    for (let i = 0; i &lt; src.length; i++) {
+      const t = src[i] || {};
+      const factors = {};
+      for (let bi = 0; bi &lt; BUCKETS.length; bi++) {
+        const key = BUCKETS[bi].key;
+        const raw = (t.factors &amp;&amp; t.factors[key]) || [];
+        const arr = [];
+        for (let k = 0; k &lt; raw.length; k++) {
+          const it = raw[k] || {};
+          arr.push({
+            name: String(it.name == null ? &quot;&quot; : it.name),
+            value: clamp(Math.round(Number(it.value) || 0), 0, FACTOR_MAX)
+          });
+        }
+        factors[key] = arr;
+      }
+      list.push({ name: String(t.name || defaultName(i)), factors: factors });
+    }
+    if (!list.length) return 0;
+    TARGETS.length = 0;
+    for (let i = 0; i &lt; list.length; i++) TARGETS.push(list[i]);
+    focus = clamp(Math.round(Number(data.focus) || 0), 0, list.length - 1);
+    return 1;
+  }
+
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+  function bucketSum(t, key) {
+    const list = t.factors[key];
+    let total = 0;
+    for (let i = 0; i &lt; list.length; i++) total += Number(list[i].value) || 0;
+    return total;
+  }
+  function totals(i) {
+    const t = TARGETS[i];
+    const ext = bucketSum(t, &quot;ext&quot;), inn = bucketSum(t, &quot;int&quot;);
+    const start = bucketSum(t, &quot;start&quot;), wear = bucketSum(t, &quot;wear&quot;), goal = bucketSum(t, &quot;goal&quot;);
+    const drive = ext + inn, resist = start + wear + goal;
+    return { ext: ext, int: inn, start: start, wear: wear, goal: goal,
+             drive: drive, resist: resist, net: drive - resist };
+  }
+  // 三个阻力项各自对应画面上的一个东西
+  function massFrom(start) { return clamp(5 + start * 0.75, 5, 120); }
+  function angleFrom(goal) { return clamp(goal * 0.12, 4, 34) * Math.PI / 180; }
+  function muFrom(wear) { return clamp(0.02 + wear / FACTOR_MAX * 0.26, 0.02, 0.28); }
+
+  function params(i) {
+    const T = totals(i);
+    return {
+      T: T,
+      F: T.drive,
+      drive: T.drive,
+      resist: T.resist,
+      net: T.net,
+      gate: T.start,        // 启动门槛：只有&quot;人要开始推&quot;的时候才需要额外抬过去
+      fric: T.wear,         // 内耗阻力：路况带来的摩擦，滚动时也一直在
+      back: T.goal,
+      m: massFrom(T.start),
+      theta: angleFrom(T.goal),
+      mu: muFrom(T.wear)
+    };
+  }
+  function loadTargetUI() {
+    if (el.nameInput) el.nameInput.value = tname(focus);
+    syncSide();
+    syncSideValues();
+  }
+  function roughOf(mu) {
+    return Math.max(0, Math.min(1, (mu - MU_LO) / (MU_HI - MU_LO)));
+  }
+
+  function terrainAt(s, theta) {
+    const c = Math.cos(theta), sn = Math.sin(theta);
+    if (s &lt;= 0) return { x: s, y: 0, dx: 1, dy: 0, nx: 0, ny: 1, onRamp: false, slope: 0 };
+    if (s &gt;= RAMP) return { x: RAMP * c + (s - RAMP), y: RAMP * sn, dx: 1, dy: 0, nx: 0, ny: 1, onRamp: false, slope: 0 };
+    return { x: s * c, y: s * sn, dx: c, dy: sn, nx: -sn, ny: c, onRamp: true, slope: theta };
+  }
+  function rockScale(p) {
+    return Math.min(1.62, Math.max(0.58, Math.cbrt(p.m / M_REF)));
+  }
+
+  function stepRock(r, p, pushForce, dt) {
+    const roll = p.fric;                // 内耗阻力：路面摩擦，滚动中和静止时都在
+    // 目标难度：只要还在坡上就一直往回拉；推上平台就算这一步达成，不再回拉
+    const back = (r.s &gt; 0 &amp;&amp; !r.done) ? p.back : 0;
+    let soft = 0;
+    if (r.s &lt; SOFT_START &amp;&amp; r.v &lt; 0) soft = -DAMP_START * r.v;
+    else if (r.s &gt; S_TOP - TOP_SOFT &amp;&amp; r.v &gt; 0) soft = -DAMP_TOP * r.v;
+    // 启动门槛只在&quot;人在推&quot;的时候才算门槛；石头自己会不会往下滑，只看坡度(目标难度)和路况(内耗阻力)
+    const gate = pushForce &gt; 0 ? p.gate : 0;
+    let fric, stuck = false;
+    if (Math.abs(r.v) &gt; 0.02) {
+      fric = -Math.sign(r.v) * roll;
+    } else {
+      const want = pushForce - back;
+      if (Math.abs(want) &lt;= roll + gate) { fric = -want; r.v = 0; stuck = true; }
+      else fric = -Math.sign(want) * roll;
+    }
+    const a = (pushForce - back + fric + soft) / (p.m * ROLL);
+    r.v += a * dt;
+    r.s += r.v * dt;
+    if (!r.done &amp;&amp; r.s &gt;= RAMP) r.done = true;   // 上到平台 = 阶段性达成，石头就留在平台上
+    if (r.s &lt; SOFT_START &amp;&amp; r.v &lt; 0 &amp;&amp; r.v &gt; -HOLD_V) r.v = 0;
+    if (r.s &lt; S_MIN) { r.s = S_MIN; if (r.v &lt; 0) r.v = 0; }
+    if (r.s &gt; S_MAX) { r.s = S_MAX; if (r.v &gt; 0) r.v = 0; }
+    r.rot += (r.v / (ROCK_R * rockScale(p))) * dt;
+    r.last = { drive: pushForce, back: back, hold: roll + gate, fric: fric, stuck: stuck, a: a, net: a * p.m * ROLL };
+  }
+
+  function step(dt) {
+    for (let i = 0; i &lt; TARGETS.length; i++) {
+      const r = rocks[i];
+      const p = params(i);
+      const cap = Math.min(CAP_MAX, CAP_BASE + p.drive * CAP_PER_N);
+      const want = (pushing &amp;&amp; i === focus) ? p.drive : 0;
+      const contact = Math.max(0, Math.min(1, (cap - r.v) / PUSH_SOFT));
+      stepRock(r, p, want * contact, dt);
+    }
+    const targetS = rocks[focus].s - (PERSON_GAP - ROCK_R + ROCK_R * rockScale(params(focus)));
+    const targetZ = rocks[focus].z;
+    const ds = targetS - person.s, dz = targetZ - person.z;
+    const dist = Math.hypot(ds, dz);
+    const maxStep = PERSON_SPEED * dt;
+    let moved;
+    if (dist &lt;= maxStep) { moved = dist; person.s = targetS; person.z = targetZ; }
+    else { person.s += ds / dist * maxStep; person.z += dz / dist * maxStep; moved = maxStep; }
+    person.speed = dt &gt; 0 ? moved / dt : 0;
+    if (pushing &amp;&amp; Math.abs(rocks[focus].v) &lt; 0.4 &amp;&amp; dist &lt; 0.3) person.phase += 3.4 * dt;
+    else person.phase += moved * 5.0;
+    person.reach += ((pushing &amp;&amp; dist &lt; 0.3 ? 1 : 0) - person.reach) * Math.min(1, dt * 7);
+  }
+  function setArrow(arrow, ox, oy, oz, dx, dy, dz, len, color, visible) {
+    arrow.visible = visible;
+    if (!visible) return;
+    originVec.set(ox, oy, oz);
+    dirVec.set(dx, dy, dz).normalize();
+    arrow.position.copy(originVec);
+    arrow.setDirection(dirVec);
+    const L = Math.max(0.3, len);
+    arrow.setLength(L, Math.min(0.32, Math.max(0.09, L * 0.34)), Math.min(0.19, Math.max(0.055, L * 0.2)));
+    tmpColor.set(color);
+    arrow.setColor(tmpColor);
+  }
+
+  function updateBumps() {
+    for (let i = 0; i &lt; BUMPS.length; i++) {
+      const b = BUMPS[i];
+      if (b.ti &gt;= TARGETS.length) { b.mesh.visible = false; continue; }
+      const tp = params(b.ti);
+      const on = b.rank &lt; roughOf(tp.mu);
+      b.mesh.visible = on;
+      if (!on) continue;
+      const t = terrainAt(b.s, tp.theta);
+      b.mesh.position.set(t.x + t.nx * b.sc * 0.42, t.y + t.ny * b.sc * 0.42,
+        targetZ(b.ti) + b.z * laneWidthFactor());
+    }
+  }
+
+  function updateScene() {
+    const n = TARGETS.length;
+    for (let i = 0; i &lt; n; i++) {
+      const pi = params(i);
+      buildSlab(i, pi.theta);
+      const r = rocks[i];
+      r.z = targetZ(i);
+      slabs[i].group.position.z = r.z;
+      slabs[i].group.scale.z = laneWidthFactor();
+      const rough = roughOf(pi.mu);
+      const t = terrainAt(r.s, pi.theta);
+      const rs = rockScale(pi);
+      r.mesh.position.set(t.x + t.nx * ROCK_R * rs, t.y + t.ny * ROCK_R * rs, r.z);
+      r.mesh.rotation.set(r.rot * 0.85, r.rot * 0.55, r.rot);
+      const want = rs * (i === hoverRock ? 1.09 : 1);
+      r.mesh.scale.setScalar(r.mesh.scale.x + (want - r.mesh.scale.x) * 0.22);
+      if (rough &gt; 0.02 &amp;&amp; Math.abs(r.v) &gt; 0.1) {
+        const tt = performance.now() / 1000;
+        const amp = rough * Math.min(0.075, Math.abs(r.v) * 0.07);
+        const kick = Math.sin(tt * 61 + i * 2.1) * 0.6 + Math.sin(tt * 97 + i) * 0.4;
+        r.mesh.position.y += kick * amp;
+        r.mesh.position.z += Math.sin(tt * 83 + i * 1.7) * amp * 0.4;
+        r.mesh.rotation.z += kick * rough * 0.4;
+      }
+      r.ring.position.set(t.x, t.y + 0.04, r.z);
+      r.ring.scale.setScalar(rs);
+      r.ring.visible = i === focus;
+    }
+    updatePad();
+    updateBumps();
+
+    const p = params(focus);
+    const pt = terrainAt(person.s, p.theta);
+    personRoot.position.set(pt.x, pt.y, person.z);
+    personRoot.rotation.z = pt.slope;
+    torso.rotation.z = -(0.05 + 0.42 * person.reach);
+    const ph = person.phase;
+    const swing = Math.min(0.55, 0.12 + person.speed * 0.22);
+    legL.rotation.z = swing * Math.sin(ph);
+    legR.rotation.z = swing * Math.sin(ph + Math.PI);
+    armL.rotation.z = (0.58 + 0.16 * Math.sin(ph)) * person.reach;
+    armR.rotation.z = (0.58 + 0.16 * Math.sin(ph + Math.PI)) * person.reach;
+
+    const fr = rocks[focus];
+    const ft = terrainAt(fr.s, p.theta);
+    const cx = ft.x + ft.nx * ROCK_R;
+    const cy = ft.y + ft.ny * ROCK_R;
+    const dx = ft.dx, dy = ft.dy;
+
+    if (!fr.last) {
+      allArrows.forEach(function (a) { a.visible = false; });
+      return;
+    }
+    const L = fr.last;
+    const T = p.T;
+    // 实际施加的比例（模式 2 里动力会被稀释，箭头也跟着变短）
+    const applied = T.drive &gt; 0 ? L.drive / T.drive : 0;
+    const extN = Math.min(4.4, T.ext * applied / N_PER_M);
+    const intN = Math.min(4.4, T.int * applied / N_PER_M);
+    setArrow(arrowPush, cx + dx * ROCK_R, cy + dy * ROCK_R, fr.z - 0.3, dx, dy, 0, extN, palette.push, extN &gt; 0.05);
+    setArrow(arrowPush2, cx + dx * ROCK_R, cy + dy * ROCK_R, fr.z + 0.3, dx, dy, 0, intN, palette.push2, intN &gt; 0.05);
+  }
+
+  function updateBadges() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    for (let i = 0; i &lt; TARGETS.length; i++) {
+      const pos = rocks[i].mesh.position;
+      v3.set(pos.x, pos.y + ROCK_R * rockScale(params(i)) + 0.62 + i * 0.42, pos.z).project(camera);
+      const behind = v3.z &gt; 1;
+      badges[i].style.display = behind ? &quot;none&quot; : &quot;&quot;;
+      if (behind) continue;
+      badges[i].style.left = ((v3.x * 0.5 + 0.5) * w).toFixed(1) + &quot;px&quot;;
+      badges[i].style.top = ((-v3.y * 0.5 + 0.5) * h).toFixed(1) + &quot;px&quot;;
+      badges[i].setAttribute(&quot;aria-pressed&quot;, i === focus ? &quot;true&quot; : &quot;false&quot;);
+    }
+  }
+
+  function setFocus(i) {
+    if (i &lt; 0 || i &gt;= TARGETS.length) return;
+    if (focus === i) return;
+    if (shareBox &amp;&amp; !shareBox.hidden) { shareBox.hidden = true; shareMsgSet(&quot;&quot;); }
+    focus = i;
+    renderTargetTabs();
+    loadTargetUI();
+    saveState();
+  }
+  function renderTargetTabs() {
+    if (!el.targetsBox) return;
+    el.targetsBox.innerHTML = &quot;&quot;;
+    for (let i = 0; i &lt; TARGETS.length; i++) {
+      const b = document.createElement(&quot;button&quot;);
+      b.type = &quot;button&quot;;
+      b.id = &quot;rgs-t&quot; + i;
+      b.className = &quot;nav-link&quot; + (i === focus ? &quot; active&quot; : &quot;&quot;);
+      b.setAttribute(&quot;role&quot;, &quot;radio&quot;);
+      b.setAttribute(&quot;aria-checked&quot;, i === focus ? &quot;true&quot; : &quot;false&quot;);
+      b.textContent = tname(i);
+      b.addEventListener(&quot;click&quot;, (function (k) {
+        return function () { setFocus(k); };
+      })(i));
+      el.targetsBox.appendChild(b);
+    }
+    if (el.delTarget) el.delTarget.disabled = TARGETS.length &lt;= 1;
+    if (el.addTarget) el.addTarget.disabled = TARGETS.length &gt;= MAX_TARGETS;
+    const demoBtn = document.getElementById(&quot;rgs-demo-scatter&quot;);
+    if (demoBtn) demoBtn.disabled = TARGETS.length &lt; 3;
+  }
+  function refreshNames() {
+    renderTargetTabs();
+    for (let i = 0; i &lt; TARGETS.length; i++) if (badges[i]) badges[i].textContent = tname(i);
+    if (openKey) {
+      const bk = BUCKET_BY_KEY[openKey];
+      if (bk) el.detailTitle.textContent = tname(focus) + &quot; \u00b7 &quot; + bk.name;
+    }
+  }
+  if (el.nameInput) {
+    el.nameInput.addEventListener(&quot;input&quot;, function () {
+      if (!TARGETS[focus]) return;
+      TARGETS[focus].name = el.nameInput.value;
+      refreshNames();
+      saveState();
+    });
+  }
+
+  let laneCenter = 0;
+  function panToLanes() {
+    const c = laneCenterZ();
+    const dz = c - laneCenter;
+    if (Math.abs(dz) &lt; 0.005) return;
+    laneCenter = c;
+    controls.target.z += dz;
+    camera.position.z += dz;
+    controls.update();
+  }
+
+  function syncTargets() {
+    const n = TARGETS.length;
+    ensureSlabs(n);
+    ensureRocks(n);
+    ensureBumps(n);
+    ensureBadges(n);
+    invalidateSlabs();
+    for (let i = 0; i &lt; rocks.length; i++) rocks[i].z = targetZ(i);
+    renderTargetTabs();
+    panToLanes();
+    resize();
+    if (openKey) renderDetail();
+  }
+  // —— 单个目标的保存 / 导入：打包成一段可以复制、粘贴的参数 ——
+  const shareBox = document.getElementById(&quot;rgs-share&quot;);
+  const shareText = document.getElementById(&quot;rgs-share-text&quot;);
+  const shareMsg = document.getElementById(&quot;rgs-share-msg&quot;);
+  const shareNewBtn = document.getElementById(&quot;rgs-share-new&quot;);
+  const shareApplyBtn = document.getElementById(&quot;rgs-share-apply&quot;);
+  const shareCloseBtn = document.getElementById(&quot;rgs-share-close&quot;);
+  const saveCodeBtn = document.getElementById(&quot;rgs-save-target&quot;);
+  const loadCodeBtn = document.getElementById(&quot;rgs-load-target&quot;);
+
+  function shareMsgSet(txt, bad) {
+    if (!shareMsg) return;
+    if (!txt) { shareMsg.hidden = true; shareMsg.textContent = &quot;&quot;; return; }
+    shareMsg.hidden = false;
+    shareMsg.textContent = txt;
+    shareMsg.setAttribute(&quot;data-bad&quot;, bad ? &quot;1&quot; : &quot;0&quot;);
+  }
+  function openShareBox(mode) {
+    if (!shareBox) return;
+    shareBox.hidden = false;
+    shareMsgSet(&quot;&quot;);
+    if (mode === &quot;import&quot; &amp;&amp; shareText) { shareText.value = &quot;&quot;; shareText.focus(); }
+  }
+  function copyText(txt) {
+    let ok = false;
+    if (shareText) {
+      shareText.value = txt;
+      try { shareText.focus(); shareText.select(); } catch (err) {}
+    }
+    try { ok = document.execCommand(&quot;copy&quot;); } catch (err) { ok = false; }
+    if (!ok &amp;&amp; navigator.clipboard &amp;&amp; navigator.clipboard.writeText) {
+      try { navigator.clipboard.writeText(txt); ok = true; } catch (err) {}
+    }
+    return ok;
+  }
+  // 一个目标 -&gt; 一段参数
+  function targetToCode(i) {
+    const t = TARGETS[i];
+    const f = {};
+    for (let bi = 0; bi &lt; BUCKETS.length; bi++) {
+      const key = BUCKETS[bi].key;
+      const list = t.factors[key] || [];
+      const arr = [];
+      for (let k = 0; k &lt; list.length; k++) {
+        arr.push([String(list[k].name), Math.round(Number(list[k].value) || 0)]);
+      }
+      f[key] = arr;
+    }
+    return JSON.stringify({ rgs: 1, n: t.name, f: f });
+  }
+  // 一段参数 -&gt; 一个目标（宽松解析，值都夹到合法范围）
+  function codeToTarget(text) {
+    let data = JSON.parse(String(text == null ? &quot;&quot; : text).trim());
+    if (typeof data === &quot;string&quot;) data = JSON.parse(data);
+    if (!data || typeof data !== &quot;object&quot; || Array.isArray(data)) throw new Error(&quot;bad shape&quot;);
+    const src = (data.f &amp;&amp; typeof data.f === &quot;object&quot;) ? data.f : {};
+    const factors = {};
+    for (let bi = 0; bi &lt; BUCKETS.length; bi++) {
+      const key = BUCKETS[bi].key;
+      const raw = Array.isArray(src[key]) ? src[key] : [];
+      const arr = [];
+      for (let k = 0; k &lt; raw.length; k++) {
+        const it = raw[k];
+        let nm, vl;
+        if (Array.isArray(it)) { nm = it[0]; vl = it[1]; }
+        else if (it &amp;&amp; typeof it === &quot;object&quot;) { nm = it.name; vl = it.value; }
+        else continue;
+        arr.push({ name: String(nm == null ? &quot;&quot; : nm),
+                   value: clamp(Math.round(Number(vl) || 0), 0, FACTOR_MAX) });
+      }
+      factors[key] = arr;
+    }
+    return { name: String(data.n == null ? &quot;&quot; : data.n), factors: factors };
+  }
+  function addTargetFromData(data) {
+    if (TARGETS.length &gt;= MAX_TARGETS) return false;
+    const i = TARGETS.length;
+    TARGETS.push(data);
+    focus = i;
+    syncTargets();
+    const r = rocks[i];
+    if (r) { r.s = START_S; r.v = 0; r.rot = i * 1.7 + 0.5; r.done = false; r.last = null; }
+    demo = null;
+    setPushing(false);
+    loadTargetUI();
+    saveState();
+    return true;
+  }
+  if (saveCodeBtn) {
+    saveCodeBtn.addEventListener(&quot;click&quot;, function () {
+      if (!TARGETS[focus]) return;
+      const code = targetToCode(focus);
+      openShareBox(&quot;export&quot;);
+      const ok = copyText(code);
+      try { shareText.focus(); shareText.setSelectionRange(0, code.length); } catch (err) {}
+      saveCodeBtn.textContent = ok ? &quot;已复制&quot; : &quot;手动复制&quot;;
+      setTimeout(function () { saveCodeBtn.textContent = &quot;保存参数&quot;; }, 1700);
+      shareMsgSet(ok ? &quot;&quot; : &quot;没能自动复制，手动选中下面这段复制一下。&quot;, !ok);
+    });
+  }
+  if (loadCodeBtn) {
+    loadCodeBtn.addEventListener(&quot;click&quot;, function () { openShareBox(&quot;import&quot;); });
+  }
+  if (shareCloseBtn) {
+    shareCloseBtn.addEventListener(&quot;click&quot;, function () {
+      if (shareBox) shareBox.hidden = true;
+      shareMsgSet(&quot;&quot;);
+    });
+  }
+  if (shareNewBtn) {
+    shareNewBtn.addEventListener(&quot;click&quot;, function () {
+      let data;
+      try { data = codeToTarget(shareText ? shareText.value : &quot;&quot;); }
+      catch (err) { shareMsgSet(&quot;这段参数读不出来，回去重新复制一次再粘。&quot;, true); return; }
+      if (TARGETS.length &gt;= MAX_TARGETS) { shareMsgSet(&quot;最多 &quot; + MAX_TARGETS + &quot; 个目标，先删一个再加。&quot;, true); return; }
+      if (!data.name) data.name = defaultName(TARGETS.length);
+      addTargetFromData(data);
+      if (shareBox) shareBox.hidden = true;
+      shareMsgSet(&quot;&quot;);
+    });
+  }
+  if (shareApplyBtn) {
+    shareApplyBtn.addEventListener(&quot;click&quot;, function () {
+      let data;
+      try { data = codeToTarget(shareText ? shareText.value : &quot;&quot;); }
+      catch (err) { shareMsgSet(&quot;这段参数读不出来，回去重新复制一次再粘。&quot;, true); return; }
+      if (!data.name) data.name = tname(focus);
+      TARGETS[focus] = data;
+      refreshNames();
+      if (el.nameInput) el.nameInput.value = tname(focus);
+      if (openKey) renderDetail();
+      syncSideValues();
+      saveState();
+      if (shareBox) shareBox.hidden = true;
+      shareMsgSet(&quot;&quot;);
+    });
+  }
+
+  function addTarget() {
+    if (TARGETS.length &gt;= MAX_TARGETS) return;
+    const i = TARGETS.length;
+    TARGETS.push({
+      name: defaultName(i),
+      factors: {
+        ext:   [fx(&quot;有人给我正反馈&quot;, 0)],
+        int:   [fx(&quot;我自己真的想做&quot;, 0)],
+        start: [fx(&quot;开始那一下的心理成本&quot;, 0)],
+        wear:  [fx(&quot;边做边走神&quot;, 0)],
+        goal:  [fx(&quot;这件事本身的难度&quot;, 0)]
+      }
+    });
+    focus = i;
+    syncTargets();
+    const r = rocks[i];
+    if (r) { r.s = START_S; r.v = 0; r.rot = i * 1.7 + 0.5; r.done = false; r.last = null; }
+    demo = null;
+    setPushing(false);
+    loadTargetUI();
+    saveState();
+    if (el.nameInput) el.nameInput.focus();
+  }
+  function deleteTarget(i) {
+    if (TARGETS.length &lt;= 1) return;
+    if (i &lt; 0 || i &gt;= TARGETS.length) return;
+    TARGETS.splice(i, 1);
+    const r = rocks.splice(i, 1)[0];
+    if (r) { scene.remove(r.mesh); scene.remove(r.ring); }
+    const b = badges.splice(i, 1)[0];
+    if (b &amp;&amp; b.parentNode) b.parentNode.removeChild(b);
+    for (let k = BUMPS.length - 1; k &gt;= 0; k--) {
+      const bp = BUMPS[k];
+      if (bp.ti === i) { scene.remove(bp.mesh); BUMPS.splice(k, 1); }
+      else if (bp.ti &gt; i) bp.ti -= 1;
+    }
+    openKey = null;
+    if (focus &gt;= TARGETS.length) focus = TARGETS.length - 1;
+    if (focus &lt; 0) focus = 0;
+    demo = null;
+    setPushing(false);
+    syncTargets();
+    loadTargetUI();
+    saveState();
+  }
+  BUCKETS.forEach(function (b) {
+    document.getElementById(&quot;rgs-prow-&quot; + b.key).addEventListener(&quot;click&quot;, function () { toggleBucket(b.key); });
+  });
+
+  // 概览里，每个力下面直接列出它由哪些内容组成、各占多少
+  const subItems = {};
+  const subOpen = {};
+  const SUB_EMPTY = &quot;\u8fd8\u6ca1\u6709\u5185\u5bb9&quot;;
+  BUCKETS.forEach(function (b) {
+    const row = document.getElementById(&quot;rgs-prow-&quot; + b.key);
+    if (!row || !row.parentNode) return;
+    const box = document.createElement(&quot;div&quot;);
+    box.className = &quot;rgs-subitems&quot;;
+    box.hidden = true;
+    row.insertAdjacentElement(&quot;afterend&quot;, box);
+    subItems[b.key] = box;
+    subOpen[b.key] = false;
+  });
+  function toggleBucket(key) {
+    if (subOpen[key] === undefined) return;
+    subOpen[key] = !subOpen[key];
+    renderSubItems();
+  }
+  function renderSubItems() {
+    const t = TARGETS[focus];
+    if (!t) return;
+    for (let k = 0; k &lt; BUCKETS.length; k++) {
+      const key = BUCKETS[k].key;
+      const box = subItems[key];
+      if (!box) continue;
+      const list = t.factors[key] || [];
+      box.textContent = &quot;&quot;;
+      if (!list.length) {
+        const empty = document.createElement(&quot;button&quot;);
+        empty.type = &quot;button&quot;;
+        empty.className = &quot;rgs-subitem rgs-subitem-empty&quot;;
+        empty.textContent = &quot;\u5f85\u8865\u5145&quot;;
+        empty.addEventListener(&quot;click&quot;, function () { openDetail(key); });
+        box.appendChild(empty);
+      }
+      for (let i = 0; i &lt; list.length; i++) {
+        const row = document.createElement(&quot;button&quot;);
+        row.type = &quot;button&quot;;
+        row.className = &quot;rgs-subitem&quot;;
+        const nm = document.createElement(&quot;span&quot;);
+        nm.className = &quot;rgs-subitem-name&quot;;
+        nm.textContent = list[i].name || SUB_EMPTY;
+        const vl = document.createElement(&quot;span&quot;);
+        vl.className = &quot;rgs-subitem-val tabular-nums&quot;;
+        vl.textContent = Math.round(Number(list[i].value) || 0) + &quot; N&quot;;
+        row.appendChild(nm);
+        row.appendChild(vl);
+        row.addEventListener(&quot;click&quot;, function () { openDetail(key); });
+        box.appendChild(row);
+      }
+      box.hidden = !subOpen[key];
+      const row = document.getElementById(&quot;rgs-prow-&quot; + key);
+      if (row) row.setAttribute(&quot;aria-expanded&quot;, subOpen[key] ? &quot;true&quot; : &quot;false&quot;);
+    }
+  }
+  (function () {
+    const backBtn = document.getElementById(&quot;rgs-back&quot;);
+    if (!backBtn) return;
+    let busy = false;
+    backBtn.addEventListener(&quot;click&quot;, function () {
+      if (busy) return;
+      busy = true;
+      backBtn.setAttribute(&quot;data-saved&quot;, &quot;1&quot;);
+      backBtn.textContent = &quot;\u5df2\u4fdd\u5b58&quot;;
+      saveState();
+      setTimeout(function () {
+        busy = false;
+        backBtn.setAttribute(&quot;data-saved&quot;, &quot;0&quot;);
+        backBtn.textContent = &quot;\u4fdd\u5b58&quot;;
+        closeDetail();
+      }, 520);
+    });
+  })();
+  document.getElementById(&quot;rgs-add-factor&quot;).addEventListener(&quot;click&quot;, openNewFactor);
+
+  if (el.addTarget) el.addTarget.addEventListener(&quot;click&quot;, addTarget);
+  if (el.delTarget) el.delTarget.addEventListener(&quot;click&quot;, function () { deleteTarget(focus); });
+
+  function syncSide() {
+    el.overview.hidden = !!openKey;
+    el.detail.hidden = !openKey;
+    for (let k = 0; k &lt; BUCKETS.length; k++) {
+      const b = BUCKETS[k];
+      document.getElementById(&quot;rgs-prow-&quot; + b.key)
+        .setAttribute(&quot;aria-expanded&quot;, openKey === b.key ? &quot;true&quot; : &quot;false&quot;);
+    }
+    if (openKey) renderDetail();
+  }
+  function openDetail(key) { openKey = key; syncSide(); syncSideValues(); }
+  function closeDetail() { openKey = null; syncSide(); syncSideValues(); }
+  function syncSideValues() { updateDom(params(focus), true); renderSubItems(); }
+  function updateDetailSum(p) {
+    if (!openKey) return;
+    el.detailSum.textContent = Math.round(p.T[openKey]) + &quot; N&quot;;
+  }
+  function renderDetail() {
+    const b = BUCKET_BY_KEY[openKey];
+    const list = TARGETS[focus].factors[openKey];
+    el.detailTitle.textContent = tname(focus) + &quot; \u00b7 &quot; + b.name;
+    if (el.detailHint) {
+      el.detailHint.textContent = b.hint || &quot;&quot;;
+      el.detailHint.hidden = !b.hint;
+    }
+    el.factorList.innerHTML = &quot;&quot;;
+    for (let i = 0; i &lt; list.length; i++) el.factorList.appendChild(factorRow(list, i));
+    el.detailEmpty.hidden = list.length &gt; 0;
+  }
+  // 一套「档位 + 拉条 + 数值」控件：列表里的因素和新建因素的弹窗共用
+  const STEPS = [[10, &quot;\u6709\u4e00\u70b9&quot;], [50, &quot;\u4e2d\u7b49&quot;], [100, &quot;\u5f3a\u70c8&quot;]];
+  function buildStrength(onChange) {
+    const steps = document.createElement(&quot;div&quot;);
+    steps.className = &quot;rgs-factor-steps&quot;;
+    const chips = [];
+    for (let si = 0; si &lt; STEPS.length; si++) {
+      const sb = document.createElement(&quot;button&quot;);
+      sb.type = &quot;button&quot;;
+      sb.className = &quot;rgs-step&quot;;
+      sb.setAttribute(&quot;aria-pressed&quot;, &quot;false&quot;);
+      const num = document.createElement(&quot;span&quot;);
+      num.className = &quot;rgs-step-num&quot;;
+      num.textContent = String(STEPS[si][0]);
+      const txt = document.createElement(&quot;span&quot;);
+      txt.textContent = STEPS[si][1];
+      sb.appendChild(num);
+      sb.appendChild(txt);
+      (function (v) {
+        sb.addEventListener(&quot;click&quot;, function () { apply(v); });
+      })(STEPS[si][0]);
+      chips.push({ btn: sb, v: STEPS[si][0] });
+      steps.appendChild(sb);
+    }
+
+    const range = document.createElement(&quot;input&quot;);
+    range.type = &quot;range&quot;;
+    range.className = &quot;form-range&quot;;
+    range.min = &quot;0&quot;;
+    range.max = String(FACTOR_MAX);
+    range.step = &quot;5&quot;;
+    range.setAttribute(&quot;aria-label&quot;, &quot;\u56e0\u7d20\u5927\u5c0f\u62c9\u6761&quot;);
+
+    const numInput = document.createElement(&quot;input&quot;);
+    numInput.type = &quot;number&quot;;
+    numInput.className = &quot;form-control rgs-factor-num&quot;;
+    numInput.min = &quot;0&quot;;
+    numInput.max = String(FACTOR_MAX);
+    numInput.step = &quot;5&quot;;
+    numInput.setAttribute(&quot;aria-label&quot;, &quot;\u56e0\u7d20\u5927\u5c0f&quot;);
+
+    const sliderRow = document.createElement(&quot;div&quot;);
+    sliderRow.className = &quot;rgs-factor-slider&quot;;
+    sliderRow.appendChild(range);
+    sliderRow.appendChild(numInput);
+
+    function apply(raw) {
+      const val = clamp(Math.round(Number(raw) || 0), 0, FACTOR_MAX);
+      if (String(range.value) !== String(val)) range.value = val;
+      if (String(numInput.value) !== String(val)) numInput.value = val;
+      for (let k = 0; k &lt; chips.length; k++) {
+        chips[k].btn.setAttribute(&quot;aria-pressed&quot;, chips[k].v === val ? &quot;true&quot; : &quot;false&quot;);
+      }
+      if (onChange) onChange(val);
+      return val;
+    }
+    range.addEventListener(&quot;input&quot;, function () { apply(range.value); });
+    numInput.addEventListener(&quot;input&quot;, function () {
+      if (String(numInput.value).trim() === &quot;&quot;) return;
+      apply(numInput.value);
+    });
+
+    return { steps: steps, sliderRow: sliderRow, set: apply, range: range, num: numInput };
+  }
+
+  function factorRow(list, idx) {
+    const f = list[idx];
+    const wrap = document.createElement(&quot;div&quot;);
+    wrap.className = &quot;rgs-factor&quot;;
+    const top = document.createElement(&quot;div&quot;);
+    top.className = &quot;rgs-factor-top&quot;;
+
+    const nameInput = document.createElement(&quot;input&quot;);
+    nameInput.type = &quot;text&quot;;
+    nameInput.className = &quot;form-control rgs-factor-name&quot;;
+    nameInput.value = f.name;
+    nameInput.setAttribute(&quot;aria-label&quot;, &quot;\u56e0\u7d20\u540d\u5b57&quot;);
+    nameInput.addEventListener(&quot;input&quot;, function () { f.name = nameInput.value; renderSubItems(); saveState(); });
+
+    const del = document.createElement(&quot;button&quot;);
+    del.type = &quot;button&quot;;
+    del.className = &quot;btn btn-ghost rgs-factor-del&quot;;
+    del.textContent = &quot;\u5220\u9664&quot;;
+    del.setAttribute(&quot;aria-label&quot;, &quot;\u5220\u9664\u8fd9\u4e2a\u56e0\u7d20&quot;);
+    del.addEventListener(&quot;click&quot;, function () {
+      list.splice(idx, 1);
+      renderDetail();
+      syncSideValues();
+      saveState();
+    });
+
+    const strength = buildStrength(function (v) {
+      f.value = v;
+      syncSideValues();
+      saveState();
+    });
+    strength.set(f.value);
+
+    top.appendChild(nameInput);
+    top.appendChild(del);
+    wrap.appendChild(top);
+    wrap.appendChild(strength.steps);
+    wrap.appendChild(strength.sliderRow);
+    return wrap;
+  }
+  const modal = document.getElementById(&quot;rgs-modal&quot;);
+  const modalTitle = document.getElementById(&quot;rgs-modal-title&quot;);
+  const modalName = document.getElementById(&quot;rgs-modal-name&quot;);
+  const modalStrengthBox = document.getElementById(&quot;rgs-modal-strength&quot;);
+  const modalTags = document.getElementById(&quot;rgs-modal-tags&quot;);
+  const modalAdd = document.getElementById(&quot;rgs-modal-add&quot;);
+  const modalCancel = document.getElementById(&quot;rgs-modal-cancel&quot;);
+  const draft = { name: &quot;&quot;, value: 50 };
+  const draftStrength = buildStrength(function (v) { draft.value = v; });
+  if (modalStrengthBox) {
+    modalStrengthBox.appendChild(draftStrength.steps);
+    modalStrengthBox.appendChild(draftStrength.sliderRow);
+  }
+  function renderModalTags() {
+    if (!modalTags) return;
+    const bk = BUCKET_BY_KEY[openKey];
+    const list = (bk &amp;&amp; bk.suggest) || [];
+    modalTags.textContent = &quot;&quot;;
+    for (let i = 0; i &lt; list.length; i++) {
+      const t = document.createElement(&quot;button&quot;);
+      t.type = &quot;button&quot;;
+      t.className = &quot;rgs-tag&quot;;
+      t.textContent = list[i];
+      (function (txt) {
+        t.addEventListener(&quot;click&quot;, function () {
+          if (!modalName) return;
+          modalName.value = txt;
+          draft.name = txt;
+          modalName.focus();
+        });
+      })(list[i]);
+      modalTags.appendChild(t);
+    }
+    modalTags.hidden = list.length === 0;
+  }
+  function openNewFactor() {
+    if (!openKey || !TARGETS[focus]) return;
+    draft.name = &quot;&quot;;
+    draft.value = 50;
+    if (modalName) modalName.value = &quot;&quot;;
+    draftStrength.set(draft.value);
+    if (modalTitle) {
+      const bk = BUCKET_BY_KEY[openKey];
+      modalTitle.textContent = &quot;\u65b0\u5efa\u56e0\u7d20&quot; + (bk ? &quot; \u00b7 &quot; + bk.name : &quot;&quot;);
+    }
+    renderModalTags();
+    if (modal) modal.hidden = false;
+    if (modalName) modalName.focus();
+  }
+  function closeNewFactor() {
+    if (modal) modal.hidden = true;
+  }
+  function commitNewFactor() {
+    if (!openKey || !TARGETS[focus]) { closeNewFactor(); return; }
+    const list = TARGETS[focus].factors[openKey];
+    list.push({ name: (modalName ? modalName.value : &quot;&quot;).trim(), value: draft.value });
+    closeNewFactor();
+    renderDetail();
+    syncSideValues();
+    saveState();
+  }
+  if (modalAdd) modalAdd.addEventListener(&quot;click&quot;, commitNewFactor);
+  if (modalCancel) modalCancel.addEventListener(&quot;click&quot;, closeNewFactor);
+  if (modalName) {
+    modalName.addEventListener(&quot;input&quot;, function () { draft.name = modalName.value; });
+    modalName.addEventListener(&quot;keydown&quot;, function (e) {
+      if (e.key === &quot;Enter&quot;) { e.preventDefault(); commitNewFactor(); }
+    });
+  }
+  if (modal) {
+    modal.addEventListener(&quot;click&quot;, function (e) { if (e.target === modal) closeNewFactor(); });
+    document.addEventListener(&quot;keydown&quot;, function (e) {
+      if (e.key === &quot;Escape&quot; &amp;&amp; !modal.hidden) closeNewFactor();
+    });
+  }
+
+  // 把当前这套动力阻力情况写成一段可以复制给 AI 的提问
+  const adviceModal = document.getElementById(&quot;rgs-advice-modal&quot;);
+  const adviceText = document.getElementById(&quot;rgs-advice-text&quot;);
+  const adviceMsg = document.getElementById(&quot;rgs-advice-msg&quot;);
+  const adviceCopyBtn = document.getElementById(&quot;rgs-advice-copy&quot;);
+  const adviceCloseBtn = document.getElementById(&quot;rgs-advice-close&quot;);
+  const adviceBtn = document.getElementById(&quot;rgs-advice&quot;);
+
+  function adviceMsgSet(txt, bad) {
+    if (!adviceMsg) return;
+    if (!txt) { adviceMsg.hidden = true; adviceMsg.textContent = &quot;&quot;; return; }
+    adviceMsg.hidden = false;
+    adviceMsg.textContent = txt;
+    adviceMsg.setAttribute(&quot;data-bad&quot;, bad ? &quot;1&quot; : &quot;0&quot;);
+  }
+  function adviceBucketLine(label, key, total) {
+    const t = TARGETS[focus];
+    const list = (t &amp;&amp; t.factors[key]) || [];
+    const parts = [];
+    for (let k = 0; k &lt; list.length; k++) {
+      const nm = String(list[k].name || &quot;&quot;).trim() || &quot;（还没写名字）&quot;;
+      parts.push(nm + &quot; &quot; + Math.round(Number(list[k].value) || 0) + &quot; N&quot;);
+    }
+    if (!parts.length) parts.push(&quot;还没填&quot;);
+    return &quot;  · &quot; + label + &quot; &quot; + Math.round(total) + &quot; N：&quot; + parts.join(&quot;；&quot;);
+  }
+  function advicePrompt() {
+    const t = TARGETS[focus];
+    if (!t) return &quot;&quot;;
+    const T = totals(focus);
+    const r = Math.round;
+    const L = [];
+    L.push(&quot;我在用「斜坡推石头」这个模型复盘一个目标。请你当我的做事教练，帮我把这块石头更轻松地推上去。&quot;);
+    L.push(&quot;&quot;);
+    L.push(&quot;【模型说明】&quot;);
+    L.push(&quot;- 斜坡 = 通往目标的路径，坡度越陡 = 目标越难；石头 = 我要实现的目标；我站在坡下往上推。&quot;);
+    L.push(&quot;- 石头有重量，坡度会让它一直往下滑；推上去 = 目标达成，中途松手 = 石头滚回坡底。&quot;);
+    L.push(&quot;- 动力两股：内部动力（我自己真的想做）、外部动力（别人的反馈、奖励、期待）。&quot;);
+    L.push(&quot;- 阻力三股：目标难度（坡度）、启动门槛（石头的重量，迈出第一步的代价）、内耗阻力（路况：走神、自我怀疑、同时惦记好几件事）。&quot;);
+    L.push(&quot;- 最终合力 = 动力 - 阻力。合力为正才推得动，为负就是在往下滑。&quot;);
+    L.push(&quot;&quot;);
+    L.push(&quot;【我的盘点】&quot;);
+    L.push(&quot;目标名称：&quot; + (tname(focus) || &quot;（未命名）&quot;));
+    L.push(&quot;动力 合计 &quot; + r(T.drive) + &quot; N&quot;);
+    L.push(adviceBucketLine(&quot;内部动力&quot;, &quot;int&quot;, T.int));
+    L.push(adviceBucketLine(&quot;外部动力&quot;, &quot;ext&quot;, T.ext));
+    L.push(&quot;阻力 合计 &quot; + r(T.resist) + &quot; N&quot;);
+    L.push(adviceBucketLine(&quot;目标难度&quot;, &quot;goal&quot;, T.goal));
+    L.push(adviceBucketLine(&quot;启动门槛&quot;, &quot;start&quot;, T.start));
+    L.push(adviceBucketLine(&quot;内耗阻力&quot;, &quot;wear&quot;, T.wear));
+    L.push(&quot;最终合力：&quot; + (T.net &gt; 0 ? &quot;+&quot; : &quot;&quot;) + r(T.net) + &quot; N（动力 &quot; + r(T.drive) + &quot; N - 阻力 &quot; + r(T.resist) + &quot; N）&quot;);
+    L.push(&quot;&quot;);
+    L.push(&quot;【请按这个格式回答】&quot;);
+    L.push(&quot;1. 一句话结论：我现在最该动的是哪一股力。&quot;);
+    L.push(&quot;2. 盘点复核：指出我高估、低估或漏掉的力，并说明依据。&quot;);
+    L.push(&quot;3. 三个动作，用表格按性价比从高到低排列，列：动作 | 动的是哪股力 | 加/减多少 | 预期效果 | 多久见效 | 第一步怎么做。&quot;);
+    L.push(&quot;4. 只能接受、绕不过去的阻力：列出来，并给我一条绕过它的替代路径。&quot;);
+    L.push(&quot;5. 今天的最小动作：具体到什么时候、在哪、做什么、做多久，让我看完就能开始。&quot;);
+    L.push(&quot;&quot;);
+    L.push(&quot;要求：用中文；具体到动作和背后的心理机制，不要「要坚持」「要有信心」这类空话；不确定的地方直接说不确定，不要编。&quot;);
+    L.push(&quot;如果我给的信息不够你判断，先问我最多 3 个问题再回答。&quot;);
+    return L.join(&quot;\n&quot;);
+  }
+  function openAdvice() {
+    if (!adviceModal || !adviceText) return;
+    adviceMsgSet(&quot;&quot;);
+    adviceText.value = advicePrompt();
+    adviceModal.hidden = false;
+    try { adviceText.focus(); adviceText.setSelectionRange(0, 0); adviceText.scrollTop = 0; } catch (err) {}
+  }
+  function closeAdvice() { if (adviceModal) adviceModal.hidden = true; }
+  if (adviceBtn) adviceBtn.addEventListener(&quot;click&quot;, openAdvice);
+  if (adviceCloseBtn) adviceCloseBtn.addEventListener(&quot;click&quot;, closeAdvice);
+  if (adviceCopyBtn) {
+    adviceCopyBtn.addEventListener(&quot;click&quot;, function () {
+      const txt = adviceText ? adviceText.value : &quot;&quot;;
+      let ok = false;
+      if (adviceText) { try { adviceText.focus(); adviceText.select(); } catch (err) {} }
+      try { ok = document.execCommand(&quot;copy&quot;); } catch (err) { ok = false; }
+      if (!ok &amp;&amp; navigator.clipboard &amp;&amp; navigator.clipboard.writeText) {
+        try { navigator.clipboard.writeText(txt); ok = true; } catch (err) {}
+      }
+      adviceCopyBtn.textContent = ok ? &quot;已复制&quot; : &quot;请手动复制&quot;;
+      adviceMsgSet(ok ? &quot;&quot; : &quot;没能自动复制，手动全选这段文字复制一下。&quot;, !ok);
+      setTimeout(function () { adviceCopyBtn.textContent = &quot;复制提问&quot;; }, 1700);
+    });
+  }
+  if (adviceModal) {
+    adviceModal.addEventListener(&quot;click&quot;, function (e) { if (e.target === adviceModal) closeAdvice(); });
+    document.addEventListener(&quot;keydown&quot;, function (e) {
+      if (e.key === &quot;Escape&quot; &amp;&amp; !adviceModal.hidden) closeAdvice();
+    });
+  }
+
+
+  function setPushing(on) {
+    if (pushing === on) return;
+    pushing = on;
+  }
+  window.addEventListener(&quot;blur&quot;, function () { setPushing(false); });
+
+  const HOLD_MS = 170;
+  const HOLD_SLOP = 9;
+  const worldRight = new THREE.Vector3();
+  const projC = new THREE.Vector3();
+  const projE = new THREE.Vector3();
+  let press = null;
+  let hoverRock = -1;
+
+  function pickRock(clientX, clientY) {
+    const pickR = ROCK_R * rockScale(params(focus));
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return -1;
+    const px = clientX - rect.left, py = clientY - rect.top;
+    worldRight.setFromMatrixColumn(camera.matrixWorld, 0);
+    let best = -1, bestD = Infinity;
+    for (let i = 0; i &lt; TARGETS.length; i++) {
+      const pos = rocks[i].mesh.position;
+      projC.copy(pos).project(camera);
+      if (projC.z &gt; 1) continue;
+      const sx = (projC.x * 0.5 + 0.5) * rect.width;
+      const sy = (-projC.y * 0.5 + 0.5) * rect.height;
+      projE.copy(pos).addScaledVector(worldRight, pickR).project(camera);
+      const ex = (projE.x * 0.5 + 0.5) * rect.width;
+      const ey = (-projE.y * 0.5 + 0.5) * rect.height;
+      const radius = Math.max(30, Math.hypot(ex - sx, ey - sy) * 1.45);
+      const d = Math.hypot(px - sx, py - sy);
+      if (d &lt;= radius &amp;&amp; d &lt; bestD) { bestD = d; best = i; }
+    }
+    return best;
+  }
+
+  function cancelPress() {
+    if (!press) return;
+    clearTimeout(press.timer);
+    if (press.pushing) setPushing(false);
+    press = null;
+  }
+
+  canvas.addEventListener(&quot;pointerdown&quot;, function (e) {
+    if (e.pointerType === &quot;mouse&quot; &amp;&amp; e.button !== 0) return;
+    const hit = pickRock(e.clientX, e.clientY);
+    if (hit &lt; 0) return;
+    cancelPress();
+    press = { id: e.pointerId, x: e.clientX, y: e.clientY, rock: hit, timer: 0, pushing: false };
+    press.timer = setTimeout(function () {
+      if (!press || press.rock !== hit) return;
+      demo = null;
+      setFocus(hit);
+      setPushing(true);
+      press.pushing = true;
+      if (canvas.setPointerCapture &amp;&amp; e.pointerId !== undefined) {
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+    }, HOLD_MS);
+  });
+
+  canvas.addEventListener(&quot;pointermove&quot;, function (e) {
+    if (press &amp;&amp; e.pointerId === press.id) {
+      if (!press.pushing &amp;&amp; Math.hypot(e.clientX - press.x, e.clientY - press.y) &gt; HOLD_SLOP) cancelPress();
+      return;
+    }
+    if (press) return;
+    if (e.pointerType !== &quot;mouse&quot;) return;
+    const hit = pickRock(e.clientX, e.clientY);
+    if (hit !== hoverRock) {
+      hoverRock = hit;
+      canvas.style.cursor = hit &gt;= 0 ? &quot;pointer&quot; : &quot;&quot;;
+    }
+  });
+
+  function endPress(e) {
+    if (!press || e.pointerId !== press.id) return;
+    const rock = press.rock, wasPushing = press.pushing;
+    const moved = Math.hypot(e.clientX - press.x, e.clientY - press.y);
+    clearTimeout(press.timer);
+    if (wasPushing) setPushing(false);
+    press = null;
+    if (!wasPushing &amp;&amp; moved &lt;= HOLD_SLOP) {
+      demo = null;
+      setFocus(rock);
+    }
+  }
+  canvas.addEventListener(&quot;pointerup&quot;, endPress);
+  canvas.addEventListener(&quot;pointercancel&quot;, endPress);
+  canvas.addEventListener(&quot;contextmenu&quot;, function (e) {
+    if (pickRock(e.clientX, e.clientY) &gt;= 0) e.preventDefault();
+  });
+
+  function reset() {
+    demo = null;
+    for (let i = 0; i &lt; TARGETS.length; i++) {
+      rocks[i].s = START_S;
+      rocks[i].v = 0;
+      rocks[i].rot = i * 1.7 + 0.5;
+      rocks[i].done = false;
+      rocks[i].last = null;
+    }
+    person.s = rocks[focus].s - (PERSON_GAP - ROCK_R + ROCK_R * rockScale(params(focus)));
+    person.z = rocks[focus].z;
+    person.phase = 0;
+    person.reach = 0;
+    person.speed = 0;
+    setPushing(false);
+  }
+  document.getElementById(&quot;rgs-reset&quot;).addEventListener(&quot;click&quot;, reset);
+  document.getElementById(&quot;rgs-defaults&quot;).addEventListener(&quot;click&quot;, function () {
+    try { localStorage.removeItem(STORE_KEY); } catch (err) {}
+    try { location.reload(); } catch (err) {}
+  });
+
+  // 演示：三心二意——每个目标只推到半坡就换人（换手之后坡上的石头自己滚回来）
+  const HALF_WAY = RAMP * 0.5;
+  const SCRIPTS = {
+    scattered: {
+      steps: [
+        { dur: 8, focus: 0, push: true, untilS: HALF_WAY },
+        { dur: 1.6, focus: 1, push: false },
+        { dur: 8, focus: 1, push: true, untilS: HALF_WAY },
+        { dur: 1.6, focus: 2, push: false },
+        { dur: 8, focus: 2, push: true, untilS: HALF_WAY },
+        { dur: 9, focus: 2, push: false }
+      ]
+    }
+  };
+  function startDemo(key) {
+    const sc = SCRIPTS[key];
+    if (!sc) return;
+    reset();
+    setFocus(Math.min(sc.steps[0].focus, TARGETS.length - 1));
+    demo = { steps: sc.steps, i: 0, t: 0, done: false };
+  }
+  document.getElementById(&quot;rgs-demo-scatter&quot;).addEventListener(&quot;click&quot;, function () { startDemo(&quot;scattered&quot;); });
+
+  function stepDemo(dt) {
+    if (!demo || demo.done) return;
+    const st = demo.steps[demo.i];
+    const df = Math.min(st.focus, TARGETS.length - 1);
+    if (demo.t &lt;= 0 &amp;&amp; st.set) {
+      for (let i = 0; i &lt; TARGETS.length; i++) {
+        if (st.set[i] === undefined) continue;
+        rocks[i].s = st.set[i];
+        rocks[i].v = 0;
+        rocks[i].last = null;
+      }
+      person.s = rocks[df].s - (PERSON_GAP - ROCK_R + ROCK_R * rockScale(params(df)));
+      person.z = rocks[df].z;
+      person.reach = 0;
+    }
+    demo.t += dt;
+    setFocus(df);
+    setPushing(st.push);
+    const reached = st.untilS !== undefined &amp;&amp; rocks[df].s &gt;= st.untilS;
+    if (demo.t &gt;= st.dur || reached) {
+      demo.t = 0;
+      demo.i++;
+      if (demo.i &gt;= demo.steps.length) {
+        demo = { steps: [demo.steps[demo.steps.length - 1]], i: 0, t: 0, done: true };
+        setPushing(false);
+      }
+    }
+  }
+
+  let lastDom = 0;
+  function updateDom(p, force) {
+    const now = performance.now();
+    if (!force &amp;&amp; now - lastDom &lt; 110) return;
+    lastDom = now;
+
+    const T = p.T;
+    const sign = T.net &lt; -0.5 ? &quot;neg&quot; : &quot;pos&quot;;
+    if (el.net.getAttribute(&quot;data-sign&quot;) !== sign) el.net.setAttribute(&quot;data-sign&quot;, sign);
+    el.net.textContent = (T.net &gt; 0.5 ? &quot;+&quot; : &quot;&quot;) + Math.round(T.net) + &quot; N&quot;;
+    el.sumDrive.textContent = Math.round(T.drive) + &quot; N&quot;;
+    el.sumResist.textContent = Math.round(T.resist) + &quot; N&quot;;
+    el.valExt.textContent = Math.round(T.ext) + &quot; N&quot;;
+    el.valInt.textContent = Math.round(T.int) + &quot; N&quot;;
+    el.valStart.textContent = Math.round(T.start) + &quot; N&quot;;
+    el.valWear.textContent = Math.round(T.wear) + &quot; N&quot;;
+    el.valGoal.textContent = Math.round(T.goal) + &quot; N&quot;;
+    updateDetailSum(p);
+  }
+
+  let zoomK = 1;
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    const k = Math.max(1, 1.78 / camera.aspect) * Math.max(1, trackTotal() / LANE_MIN);
+    if (!framed) {
+      framed = true;
+      zoomK = k;
+      const dist = CAM_OFF.length() * zoomK;
+      // 整体上移：把机位和视点一起沿画面竖直方向下移
+      controls.target.copy(CAM_BASE_TGT).addScaledVector(CAM_UP, -dist * FRAME_LIFT);
+      camera.position.copy(controls.target).addScaledVector(CAM_DIR, dist);
+      controls.update();
+    } else if (Math.abs(k - zoomK) &gt; 0.002) {
+      // 窗口变化时按比例拉远/拉近，保留用户当前转到的视角
+      const ratio = k / zoomK;
+      const d0 = camera.position.distanceTo(controls.target);
+      const d1 = d0 * ratio;
+      zoomK = k;
+      v3.copy(camera.position).sub(controls.target).multiplyScalar(ratio);
+      controls.target.addScaledVector(CAM_UP, -(d1 - d0) * FRAME_LIFT);
+      camera.position.copy(controls.target).add(v3);
+      controls.update();
+    }
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+  else window.addEventListener(&quot;resize&quot;, resize);
+
+  function applyPalette() {
+    matTerrain.color.set(palette.terrain);
+    matSide.color.set(palette.terrainTop);
+    matPerson.color.set(palette.person);
+    matMark.color.set(palette.terrainTop);
+    matSoft.color.set(palette.terrainTop);
+    matBump.color.set(palette.terrainTop);
+    matRing.color.set(palette.push);
+    for (let i = 0; i &lt; TARGETS.length; i++) rocks[i].mat.color.set(palette.rock);
+    arrowPush.setColor(new THREE.Color(palette.push));
+    arrowPush2.setColor(new THREE.Color(palette.push2));
+  }
+
+  let last = performance.now(), acc = 0, frameCount = 0;
+  const H_STEP = 1 / 240;
+
+  function frame(now) {
+    const dt = Math.min(0.06, Math.max(0, (now - last) / 1000));
+    last = now;
+    stepDemo(dt);
+    acc += dt;
+    let guard = 0;
+    while (acc &gt;= H_STEP &amp;&amp; guard++ &lt; 40) { step(H_STEP); acc -= H_STEP; }
+
+    const p = params(focus);
+    if (++frameCount % 40 === 0) { readPalette(); applyPalette(); }
+
+    updateScene();
+    controls.update();
+    renderer.render(scene, camera);
+    updateBadges();
+    updateDom(p, false);
+    requestAnimationFrame(frame);
+  }
+
+  loadState();
+  syncTargets();
+  applyPalette();
+  resize();
+  loadTargetUI();
+  reset();
+  updateDom(params(focus), true);
+  requestAnimationFrame(frame);
+}
+&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerdown&quot;, handlePointer);
+    document.removeEventListener(&quot;pointercancel&quot;, handlePointer);
+    document.removeEventListener(&quot;click&quot;, handleTouchClick);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerdown&quot;, handlePointer);
+  document.addEventListener(&quot;pointercancel&quot;, handlePointer);
+  document.addEventListener(&quot;click&quot;, handleTouchClick);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+<script>(() => {
+  const frame = document.getElementById("codex-visualization");
+  if (!(frame instanceof HTMLIFrameElement)) {
+    return;
+  }
+  let viewportHeight = globalThis.innerHeight;
+  const storageKey = `codex:visualization-widget-state-v2:${JSON.stringify([
+    globalThis.location.pathname,
+    globalThis.location.search,
+  ])}`;
+  const parseState = (serializedState) => {
+    if (
+      typeof serializedState !== "string" ||
+      new TextEncoder().encode(serializedState).length > 16 * 1024
+    ) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    /** @type {unknown} */
+    const state = JSON.parse(serializedState);
+    if (
+      state == null ||
+      typeof state !== "object" ||
+      Array.isArray(state) ||
+      ("imageIds" in state &&
+        (!Array.isArray(state.imageIds) || state.imageIds.length > 0))
+    ) {
+      throw new TypeError("Widget state must be a JSON object");
+    }
+    const storedState = { modelContent: null, privateContent: null, ...state };
+    const canonicalState = JSON.stringify(
+      storedState,
+      (_key, /** @type {unknown} */ value) => {
+        if (typeof value === "number" && !Number.isFinite(value)) {
+          throw new TypeError("Widget state must contain finite numbers");
+        }
+        return value;
+      },
+    );
+    if (new TextEncoder().encode(canonicalState).length > 16 * 1024) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    return storedState;
+  };
+  let storage = null;
+  let state = null;
+  try {
+    const localStorage = globalThis.localStorage;
+    const probeKey = `${storageKey}:probe`;
+    localStorage.setItem(probeKey, "1");
+    localStorage.removeItem(probeKey);
+    storage = localStorage;
+    const savedState = storage.getItem(storageKey);
+    if (savedState != null) {
+      try {
+        state = parseState(savedState);
+      } catch {
+        // Invalid saved state does not disable future writes.
+      }
+    }
+  } catch {
+    storage = null;
+  }
+  const initialGlobals = {
+    widgetState: state,
+    statePersistence: storage == null ? "none" : "local",
+  };
+
+  const channel = new MessageChannel();
+  channel.port1.addEventListener("message", (event) => {
+    const data = event.data;
+    if (typeof data !== "object" || data == null) {
+      return;
+    }
+    if (data.type === "widget-state-write") {
+      if (!Number.isSafeInteger(data.id) || data.id <= 0) {
+        return;
+      }
+      let ok = false;
+      try {
+        if (storage != null) {
+          const state = parseState(data.state);
+          storage.setItem(storageKey, JSON.stringify(state));
+          ok = true;
+        }
+      } catch {
+        // Storage denial, quota limits, and invalid state return a failed receipt.
+      }
+      channel.port1.postMessage({
+        type: "widget-state-result",
+        id: data.id,
+        ok,
+      });
+      return;
+    }
+    if (data.type === "height") {
+      const height = data.height;
+      if (
+        typeof height === "number" &&
+        Number.isFinite(height) &&
+        height >= 0 &&
+        height <= 10_000
+      ) {
+        frame.style.height = Math.ceil(height) + "px";
+      }
+      return;
+    }
+    if (data.type === "scroll-to") {
+      const top = data.top;
+      if (
+        typeof top === "number" &&
+        Number.isFinite(top) &&
+        top >= 0 &&
+        globalThis.navigator.userActivation?.isActive === true
+      ) {
+        globalThis.scrollTo({
+          top: Math.ceil(
+            globalThis.scrollY + frame.getBoundingClientRect().top + top,
+          ),
+        });
+      }
+      return;
+    }
+    if (data.type === "open-external") {
+      const rawHref = data.href;
+      if (typeof rawHref !== "string") {
+        return;
+      }
+      let href;
+      try {
+        const url = new URL(rawHref, document.baseURI);
+        if (url.protocol !== "https:") {
+          return;
+        }
+        href = url.href;
+      } catch {
+        return;
+      }
+      if (globalThis.navigator.userActivation?.isActive === true) {
+        const anchor = document.createElement("a");
+        anchor.href = href;
+        anchor.rel = "noopener noreferrer";
+        anchor.target = "_blank";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+      return;
+    }
+    if (data.type === "follow-up") {
+      const prompt = data.prompt;
+      if (
+        typeof prompt !== "string" ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      const title = data.title;
+      globalThis.prompt(typeof title === "string" ? title : prompt, prompt);
+    }
+  });
+  channel.port1.start();
+  const srcdoc = frame.dataset.srcdoc;
+  if (srcdoc == null) {
+    return;
+  }
+  globalThis.addEventListener("resize", () => {
+    const height = Number.parseFloat(frame.style.height);
+    if (!Number.isFinite(height) || height <= viewportHeight) {
+      frame.style.removeProperty("height");
+    }
+    viewportHeight = globalThis.innerHeight;
+    channel.port1.postMessage({ type: "measure" });
+  });
+  frame.addEventListener(
+    "load",
+    () => {
+      frame.contentWindow?.postMessage(
+        { type: "codex-visualization-initialize" },
+        "*",
+        [channel.port2],
+      );
+    },
+    { once: true },
+  );
+  // Match the trusted bootstrap element, not the same text in an authored title.
+  frame.srcdoc = srcdoc.replace(
+    '<script type="application/json" id="codex-visualization-widget-state">__CODEX_VISUALIZATION_WIDGET_STATE__<\/script>',
+    () =>
+      '<script type="application/json" id="codex-visualization-widget-state">' +
+      JSON.stringify(initialGlobals).replaceAll("<", "\\u003c") +
+      "<\/script>",
+  );
+  delete frame.dataset.srcdoc;
+})();
+</script>
+</body>
+</html>

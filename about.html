@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>关于 · AI航海研习社</title>
+<meta name="description" content="关于 AI 航海研习社：一个用 AI 把想法做成作品的地方。我们相信，学 AI 最好的方式是先做出来，再一点点改。">
+<meta name="theme-color" content="#F3F3ED">
+<link rel="icon" href="assets/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="prefetch" href="index.html">
+<link rel="prefetch" href="cases.html">
+<link rel="prefetch" href="route.html">
+<link rel="prefetch" href="exchange.html">
+<link rel="stylesheet" href="assets/css/site.css?v=20261106-105">
+<link rel="stylesheet" href="assets/css/editor.css?v=20261106-105">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('sp-case-theme');
+      var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+  })();
+</script>
+<script>
+  (function () {
+    try {
+      if (sessionStorage.getItem('site-page-transition') === '1') {
+        document.documentElement.classList.add('page-enter');
+        sessionStorage.removeItem('site-page-transition');
+      }
+    } catch (e) {}
+  })();
+</script></head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html" aria-label="回到首页">
+      <span class="brand-mark">1X100</span>
+      <span class="brand-text"><b>AI航海研习社</b><span>AI SAILING CLUB</span></span>
+    </a>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="route.html">学习</a>
+      <a href="cases.html">赋能</a>
+      <a href="exchange.html">交流</a>
+      <a href="about.html" class="nav-about active">关于</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="edit-actions" id="editActions" hidden>
+        <span class="edit-status" id="editStatus">已保存</span>
+        <button class="edit-done" id="editDone" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          完成编辑
+        </button>
+      </div>
+
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="mobileMenu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+
+      <button class="settings-btn" id="settingsBtn" type="button" aria-haspopup="true" aria-expanded="false" title="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/></svg>
+        <span>设置</span>
+      </button>
+
+      <div class="settings-panel" id="settingsPanel" hidden>
+        <div class="set-row" id="editRow">
+          <span class="set-label"><b>编辑模式</b><i>点文字直接改，自动保存</i></span>
+          <button class="set-action" id="editStart" type="button">进入编辑</button>
+        </div>
+        <div class="set-row">
+          <span class="set-label"><b>界面</b><i>亮色 / 暗色</i></span>
+          <div class="seg" role="group" aria-label="界面主题">
+            <button class="seg-btn" type="button" data-theme-set="light">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+              亮色
+            </button>
+            <button class="seg-btn" type="button" data-theme-set="dark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+              暗色
+            </button>
+          </div>
+        </div>
+        <div class="set-row" id="editsRow">
+          <span class="set-label"><b>文字修改</b><i>导出备份 / 导入恢复</i></span>
+          <div class="set-actions">
+            <button class="set-mini" id="editsExport" type="button">导出</button>
+            <button class="set-mini" id="editsImport" type="button">导入</button>
+            <input type="file" id="editsFile" accept="application/json,.json" hidden>
+          </div>
+        </div>
+        <div class="set-row set-row-version">
+          <span class="set-label"><b>版本更新</b><i>当前 <span data-site-version>20261106-105</span> · 清除旧缓存</i></span>
+          <button class="set-action" type="button" data-check-update>检查更新</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <div class="wrap">
+    <a href="route.html"><span>01</span>学习</a>
+    <a href="cases.html"><span>02</span>赋能</a>
+    <a href="exchange.html"><span>03</span>交流</a>
+    <a href="about.html" class="active"><span>04</span>关于</a>
+  </div>
+</div>
+
+<main id="top" class="page-about">
+
+  <!-- ===================== ABOUT ===================== -->
+  <section id="about" class="about-sec">
+    <div class="wrap">
+      <div class="about-panel reveal">
+        <div class="about-copy">
+          <p class="eyebrow light"><span class="star">✳</span> <span data-ekey="about.eyebrow">ABOUT AI SAILING CLUB</span></p>
+          <h2><span data-ekey="about.title.1">关于</span><br><span data-ekey="about.title.2">AI 航海研习社。</span></h2>
+          <p data-ekey="about.p1">一个用 AI 把想法做成作品的地方。</p>
+          <p><span data-ekey="about.p2.a">我们相信，学 AI 最好的方式不是看完一门课，而是真的做出一个能跑起来的东西——哪怕第一版很粗糙。</span><strong data-ekey="about.p2.b">先做出来，再一点点改。</strong></p>
+          <p data-ekey="about.p3">这个专区收录的 11 个作品，从个人系统、一人公司工作台到 3D 模型与互动叙事，都是这样长出来的。</p>
+          <a class="about-cta" href="https://mp.weixin.qq.com/s/7UZ3j7ueff_A7kg2fVLWNA" target="_blank" rel="noopener">
+            阅读研习社介绍
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+          <div class="about-sign">
+            <span class="sign-mark">1X100</span>
+            <span><b data-ekey="about.brand.name">AI 航海研习社</b><i data-ekey="about.brand.tag">AI PRACTICE CLUB · 1X100</i></span>
+          </div>
+        </div>
+
+        <div class="about-chart" id="capChart">
+          <div class="cap-head">
+            <div>
+              <span class="cap-kicker">AI CAPABILITY MAP</span>
+              <b class="cap-title">AI 时代的能力分布</b>
+            </div>
+          </div>
+
+          <div class="cap-stack">
+            <button class="cap-row" type="button" data-i="0" style="--w:24%" aria-pressed="true" aria-label="0.1%：创造工具">
+              <span class="cap-pct">0.1%</span>
+              <span class="cap-track"><span class="cap-bar"></span></span>
+              <span class="cap-name">创造工具</span>
+            </button>
+            <button class="cap-row" type="button" data-i="1" style="--w:38%" aria-pressed="false" aria-label="1%：解决问题">
+              <span class="cap-pct">1%</span>
+              <span class="cap-track"><span class="cap-bar"></span></span>
+              <span class="cap-name">解决问题</span>
+            </button>
+            <button class="cap-row" type="button" data-i="2" style="--w:54%" aria-pressed="false" aria-label="10%：部署智能体">
+              <span class="cap-pct">10%</span>
+              <span class="cap-track"><span class="cap-bar"></span></span>
+              <span class="cap-name">部署智能体</span>
+            </button>
+            <button class="cap-row" type="button" data-i="3" style="--w:76%" aria-pressed="false" aria-label="30%：聊天机器人">
+              <span class="cap-pct">30%</span>
+              <span class="cap-track"><span class="cap-bar"></span></span>
+              <span class="cap-name">聊天机器人</span>
+            </button>
+            <button class="cap-row" type="button" data-i="4" style="--w:100%" aria-pressed="false" aria-label="60%：还没用 AI">
+              <span class="cap-pct">60%</span>
+              <span class="cap-track"><span class="cap-bar"></span></span>
+              <span class="cap-name">还没用 AI</span>
+            </button>
+          </div>
+
+          <div class="cap-detail" aria-live="polite">
+            <b id="capDetailTitle">0.1% · 创造工具</b>
+            <p id="capDetailText">能够用好 AI，去开发自己生活、业务、工作、成长等各种场景，能够快速地创造属于自己的高效工具，以及创造能够帮助各种各样的人解决问题的工具和价值。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<!-- ===================== MODAL ===================== -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="方案详情">
+  <div class="sheet" id="sheet">
+    <button class="sheet-close" data-close aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="sheet-preview" id="sheetPreview"></div>
+    <div class="sheet-detail" id="sheetDetail"></div>
+  </div>
+</div>
+
+<div class="save-toast" id="saveToast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/edits.js?v=20261106-105"></script>
+<script src="assets/js/data.js?v=20261106-105"></script>
+<script src="assets/js/app.js?v=20261106-105"></script>
+<script src="assets/js/editor.js?v=20261106-105"></script>
+<script src="assets/js/update.js?v=20261106-105"></script>
+<script src="assets/js/page-transition.js?v=20261106-105"></script>
+</body>
+</html>

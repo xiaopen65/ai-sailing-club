@@ -1,0 +1,3781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小P办公室</title>
+<link rel="icon" href="assets/icons/p-office.svg">
+<link rel="icon" href="favicon.svg">
+<style>
+:root{
+  --bg:#f2ede3; --paper:#fbf8f1; --card:#fffdf8; --ink:#1d1b16; --sub:#6f6758;
+  --line:#ddd3c1; --line-soft:#ebe4d6; --accent:#bf452c; --accent-soft:#f6e2da;
+  --green:#3f6a52; --green-soft:#e5efe7; --amber:#9a6f26;
+  --serif:"Songti SC","Noto Serif SC",SimSun,serif;
+  --sans:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:Consolas,"SFMono-Regular",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  color:var(--ink); font-family:var(--sans); font-size:14px; line-height:1.6;
+  background-color:var(--bg);
+  background-image:radial-gradient(rgba(60,48,30,.055) .6px,transparent .6px);
+  background-size:18px 18px;
+}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+::selection{background:#e9cdc2}
+.app{display:grid;grid-template-columns:216px minmax(0,1fr);min-height:100vh}
+.side{
+  position:sticky;top:0;height:100vh;background:#191712;color:#d8cfbd;
+  display:flex;flex-direction:column;padding:24px 16px 18px;
+}
+.brand{display:flex;align-items:center;gap:11px;padding:0 8px 24px}
+.brand-mark{
+  width:40px;height:40px;display:grid;place-items:center;flex:none;
+}
+.brand-mark svg{width:40px;height:40px;display:block;border-radius:11px}
+.brand-name{font-family:var(--serif);font-size:17px;letter-spacing:.06em;color:#f7f0df}
+.brand-sub{font-family:var(--mono);font-size:8px;letter-spacing:.16em;color:#7f7663;margin-top:2px}
+.nav{display:flex;flex-direction:column;gap:3px}
+.navbtn{
+  display:flex;align-items:center;gap:10px;width:100%;padding:10px 10px;border:1px solid transparent;
+  background:transparent;color:#bdb3a0;text-align:left;font-size:13px;letter-spacing:.03em;border-radius:4px;
+  transition:.15s ease;
+}
+.navbtn .ni{font-family:var(--mono);font-size:9px;color:#736a58;width:18px;flex:none}
+.navbtn:hover{color:#f6efdf;background:#221f18}
+.navbtn.active{color:#1d1b16;background:#f7f1e5}
+.navbtn.active .ni{color:var(--accent)}
+.sidefoot{margin-top:auto;padding:14px 8px 0;border-top:1px solid #2c2920;font-size:10px;color:#8b8170}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#5e9a72;margin-right:7px;vertical-align:1px}
+.dot.off{background:#a4523d}
+.sidefoot .mono{font-family:var(--mono);font-size:9px;color:#6f6656;margin-top:3px}
+.sidefoot button{margin-top:10px;background:none;border:1px solid #353126;color:#a99f8c;padding:6px 8px;font-size:10px;width:100%;border-radius:3px}
+.sidefoot button:hover{color:#f4eddd;border-color:#5b5343}
+.sidefoot button.primary{border-color:#5f7052;background:#2a2f22;color:#e6efdb}
+.sidefoot button.primary:hover{border-color:#8ba173;color:#fff8ec}
+.sidefoot button:disabled{opacity:.55;cursor:default}
+.main{padding:26px 36px 34px;min-width:0}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px}
+.page-title{font-family:var(--serif);font-size:27px;font-weight:600;letter-spacing:.04em;margin:0;line-height:1.2}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);
+  background:transparent;color:var(--ink);padding:8px 13px;font-size:12.5px;border-radius:4px;text-decoration:none;
+  transition:.15s ease;white-space:nowrap;
+}
+.btn:hover{background:#f7f1e5;border-color:#c9bda6}
+.btn[hidden]{display:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff8ec}
+.btn.primary:hover{background:#a83a24;border-color:#a83a24}
+.btn.ghost{border-color:transparent;color:var(--sub);padding:6px 9px}
+.btn.ghost:hover{color:var(--ink);background:#f0e9db}
+.btn.small{padding:5px 9px;font-size:11px}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.view{animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.home-wrap{max-width:960px;margin:0 auto}
+.context-strip{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-bottom:12px;
+  border:1px solid var(--line-soft);background:rgba(255,253,248,.65);border-radius:6px;font-size:11.5px;color:var(--sub);
+}
+.context-strip b{color:var(--ink);font-weight:600}
+.context-strip .sep{width:1px;height:11px;background:var(--line)}
+.context-strip .warn{color:var(--amber)}
+.chat-shell{
+  background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;height:calc(100vh - 208px);min-height:480px;overflow:hidden;
+}
+.msg-list{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+.msg-user{display:flex;justify-content:flex-end}
+.msg-user .bubble{max-width:76%;background:var(--ink);color:#faf4e7;padding:11px 15px;border-radius:12px 12px 3px 12px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.msg-agent{display:grid;grid-template-columns:32px minmax(0,1fr);gap:11px}
+.avatar{
+  width:32px;height:32px;border-radius:3px;display:grid;place-items:center;font-family:var(--serif);
+  font-size:16px;border:1px solid rgba(0,0,0,.08);flex:none;overflow:hidden;
+}
+.avatar img,.emp-card-avatar img{width:100%;height:100%;object-fit:cover;display:block;image-rendering:auto}
+.agent-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+.agent-name{font-size:12.5px;font-weight:600}
+.agent-role{font-size:10px;color:#9b8f79}
+.agent-time{font-family:var(--mono);font-size:9px;color:#b0a48d;margin-left:auto}
+.agent-body{font-size:14px;line-height:1.78;color:#2b271f;word-break:break-word}
+.agent-body strong{font-weight:600;color:#15130f}
+.agent-body code{font-family:var(--mono);font-size:11.5px;background:#f0e9db;padding:1px 4px;border-radius:3px}
+.msg-system{align-self:center;max-width:90%;font-size:11px;color:#8a7f6b;background:#f3ecdd;border:1px solid var(--line-soft);padding:5px 10px;border-radius:999px;text-align:center}
+.msg-linkcard{align-self:stretch;border:1px solid #d9c7ab;background:#fbf2e2;border-radius:8px;padding:14px 16px}
+.msg-linkcard b{display:block;font-family:var(--serif);font-size:16px;font-weight:500;margin-bottom:3px}
+.msg-linkcard p{margin:0 0 10px;font-size:11.5px;color:#6f6758}
+.msg-linkcard .btn{background:#fffdf8}
+.msg-linkcard .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff8ec}
+.msg-linkcard .btn.primary:hover{background:#a83a24;border-color:#a83a24}
+.msg-files{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.msg-files a{font-size:10.5px;text-decoration:none;border:1px solid var(--line-soft);background:#fffdf8;color:#6c6251;padding:3px 7px;border-radius:999px}
+.msg-files a:hover{border-color:#cdbfa6;color:var(--ink)}
+.msg-imgs{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.msg-imgs a{display:block;line-height:0}
+.msg-imgs img{width:124px;height:124px;object-fit:cover;border-radius:8px;border:1px solid var(--line-soft);background:#f3ecdd}
+.msg-imgs img:hover{border-color:#c9bda6}
+.msg-user .user-stack{display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:76%}
+.msg-user .user-stack .bubble{max-width:100%}
+.msg-user .user-stack .msg-imgs{margin-top:0;justify-content:flex-end}
+.attach-strip{display:none;flex-wrap:wrap;gap:8px;padding:2px 2px 8px}
+.attach-strip.has{display:flex}
+.attach-thumb{position:relative;width:52px;height:52px;border-radius:6px;overflow:hidden;border:1px solid var(--line-soft)}
+.attach-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.attach-thumb button{position:absolute;top:2px;right:2px;width:16px;height:16px;border:0;border-radius:50%;background:rgba(20,16,10,.72);color:#fff;font-size:11px;line-height:16px;padding:0;cursor:pointer}
+.attach-btn{width:26px;height:26px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:5px;background:#fffdf9;color:#8a7d64;cursor:pointer}
+.attach-btn:hover{border-color:#c9bda6;color:var(--ink)}
+.attach-btn svg{width:14px;height:14px}
+.attach-btn input{display:none}
+.msg-actions-card{align-self:stretch;border:1px solid var(--line-soft);background:#fffdf8;border-radius:8px;padding:13px 15px;font-size:12px;color:#6f6758}
+.msg-actions-card .row-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.steps{margin-top:8px;border-top:1px dashed var(--line-soft);padding-top:6px;font-size:10.5px;color:var(--sub)}
+.steps summary{cursor:pointer;list-style:none;display:inline-flex;gap:5px;align-items:center;color:#8d8069}
+.steps summary::-webkit-details-marker{display:none}
+.steps summary:before{content:"▸";font-size:9px;transition:.15s}
+.steps[open] summary:before{transform:rotate(90deg)}
+.step{padding:3px 0 3px 12px;border-left:1px solid var(--line);margin-top:4px;font-family:var(--mono);font-size:9.5px;line-height:1.6;color:#7d715c;word-break:break-all}
+.step.err{color:#a3452e;border-left-color:#d7a08f}
+.typing{display:flex;align-items:center;gap:8px;font-size:11px;color:#8d8069;padding:2px 0 2px 43px}
+.typing i{width:4px;height:4px;border-radius:50%;background:#a89b84;animation:blink 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.16s}.typing i:nth-child(3){animation-delay:.32s}
+@keyframes blink{0%,70%,100%{opacity:.25}35%{opacity:1}}
+.composer{border-top:1px solid var(--line-soft);background:#fffdf9;padding:12px 16px 14px}
+.composer textarea{
+  width:100%;min-height:44px;max-height:150px;resize:none;border:0;outline:0;background:transparent;
+  font-size:14px;line-height:1.65;padding:3px 2px;
+}
+.composer textarea::placeholder{color:#b1a58f}
+.composer-bar{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.mention{
+  border:1px solid var(--line-soft);background:#faf5ea;color:#6c6251;font-size:10.5px;padding:3px 8px;border-radius:999px;
+}
+.mention:hover{border-color:#cdbfa6;color:var(--ink)}
+.composer-state{font-size:10px;color:#9b8f79;margin-left:2px}
+.composer-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.modebtn{border:1px solid var(--line-soft);background:#f7f1e5;color:#6c6251;font-size:10.5px;padding:5px 9px;border-radius:999px}
+.modebtn.task{color:var(--accent);border-color:#e3c4b8;background:var(--accent-soft)}
+.send{width:38px;height:34px;border:0;border-radius:4px;background:var(--accent);color:#fff8ec;font-size:15px;display:grid;place-items:center}
+.send:hover{background:#a83a24}
+.send:disabled{background:#d8cdb9;cursor:not-allowed}
+.empty-chat{padding:34px 8px 10px;color:#8d8069;font-size:12.5px;line-height:1.9}
+.empty-chat b{display:block;font-family:var(--serif);font-size:18px;color:var(--ink);font-weight:500;margin-bottom:6px}
+.starter{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.starter button{border:1px dashed #d6c9b2;background:transparent;color:#7a6e5a;font-size:11px;padding:5px 9px;border-radius:999px}
+.starter button:hover{background:#f8f2e6;color:var(--ink)}
+.team-layout{display:grid;grid-template-columns:minmax(0,1fr) 292px;gap:16px;height:calc(100vh - 190px);min-height:520px}
+.team-main{display:flex;flex-direction:column;min-width:0}
+.emp-switch{display:flex;gap:4px;padding:4px;background:#e9e1d2;border-radius:999px;width:fit-content;max-width:100%;overflow:auto;margin-bottom:10px}
+.emp-tab{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#6d6351;padding:6px 12px;border-radius:999px;font-size:11.5px;white-space:nowrap}
+.emp-tab .mini{width:20px;height:20px;border-radius:2px;display:grid;place-items:center;font-family:var(--serif);font-size:11px;border:1px solid rgba(0,0,0,.06)}
+.emp-tab.active{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(50,40,25,.1)}
+.emp-tab .bd{width:5px;height:5px;border-radius:50%;background:var(--green);margin-left:1px}
+.team-main .chat-shell{height:100%}
+.team-home{max-width:900px;margin:0 auto;padding-bottom:20px}
+.team-lead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:2px 2px 16px}
+.team-lead h2{margin:0;font-family:var(--serif);font-size:21px;font-weight:500;letter-spacing:.03em}
+.employee-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.employee-card{position:relative;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;min-height:196px;box-shadow:0 1px 0 rgba(60,48,30,.04);transition:.18s ease;cursor:pointer}
+.employee-card:hover{border-color:#c9bda6;transform:translateY(-2px);box-shadow:0 12px 30px rgba(60,48,30,.08)}
+.employee-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.emp-card-head{display:flex;align-items:flex-start;gap:11px}
+.emp-card-avatar{width:44px;height:44px;border-radius:4px;display:grid;place-items:center;font-family:var(--serif);font-size:21px;border:1px solid rgba(0,0,0,.06);flex:none;overflow:hidden}
+.emp-card-name{font-size:15.5px;font-weight:600;letter-spacing:.02em}
+.emp-card-role{font-size:10.5px;color:#9b8f79;margin-top:1px}
+.emp-card-duty{margin:14px 0 16px;font-size:11.5px;line-height:1.7;color:#6f6758}
+.emp-card-status{margin-top:auto;display:flex;align-items:center;gap:7px;font-size:10.5px;color:#8d8069}
+.emp-arrow{margin-left:auto;font-family:var(--mono);font-size:11px;color:#b0a48d}
+.emp-status-dot{width:6px;height:6px;border-radius:50%;background:#c9bda6;flex:none}
+.emp-status-dot.running{background:#dfb32b;animation:statusPulse 1.1s infinite}
+.emp-status-dot.done{background:var(--green)}
+.emp-status-dot.error{background:#a3452e}
+.employee-card[data-status="running"] [data-emp-status]{padding:2px 9px;border-radius:999px;background:#f7d45a;color:#4a3800;font-weight:600;letter-spacing:.02em}
+@keyframes statusPulse{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+.emp-dialog{position:fixed;inset:0;background:rgba(24,21,16,.42);display:none;place-items:center;z-index:60;padding:18px}
+.emp-dialog.open{display:grid}
+.emp-dialog-card{background:var(--card);border:1px solid var(--line);border-radius:8px;width:min(1180px,calc(100vw - 48px));height:min(88vh,940px);min-width:min(560px,calc(100vw - 24px));min-height:min(480px,calc(100vh - 24px));max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);display:flex;flex-direction:column;overflow:hidden;resize:both;box-shadow:0 30px 80px rgba(20,16,10,.28)}
+.emp-dialog-card.expanded{width:calc(100vw - 28px)!important;height:calc(100vh - 28px)!important;max-width:none!important;max-height:none!important;resize:none}
+.emp-dialog-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line-soft);background:#fffdf9}
+.emp-dialog-head .avatar{width:36px;height:36px;font-size:17px}
+.emp-dialog-title{min-width:0}
+.emp-dialog-title h2{margin:0;font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.emp-dialog-title p{margin:1px 0 0;font-size:10.5px;color:#9b8f79;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:440px}
+.emp-dialog-head .spacer{margin-left:auto}
+.dialog-close{width:30px;height:30px;border:1px solid var(--line-soft);background:transparent;border-radius:4px;color:#8d8069;font-size:18px;line-height:1;display:grid;place-items:center;flex:none}
+.dialog-close:hover{background:#f2ebdd;color:var(--ink)}
+.dialog-size-btn{width:30px;height:30px;border:1px solid var(--line-soft);background:transparent;border-radius:4px;color:#8d8069;padding:0;display:grid;place-items:center;flex:none}
+.dialog-size-btn:hover{background:#f2ebdd;color:var(--ink)}
+.dialog-size-btn svg{width:14px;height:14px;display:block}
+.dialog-size-btn .icon-restore{display:none}
+.hidden{display:none!important}
+.dialog-gear{width:30px;height:30px;border:1px solid var(--line-soft);background:transparent;border-radius:4px;color:#8d8069;padding:0;display:grid;place-items:center;flex:none}
+.dialog-gear:hover{background:#f2ebdd;color:var(--ink)}
+.dialog-gear svg{width:15px;height:15px;display:block}
+.emp-status-dot.away{background:#b9b1a3}
+.pf-row{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.pf-avatar{width:64px;height:64px;font-size:26px}
+.pf-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.pf-avatar-ops{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pf-hint{width:100%;font-size:11px;color:#9b8f79}
+.pf-field{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.pf-field label{flex:none;width:44px;font-size:12px;color:#8a7c66}
+.pf-field input{flex:1;min-width:0;height:34px;border:1px solid var(--line);border-radius:4px;background:#fffdf8;padding:0 10px;font-size:12.5px;color:var(--ink);font-family:inherit}
+.pf-field input:focus{outline:none;border-color:#c0a37b}
+.pf-chips{display:flex;gap:6px;flex-wrap:wrap}
+.pf-chip{border:1px solid var(--line);background:#fffdf8;color:#6c6251;font-size:11.5px;padding:5px 11px;border-radius:999px;cursor:pointer}
+.pf-chip:hover{border-color:#cdbfa6;color:var(--ink)}
+.pf-chip.on{background:var(--ink);border-color:var(--ink);color:#fff8ec}
+.emp-dialog-card.expanded .dialog-size-btn .icon-expand{display:none}
+.emp-dialog-card.expanded .dialog-size-btn .icon-restore{display:block}
+.dialog-quick{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 16px;background:#faf6ec;border-bottom:1px solid var(--line-soft)}
+.dialog-quick .q-label{font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:#a2957d;margin-right:2px}
+.dialog-quick button{border:1px solid var(--line-soft);background:#fffdf8;color:#6c6251;font-size:10.5px;padding:4px 8px;border-radius:999px}
+.dialog-quick button:hover{border-color:#cdbfa6;color:var(--ink)}
+.dialog-msg-list{padding:20px 22px}
+.dialog-composer{border-top:1px solid var(--line-soft);background:#fffdf9;padding:10px 14px 12px}
+.dialog-composer textarea{width:100%;min-height:42px;max-height:120px;resize:none;border:0;outline:0;background:transparent;font-size:13.5px;line-height:1.65;padding:2px}
+.dialog-composer textarea::placeholder{color:#b1a58f}
+.dialog-composer-bar{display:flex;align-items:center;gap:8px;margin-top:4px}
+.dialog-composer-bar .hint{font-size:9.5px;color:#a2957d;margin-left:2px}
+.dialog-actions{margin-left:auto;display:flex;align-items:center;gap:6px}
+.dialog-status-chip{font-size:9.5px;color:#8d8069;border:1px solid var(--line-soft);background:#f7f1e5;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.dialog-status-chip.running{color:#6b5000;border-color:#e6c95c;background:#fbeaa8}
+.dialog-status-chip.done{color:var(--green);border-color:#c6dccb;background:var(--green-soft)}
+.dialog-status-chip.error{color:#a3452e;border-color:#e7c0b2;background:#f9e6df}
+body.dialog-open{overflow:hidden}
+.team-head{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line-soft);background:#fffdf9}
+.team-head .avatar{width:34px;height:34px;font-size:17px}
+.team-head h2{font-size:15px;margin:0;font-weight:600}
+.team-head p{margin:1px 0 0;font-size:10.5px;color:#92866f}
+.team-head .spacer{margin-left:auto}
+.board{display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding-right:2px}
+.board-card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:15px}
+.board-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:#a2957d;text-transform:uppercase;margin-bottom:8px}
+.board-card h3{margin:0 0 8px;font-size:13px;font-weight:600}
+.score{font-family:var(--serif);font-size:34px;line-height:1;font-weight:500}
+.score span{font-size:12px;color:#9b8f79;font-family:var(--sans);margin-left:3px}
+.bar{height:4px;background:var(--line-soft);border-radius:2px;overflow:hidden;margin:10px 0 8px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.missing{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 10px}
+.missing span{font-size:9.5px;border:1px solid #e4d3b9;background:#faf1e2;color:#8a6a35;padding:2px 6px;border-radius:999px}
+.intake-row{padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.intake-row:last-child{border-bottom:0}
+.intake-name{font-size:11.5px;font-weight:600;margin-bottom:3px}
+.intake-row .missing{margin:0}
+.intake-row .missing span{font-size:8.5px}
+.intake-card{border:1px solid var(--line);border-radius:5px;padding:12px;margin-bottom:10px;background:#fffefa}
+.intake-card:last-child{margin-bottom:0}
+.intake-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.intake-card-head b{font-size:12.5px}
+.intake-card-head span{font-family:var(--mono);font-size:8.5px;color:#9b8f79}
+.intake-photo{display:flex;gap:6px;align-items:center}
+.intake-photo input[type=file]{font-size:9.5px;max-width:150px}
+.intake-consent{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#6d6351;margin-top:8px}
+.board-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.file-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:11px}
+.file-row:last-child{border-bottom:0}
+.file-ext{font-family:var(--mono);font-size:8.5px;color:#fff;background:#8d8069;padding:2px 4px;border-radius:2px;flex:none;text-transform:uppercase}
+.file-row a{text-decoration:none;color:#4d4638;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-row a:hover{color:var(--accent)}
+.thumb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:4px 0 10px}
+.thumb-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border:1px solid var(--line);border-radius:3px;background:#efe7d8}
+.hint{font-size:10.5px;color:#9b8f79;line-height:1.7}
+.kb-wrap{max-width:900px;margin:0 auto}
+.kb-tools{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.search{
+  flex:1;border:1px solid var(--line);background:var(--card);border-radius:4px;padding:10px 13px;font-size:13px;outline:none;
+}
+.search:focus{border-color:#b9a98d;box-shadow:0 0 0 3px rgba(191,69,44,.06)}
+.kb-count{font-family:var(--mono);font-size:10px;color:#9b8f79;white-space:nowrap}
+.kb-list{background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.kb-item{border-bottom:1px solid var(--line-soft)}
+.kb-item:last-child{border-bottom:0}
+.kb-q{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:0;background:transparent;text-align:left}
+.kb-q:hover{background:#faf5ea}
+.kb-q .idx{font-family:var(--mono);font-size:9px;color:#b3a68f;width:18px;flex:none}
+.kb-q .qtext{font-size:13.5px;font-weight:500}
+.kb-q .arrow{margin-left:auto;color:#aa9d86;font-size:11px;transition:.15s}
+.kb-item.open .kb-q .arrow{transform:rotate(90deg)}
+.kb-a{display:none;padding:0 16px 15px 44px;font-size:13px;line-height:1.85;color:#4d4638}
+.kb-item.open .kb-a{display:block}
+.kb-a .src{display:flex;align-items:center;gap:8px;margin-top:10px}
+.kb-a .src span{font-family:var(--mono);font-size:9px;color:#a2957d}
+.settings-wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.panel-head h2{font-size:15px;margin:0;font-weight:600}
+.panel-head p{margin:3px 0 0;font-size:10.5px;color:#94886f}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 14px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:9.5px;letter-spacing:.06em;color:#8d8069}
+.field input,.field textarea,.field select{
+  border:1px solid var(--line);background:#fffefa;border-radius:3px;padding:8px 10px;font-size:12.5px;outline:none;width:100%;
+}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#b9a98d}
+.field textarea{resize:vertical;min-height:56px;line-height:1.6}
+.field .tip{font-size:9px;color:#b0a48d}
+.span2{grid-column:span 2}
+.speaker-row{display:grid;grid-template-columns:1fr 1.5fr 1.6fr 28px;gap:7px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.speaker-row:last-child{border-bottom:0}
+.speaker-row input{font-size:12px}
+.iconbtn{width:26px;height:26px;border:1px solid var(--line-soft);background:transparent;color:#a2957d;border-radius:3px}
+.iconbtn:hover{color:var(--accent);border-color:#dfb7a9}
+.review-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+.pill{font-size:10px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:#7d715c;background:#f7f1e5}
+.pill.ok{color:var(--green);background:var(--green-soft);border-color:#c6dccb}
+.pill.warn{color:var(--amber);background:#fbf1dd;border-color:#e7d2a8}
+.pill.bad{color:#a3452e;background:#f9e6df;border-color:#e7c0b2}
+.sys-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:12px}
+.sys-row:last-child{border-bottom:0}
+.sys-row .k{color:#7d715c}
+.sys-row .v{font-family:var(--mono);font-size:10.5px;color:#4d4638;text-align:right;word-break:break-all}
+.note{background:#f8f2e6;border:1px solid #e7dcc8;padding:10px 12px;border-radius:4px;font-size:10.5px;color:#7d715c;line-height:1.7}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,10px);background:#1d1b16;color:#faf4e7;
+  padding:9px 16px;border-radius:999px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:80;max-width:80vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.work-toast{position:fixed;right:24px;bottom:24px;z-index:95;display:flex;gap:11px;align-items:flex-start;width:302px;padding:13px 15px;background:#fffdf8;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 44px rgba(20,16,10,.18);cursor:pointer;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+.work-toast.show{opacity:1;transform:none;pointer-events:auto}
+.work-toast img{width:32px;height:32px;border-radius:9px;flex:none;display:block}
+.work-toast b{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.work-toast span{font-size:11.5px;color:var(--sub);line-height:1.6;display:block}
+.work-toast .wt-x{position:absolute;top:8px;right:10px;font-size:13px;color:#c0b7a6}
+.modal{position:fixed;inset:0;background:rgba(24,21,16,.42);display:none;place-items:center;z-index:70;padding:18px}
+.modal.open{display:grid}
+.modal-card{background:var(--card);border:1px solid var(--line);border-radius:6px;width:min(640px,100%);max-height:82vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(20,16,10,.25)}
+.modal-card.wide{width:min(860px,100%)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line-soft)}
+.modal-head h3{margin:0;font-size:14px}
+.modal-body{padding:16px 18px;overflow:auto;font-size:12.5px;line-height:1.8}
+.modal-body pre{white-space:pre-wrap;word-break:break-word;font-family:var(--sans);margin:0}
+.modal-foot{padding:12px 18px;border-top:1px solid var(--line-soft);display:flex;justify-content:flex-end;gap:8px}
+.go-list{display:flex;flex-direction:column;gap:8px}
+.go-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:13px 15px;border:1px solid var(--line);background:var(--card);border-radius:4px;transition:.15s ease}
+.go-item:hover{border-color:#c9bda6;background:#faf5ea}
+.go-index{font-family:var(--mono);font-size:10px;color:#9b8f79;width:18px;flex:none}
+.go-icon{width:34px;height:34px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:4px;background:#fbf7ef;color:var(--brand-dark);transition:.15s ease}
+.go-icon svg{width:18px;height:18px}
+.go-item:hover .go-icon{border-color:#d9c9b0;background:#fffdf8}
+.go-copy{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.go-copy b{font-family:var(--serif);font-size:15.5px;font-weight:600;letter-spacing:.03em}
+.go-copy small{font-size:11px;color:var(--sub)}
+.go-arrow{color:#b3a68f;font-size:14px}
+.deck{position:fixed;inset:0;z-index:85;background:var(--bg);display:flex;flex-direction:column}
+.deck[hidden]{display:none}
+.deck-home{position:absolute;top:14px;right:18px;z-index:3;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:4px;background:rgba(255,253,248,.94);color:var(--ink);box-shadow:0 4px 18px rgba(29,27,22,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:.15s ease}
+.deck-home:hover{background:#fff;border-color:#c9bda6;transform:translateY(-1px)}
+.deck-home svg{width:18px;height:18px}
+.deck-body{position:relative;flex:1;min-height:0}
+.deck-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+body.deck-open{overflow:hidden}
+.projects-wrap{max-width:1180px;margin:0 auto;padding-bottom:30px}
+.projects-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:2px 2px 20px}
+.projects-head h2{margin:0;font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:.03em}
+.projects-head p{margin:5px 0 0;font-size:11.5px;color:var(--sub)}
+.projects-count{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:#a2957d;margin-bottom:9px}
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.project-card{position:relative;min-height:216px;padding:20px 20px 18px;border:1px solid var(--line);background:rgba(255,253,248,.9);border-radius:7px;box-shadow:0 1px 0 rgba(60,48,30,.04);cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.project-card:hover{transform:translateY(-2px);border-color:#cbbca3;box-shadow:0 14px 30px rgba(54,42,23,.09)}
+.project-card::before{content:"";position:absolute;left:20px;top:20px;width:22px;height:2px;background:var(--accent);opacity:.8}
+.project-card-top{display:flex;align-items:flex-start;gap:10px;margin:12px 0 18px;padding-right:4px}
+.project-card-title{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.45;letter-spacing:.02em;flex:1;min-width:0}
+.project-open-card{display:grid;place-items:center;width:26px;height:26px;flex:none;border:1px solid var(--line-soft);border-radius:50%;color:#a2957d;font-size:14px;background:#fffdf9;transition:.15s ease}
+.project-card:hover .project-open-card{color:var(--accent);border-color:#dcc3b8;transform:rotate(8deg)}
+.project-q-list{display:flex;flex-direction:column;gap:2px}
+.project-q-row{display:flex;align-items:flex-start;gap:9px;width:100%;padding:7px 0;border:0;background:none;text-align:left;color:#4d463a;font-size:12.5px;line-height:1.58;border-radius:3px}
+.project-q-row:hover{color:var(--ink);background:#f8f2e7}
+.project-q-row .q-bullet{width:5px;height:5px;flex:none;margin-top:7px;border-radius:50%;background:#c7b89f}
+.project-q-row:hover .q-bullet{background:var(--accent)}
+.project-more{margin-top:10px;padding-left:14px;font-size:10.5px;color:#a2957d}
+.project-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:11px;border-top:1px solid var(--line-soft);font-size:10px;color:#a2957d}
+.project-card-foot span:last-child{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em}
+.project-card.new-project{display:flex;align-items:center;justify-content:center;min-height:216px;border-style:dashed;background:rgba(255,253,248,.35);box-shadow:none;color:#8f826d}
+.project-card.new-project:hover{background:rgba(255,253,248,.78)}
+.project-new-inner{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.project-new-plus{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;font-size:22px;line-height:1;background:#fffdf8;color:#9d8e75}
+.project-new-inner b{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink)}
+.project-new-inner small{font-size:10.5px;color:#a2957d}
+.projects-empty{padding:80px 20px;text-align:center;border:1px dashed var(--line);border-radius:7px;color:#9b8f79;background:rgba(255,253,248,.45)}
+.projects-empty b{display:block;margin-bottom:6px;font-family:var(--serif);font-size:18px;color:var(--ink);font-weight:500}
+.project-workspace{display:grid;grid-template-columns:324px minmax(0,1fr) 306px;gap:13px;height:calc(100vh - 152px);min-height:610px}
+.proj-panel{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:7px;box-shadow:0 1px 0 rgba(60,48,30,.04)}
+.proj-left{display:flex;flex-direction:column;overflow:hidden}
+.proj-left-head{padding:15px 16px 13px;border-bottom:1px solid var(--line-soft)}
+.proj-back{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:0;margin-bottom:10px;color:#958870;font-size:10.5px}
+.proj-back:hover{color:var(--ink)}
+.proj-title-line{display:flex;align-items:flex-start;gap:7px}
+.proj-title{flex:1;min-width:0;margin:0;font-family:var(--serif);font-size:17px;font-weight:600;line-height:1.45;letter-spacing:.02em}
+.proj-icon-btn{width:26px;height:26px;flex:none;display:grid;place-items:center;border:1px solid var(--line-soft);background:#fffdf8;color:#9a8d76;border-radius:4px;padding:0}
+.proj-icon-btn:hover{color:var(--ink);border-color:#cdbfa6}
+.proj-icon-btn svg{width:13px;height:13px}
+.proj-intake{padding:13px 16px 14px;border-bottom:1px solid var(--line-soft);background:#faf6ed}
+.proj-intake-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:10px;color:#8f826c}
+.proj-intake-label span:last-child{font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:#b2a48d}
+.proj-intake textarea{width:100%;min-height:72px;max-height:150px;resize:vertical;border:1px solid #d9cbb7;border-radius:5px;background:#fffdf8;padding:9px 10px;font-size:12px;line-height:1.65;outline:none}
+.proj-intake textarea:focus{border-color:#b99b78;box-shadow:0 0 0 2px rgba(191,69,44,.06)}
+.proj-intake-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.proj-intake-foot .hint{font-size:9.5px;color:#a89a83;line-height:1.4}
+.proj-last-note{padding:9px 16px;border-bottom:1px solid var(--line-soft);font-size:10.5px;line-height:1.6;color:#8d8069;background:#fffdfa}
+.proj-questions{flex:1;overflow-y:auto;padding:13px 10px 18px}
+.proj-list-label{padding:0 7px;margin:5px 0 7px;font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:#a2957d;text-transform:uppercase}
+.proj-question{display:flex;align-items:flex-start;gap:8px;width:100%;padding:9px 8px;border:1px solid transparent;border-radius:5px;background:none;text-align:left;font-size:12px;line-height:1.6;color:#51493d;transition:.14s ease}
+.proj-question:hover{background:#f8f2e7;color:var(--ink)}
+.proj-question.active{background:#f4ecdd;border-color:#e3d5bf;color:var(--ink)}
+.proj-question .q-status{width:6px;height:6px;flex:none;margin-top:6px;border-radius:50%;background:#c8b99f;box-shadow:0 0 0 3px rgba(200,185,159,.14)}
+.proj-question.thinking .q-status{background:#c78a32;box-shadow:0 0 0 3px rgba(199,138,50,.13)}
+.proj-question.answered .q-status{background:#53806a;box-shadow:0 0 0 3px rgba(83,128,106,.12)}
+.proj-answered{margin-top:15px;border-top:1px solid var(--line-soft);padding-top:9px}
+.proj-answered summary{cursor:pointer;list-style:none;padding:4px 8px;font-size:10px;color:#a2957d}
+.proj-answered summary::-webkit-details-marker{display:none}
+.proj-answered summary::before{content:"＋";display:inline-block;width:14px;color:#b3a58d}
+.proj-answered[open] summary::before{content:"－"}
+.proj-focus{padding:28px 30px 24px;display:flex;flex-direction:column;overflow:hidden}
+.proj-focus-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:15px}
+.proj-kicker{font-family:var(--mono);font-size:8.5px;letter-spacing:.15em;color:#a2957d;text-transform:uppercase;margin-bottom:9px}
+.proj-focus h2{margin:0;font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.48;letter-spacing:.01em;max-width:780px}
+.proj-status{flex:none;border:1px solid #e3d5bf;background:#faf3e5;color:#8a6b35;font-size:10px;padding:4px 9px;border-radius:999px}
+.proj-answer-area{display:flex;flex-direction:column;flex:1;min-height:0;margin-top:6px}
+.proj-answer-label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px;font-size:10.5px;color:#8f826c}
+.proj-answer-label span:last-child{font-size:9.5px;color:#b0a28b}
+.proj-answer{width:100%;flex:1;min-height:190px;resize:none;border:1px solid var(--line);border-radius:6px;background:#fffdf9;padding:15px 16px;font-size:13.5px;line-height:1.9;outline:none;color:#302a23}
+.proj-answer:focus{border-color:#c1a98d;box-shadow:0 0 0 2px rgba(191,69,44,.05)}
+.proj-answer::placeholder{color:#b3a791}
+.proj-focus-actions{display:flex;align-items:center;gap:8px;margin-top:12px}
+.proj-focus-actions .spacer{margin-left:auto}
+.proj-summary{margin:0 0 16px;padding:13px 15px;border-left:2px solid #b7c9bb;background:#f4f7f2;border-radius:0 5px 5px 0;font-size:12.5px;line-height:1.75;color:#486254}
+.proj-summary b{display:block;margin-bottom:3px;font-family:var(--mono);font-size:8px;letter-spacing:.13em;color:#7a9784;font-weight:500}
+.proj-empty-center{flex:1;display:grid;place-items:center;text-align:center;color:#9b8f79;padding:20px}
+.proj-empty-center b{display:block;margin-bottom:6px;font-family:var(--serif);font-size:20px;font-weight:500;color:#5d5548}
+.proj-empty-center span{font-size:11.5px;line-height:1.8}
+.proj-tree{display:flex;flex-direction:column;overflow:hidden;background:rgba(251,248,241,.74)}
+.proj-tree-head{padding:18px 18px 12px;border-bottom:1px solid var(--line-soft)}
+.proj-tree-head h3{margin:0;font-family:var(--serif);font-size:15px;font-weight:600}
+.proj-tree-head p{margin:3px 0 0;font-size:9.5px;color:#a2957d;line-height:1.5}
+.proj-tree-body{flex:1;overflow-y:auto;padding:18px 18px 24px}
+.node-list{position:relative;display:flex;flex-direction:column;gap:14px;padding-left:15px}
+.node-list::before{content:"";position:absolute;left:4px;top:4px;bottom:9px;width:1px;background:#ded2bf}
+.tree-node{position:relative;padding:10px 11px 11px;border:1px solid var(--line-soft);background:#fffdf8;border-radius:5px}
+.tree-node::before{content:"";position:absolute;left:-12px;top:16px;width:7px;height:7px;border-radius:50%;background:#fffdf8;border:1px solid #c7b79d}
+.tree-node.root{border-color:#e1d0b9;background:#fbf5ea}
+.tree-node.root::before{background:var(--accent);border-color:var(--accent)}
+.tree-node b{display:block;font-size:11.5px;font-weight:500;line-height:1.65;color:#4f473b}
+.tree-node small{display:block;margin-top:5px;font-size:9px;color:#a99a83;font-family:var(--mono);letter-spacing:.05em}
+.tree-empty{font-size:10.5px;line-height:1.8;color:#a2957d;padding:10px 2px}
+.pform label{display:block;margin:0 0 6px;font-size:10px;letter-spacing:.05em;color:#8f826c}
+.pform input,.pform textarea{width:100%;border:1px solid var(--line);border-radius:5px;background:#fffdf9;padding:9px 10px;font-size:12.5px;outline:none;line-height:1.7}
+.pform textarea{min-height:116px;resize:vertical}
+.pform .row{margin-bottom:14px}
+.pform .hint{font-size:10.5px;color:#a2957d;line-height:1.65}
+.compose-md{white-space:pre-wrap;font-family:var(--mono);font-size:11px;line-height:1.75;background:#fbf7ef;border:1px solid var(--line-soft);border-radius:5px;padding:14px;max-height:52vh;overflow:auto}
+@media(max-width:760px){
+  .deck-home{top:10px;right:10px;width:36px;height:36px}
+}
+.loading{min-height:60vh;display:grid;place-items:center;color:#8d8069;font-size:12px}
+.banner{border:1px solid #e7c0b2;background:#f9e6df;color:#8d412c;padding:10px 14px;border-radius:4px;font-size:12px;margin-bottom:12px}
+@media(max-width:1100px){
+  .team-layout{grid-template-columns:1fr;height:auto}
+  .board{flex-direction:row;flex-wrap:wrap;overflow:visible}
+  .board-card{flex:1 1 240px}
+  .team-main .chat-shell{height:calc(100vh - 260px);min-height:440px}
+  .project-workspace{grid-template-columns:300px minmax(0,1fr);height:auto;min-height:0}
+  .proj-left,.proj-focus{min-height:560px}
+  .proj-tree{grid-column:1/-1;min-height:220px;max-height:340px}
+}
+@media(max-width:760px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:0;z-index:30;height:auto;padding:10px 12px;flex-direction:row;align-items:center;gap:10px;overflow:visible}
+  .brand{padding:0;flex:none}
+  .brand-mark{width:32px;height:32px;font-size:18px}
+  .brand-name{font-size:14px;white-space:nowrap}
+  .brand-sub{display:none}
+  .nav{flex-direction:row;flex:1;overflow:auto;gap:2px}
+  .navbtn{padding:6px 8px;font-size:11px;white-space:nowrap;width:auto}
+  .navbtn .ni{display:none}
+  .sidefoot{display:none}
+  .main{padding:14px 12px 20px}
+  .top{margin-bottom:12px;align-items:flex-start}
+  .page-title{font-size:21px}
+  .chat-shell{height:calc(100vh - 230px);min-height:420px}
+  .msg-list{padding:16px 14px;gap:15px}
+  .composer{padding:10px 11px 12px}
+  .msg-user .bubble{max-width:88%}
+  .team-head{padding:10px 12px}
+  .team-head p{display:none}
+  .emp-switch{width:100%}
+  .employee-grid{grid-template-columns:1fr}
+  .employee-card{min-height:170px}
+  .team-lead{align-items:flex-start;flex-direction:column;gap:6px}
+  .projects-head{align-items:flex-start;flex-direction:column;gap:10px}
+  .project-grid{grid-template-columns:1fr}
+  .project-workspace{grid-template-columns:1fr}
+  .proj-left,.proj-focus{min-height:0}
+  .proj-left{max-height:58vh}
+  .proj-focus{padding:20px 16px}
+  .proj-focus h2{font-size:21px}
+  .proj-answer{min-height:170px}
+  .proj-tree{grid-column:auto;max-height:none}
+  .emp-dialog{padding:0}
+  .emp-dialog-card{width:100%;height:100%;max-width:none;max-height:none;min-width:0;min-height:0;border-radius:0;border:0;resize:none}
+  .dialog-size-btn{display:none}
+  .emp-dialog-title p{max-width:180px}
+  .dialog-quick{padding:8px 12px}
+  .dialog-msg-list{padding:16px 14px}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .span2{grid-column:auto}
+  .speaker-row{grid-template-columns:1fr 1fr 26px;gap:6px}
+  .speaker-row input:nth-child(3){grid-column:1/3}
+  .context-strip{font-size:10.5px;gap:7px}
+}
+/* ---- 前往下拉 ---- */
+.go-wrap{position:relative}
+.go-pop{position:absolute;right:0;top:calc(100% + 9px);width:274px;padding:6px;background:var(--card);
+  border:1px solid var(--line);border-radius:6px;box-shadow:0 20px 46px rgba(29,27,22,.16);z-index:70;
+  transform-origin:top right;transform:translateY(-10px) scaleY(.9);opacity:0;pointer-events:none;
+  transition:transform .24s cubic-bezier(.32,.72,.28,1),opacity .18s ease}
+.go-pop.open{transform:translateY(0) scaleY(1);opacity:1;pointer-events:auto}
+.go-pop-item{width:100%;display:flex;align-items:center;gap:11px;padding:11px 12px;background:none;border:0;
+  border-radius:4px;text-align:left;cursor:pointer;transition:background .15s ease}
+.go-pop-item[hidden]{display:none!important}
+.go-pop-item:hover{background:#f8f2e5}
+.go-pop-ic{width:30px;height:30px;flex:none;border-radius:4px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.go-pop-ic svg{width:16px;height:16px}
+.go-pop-copy{display:flex;flex-direction:column;gap:1px;min-width:0}
+.go-pop-copy b{font-size:12.5px;font-weight:600;color:var(--ink)}
+.go-pop-copy small{font-size:10.5px;color:var(--sub)}
+.go-pop-arrow{margin-left:auto;color:#bdb19a;font-size:12px}
+
+/* ---- 工作台：三个板块 ---- */
+.wb{position:absolute;inset:0;overflow:auto;padding:56px 30px 46px;background:var(--bg)}
+.wb[hidden]{display:none}
+.wb-inner{max-width:880px;margin:0 auto}
+.wb-kicker{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:#a89a80;text-transform:uppercase}
+.wb-title{font-size:25px;font-weight:600;letter-spacing:.01em;margin:9px 0 5px}
+.wb-meta{font-size:11.5px;color:var(--sub);margin:0 0 26px}
+.wb-boards{display:grid;gap:11px}
+.wb-board{background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;transition:box-shadow .22s ease,border-color .22s ease}
+.wb-board.open{border-color:#cfc2a9;box-shadow:0 14px 34px rgba(29,27,22,.08)}
+.wb-board-head{width:100%;display:flex;align-items:center;gap:13px;padding:17px 19px;border:0;background:none;text-align:left;cursor:pointer}
+.wb-board-head:hover .wb-board-name{color:var(--accent)}
+.wb-board-ic{width:34px;height:34px;flex:none;border-radius:5px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.wb-board-ic svg{width:17px;height:17px}
+.wb-board-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wb-board-name{font-size:14.5px;font-weight:600;transition:color .15s ease}
+.wb-board-desc{font-size:10.5px;color:var(--sub)}
+.wb-board-arrow{margin-left:auto;font-size:12px;color:#bdb19a;transition:transform .26s cubic-bezier(.32,.72,.28,1)}
+.wb-board.open .wb-board-arrow{transform:rotate(90deg);color:var(--accent)}
+.wb-steps{max-height:0;overflow:hidden;transition:max-height .34s cubic-bezier(.32,.72,.28,1)}
+.wb-board.open .wb-steps{max-height:520px}
+.wb-step{width:100%;display:flex;align-items:center;gap:11px;padding:11px 19px 11px 66px;border:0;
+  border-top:1px solid var(--line-soft);background:none;text-align:left;cursor:pointer;font-size:12.5px;color:var(--ink)}
+.wb-step:hover{background:#faf4e8}
+.wb-step i{font-family:var(--mono);font-style:normal;font-size:9.5px;color:#b9ac93;width:13px;flex:none}
+.wb-step small{font-size:10.5px;color:var(--sub);margin-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wb-step .go{margin-left:auto;color:#c8bca4;font-size:11px;flex:none}
+
+/* ---- 工作台内页 ---- */
+.deck-stage{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+.deck-stage[hidden]{display:none}
+.stage-bar{height:44px;flex:none;display:flex;align-items:center;gap:10px;padding:0 58px 0 12px;
+  border-bottom:1px solid var(--line);background:rgba(255,253,248,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.stage-back{width:27px;height:27px;flex:none;display:grid;place-items:center;border:1px solid var(--line);
+  border-radius:4px;background:#fff;color:var(--ink);font-size:13px;line-height:1;cursor:pointer;transition:.15s ease}
+.stage-back:hover{border-color:#c9bda6;background:#fdfaf2}
+.stage-title{font-size:12.5px;font-weight:600}
+.stage-sub{font-size:11px;color:var(--sub)}
+@media (max-width:760px){
+  .go-pop{width:min(272px,calc(100vw - 28px))}
+  .wb{padding:52px 14px 34px}
+  .wb-title{font-size:21px}
+  .wb-step{padding-left:56px}
+  .wb-step small{display:none}
+  .stage-bar{height:42px;padding:0 52px 0 8px}
+  .stage-sub{display:none}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <defs><radialGradient id="pg" cx="34%" cy="28%" r="76%"><stop offset="0" stop-color="#2b2218"/><stop offset="1" stop-color="#100e0b"/></radialGradient></defs>
+          <rect width="64" height="64" rx="14" fill="url(#pg)"/>
+          <rect x="0.6" y="0.6" width="62.8" height="62.8" rx="13.4" fill="none" stroke="#f3e7d0" stroke-opacity="0.14" stroke-width="1.2"/>
+          <rect x="11.4" y="17" width="2.6" height="17" rx="1.3" fill="#f1683f"/>
+          <path d="M24.5 47.5V15.5h13.2a10.7 10.7 0 0 1 0 21.4H24.5" fill="none" stroke="#f3e7d0" stroke-width="8.2" stroke-linejoin="round"/>
+          <circle cx="37.5" cy="26.4" r="2.2" fill="#f1683f"/>
+          <rect x="19.5" y="50.4" width="9.2" height="2.8" rx="1.4" fill="#c8452c"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">小P办公室</div>
+        <div class="brand-sub">XIAO P OFFICE</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="navbtn" data-view="team"><span class="ni">01</span>办公室</button>
+      <button class="navbtn" data-view="projects"><span class="ni">02</span>项目涌现</button>
+      <button class="navbtn" data-view="settings"><span class="ni">03</span>设置</button>
+    </nav>
+    <div class="sidefoot">
+      <div id="codexFoot"><span class="dot off"></span>正在检查本地服务</div>
+      <div class="mono" id="codexVer">local studio</div>
+      <button id="connectBtn" class="primary" onclick="connectLocal()" title="第一次点击后，在浏览器弹窗里选「打开」" hidden>一键启动服务</button>
+      <button onclick="openFolder('workspace')">打开工作区文件夹</button>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div>
+        <h1 class="page-title" id="pageTitle">办公室</h1>
+      </div>
+      <div class="go-wrap">
+        <button id="goBtn" class="btn small" onclick="openGo(event)" hidden>前往</button>
+        <div class="go-pop" id="goPop" role="menu" aria-label="前往">
+          <button class="go-pop-item" role="menuitem" onclick="openWorkbench()">
+            <span class="go-pop-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="13" rx="2"></rect><path d="M8.5 21h7"></path><path d="M12 17.5V21"></path></svg></span>
+            <span class="go-pop-copy"><b>开说工作台</b><small>共事会 · 云管家 · 主持台</small></span>
+            <span class="go-pop-arrow" aria-hidden="true">↗</span>
+          </button>
+          <a class="go-pop-item" role="menuitem" href="公开课传播台.html" style="text-decoration:none">
+            <span class="go-pop-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"></path><path d="M4 7h12l-2 4 2 4H4"></path><path d="M8 19v-4"></path></svg></span>
+            <span class="go-pop-copy"><b>公开课传播台</b><small>发起 · 投票 · 文章 · 视频</small></span>
+            <span class="go-pop-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="go-pop-item" id="goConsole" role="menuitem" href="/admin" hidden style="text-decoration:none">
+            <span class="go-pop-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"></path></svg></span>
+            <span class="go-pop-copy"><b>控制台</b><small>账号 · AI · 使用情况</small></span>
+            <span class="go-pop-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </header>
+    <div id="viewRoot"><div class="loading">正在打开办公室…</div></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<div id="officeToast" class="work-toast" onclick="openPosterFromToast()">
+  <img src="assets/avatars/poster.jpg" alt="阿图">
+  <div><b id="officeToastTitle">老大，工作完成了。</b><span id="officeToastDesc"></span></div>
+</div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="modalTitle"></h3><button class="btn ghost small" onclick="closeModal()">关闭</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+<div class="emp-dialog" id="empDialog" onclick="if(event.target===this)closeEmployeeDialog()">
+  <div class="emp-dialog-card" id="empDialogCard" role="dialog" aria-modal="true"></div>
+</div>
+<div class="deck" id="deck" hidden>
+  <button class="deck-home" onclick="closeDeck()" title="回到办公室" aria-label="回到办公室">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8"></path><path d="M5.4 9.5V21h13.2V9.5"></path><path d="M9.6 21v-6.4h4.8V21"></path></svg>
+  </button>
+  <div class="wb" id="wbHome">
+    <div class="wb-inner">
+      <div class="wb-kicker">开说工作台</div>
+      <h2 class="wb-title" id="wbEventName">这一场开说</h2>
+      <p class="wb-meta" id="wbEventMeta"></p>
+      <div class="wb-boards" id="wbBoards"></div>
+    </div>
+  </div>
+  <div class="deck-stage" id="deckStage" hidden>
+    <div class="deck-body" id="deckBody"></div>
+  </div>
+</div>
+<script>const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const ROLES = {
+  linyi: { name: "林一", short: "林", title: "共事会流程组织教练", duty: "发起新开说、调度其他员工、回收结果", bg: "#f3dfd7", fg: "#9c3b26",
+    starters: ["发起一场新的开说", "让阿图做海报和推文", "让云朵准备运营", "让麦田准备主持"] },
+  poster: { name: "阿图", short: "图", title: "海报与推文设计", duty: "三套海报、公众号推文", bg: "#ece1c8", fg: "#8a631f",
+    starters: ["按模板做三套海报", "接着写公众号推文", "换一版更克制的风格"] },
+  ops: { name: "云朵", short: "云", title: "活动运营管家", duty: "群公告、报名、提醒与会后跟进", bg: "#dfe9df", fg: "#3d6a4f",
+    starters: ["写一版群公告", "做报名和提醒排期", "把发布文案改得口语一点"] },
+  host: { name: "麦田", short: "麦", title: "主持与现场导演", duty: "主持 PPT、逐字稿与现场清单", bg: "#dfe3ec", fg: "#405577",
+    starters: ["做主持 PPT", "写开场和串场词", "列一份现场执行清单"] }
+};
+const AVATAR_SRC = {
+  linyi: "assets/avatars/linyi.jpg",
+  poster: "assets/avatars/poster.jpg",
+  ops: "assets/avatars/ops.jpg",
+  host: "assets/avatars/host.jpg"
+};
+const ROLE_KEYS = Object.keys(ROLES);
+const VIEW_META = {
+  home: { title: "办公室" },
+  team: { title: "办公室" },
+  projects: { title: "项目涌现" },
+  knowledge: { title: "知识库" },
+  settings: { title: "设置" }
+};
+
+const state = {
+  view: "team", employee: "linyi", scope: null, mode: "task", dialog: null,
+  studio: null, event: null, deliverables: [], knowledge: [], health: null,
+  chat: { home: [], dm: { linyi: [], poster: [], ops: [], host: [] } },
+  threads: { home: {}, dm: {} },
+  busy: {}, homeRunning: false, producing: false, loaded: false, error: "", profile: {},
+  intakeRaw: "", intakeDraft: null, completion: {}, wizard: null,
+  dialogLarge: false, dialogSize: null,
+  connecting: false, connectError: "", autostart: false,
+  projects: { projects: [], selectedProjectId: "", selectedQuestionId: "" },
+  projectId: "", projectQuestionId: "", projectBusy: false, projectSaveTimer: null
+};
+
+const LOCAL_BASE = location.protocol === "file:" ? "http://127.0.0.1:8787" : "";
+
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = (v) => esc(v).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\n/g, "<br>");
+const uid = () => Math.random().toString(36).slice(2, 9);
+const nowTime = () => new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+const fmtSize = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+const profileOf = (k) => (state && state.profile && state.profile[k]) || {};
+const roleOf = (k) => {
+  const base = ROLES[k] || ROLES.linyi;
+  const p = profileOf(k);
+  return Object.assign({}, base, { title: p.title || base.title, duty: p.duty || base.duty });
+};
+function avatarSrcOf(k){ const p = profileOf(k); return p.avatar || AVATAR_SRC[k] || AVATAR_SRC.linyi; }
+const workshopHref = (eventId) => "开说工作台.html?board=workshop" + (eventId ? "&event=" + encodeURIComponent(eventId) : "");
+const GO_ICONS = {
+  workshop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M2.8 20c0-3.2 2.8-5.2 6.2-5.2s6.2 2 6.2 5.2"></path><path d="M16.5 6.2a3 3 0 0 1 0 5.8"></path><path d="M18 14.4c2.2.6 3.6 2.2 3.6 4.4"></path></svg>',
+  ops: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4a1 1 0 0 0 1 1h2l8 4V5L7 9H5a1 1 0 0 0-1 1Z"></path><path d="M18 8.5a5 5 0 0 1 0 7"></path><path d="M7 15v4a1.5 1.5 0 0 0 3 0v-2.8"></path></svg>',
+  host: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path><path d="M8.5 21h7"></path></svg>',
+};
+const WORKBENCHES = [
+  { id: "workshop", name: "共事会", full: "开说共事会", file: "开说共事会.html", desc: "流程、内容孵化、档案库" },
+  { id: "ops", name: "云管家", full: "开说云管家", file: "开说运营管理系统.html", desc: "群公告、报名、运营节奏" },
+  { id: "host", name: "主持", full: "开说主持", file: "开说现场主持.html", desc: "主持 PPT、逐字稿、现场清单" }
+];
+const EMBEDDED_PAGES = (() => {
+  try {
+    const node = document.getElementById("ks-pages");
+    return node ? JSON.parse(node.textContent || "{}") : {};
+  } catch (err) { return {}; }
+})();
+const deckState = { current: "" };
+
+function avatarHTML(who, extraClass) {
+  const key = ROLES[who] ? who : "linyi";
+  const role = roleOf(key);
+  return '<span class="avatar ' + (extraClass || "") + '" style="background:' + role.bg + '">' +
+    '<img src="' + esc(avatarSrcOf(key)) + '" alt="' + esc(role.name) + '"></span>';
+}
+
+function toast(message) {
+  const el = $("#toast");
+  if (!el) return;
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("show"), 2400);
+}
+function showModal(title, body, foot, wide) {
+  $("#modalTitle").textContent = title || "";
+  $("#modalBody").innerHTML = body || "";
+  $("#modalFoot").innerHTML = foot || "";
+  const card = $("#modal .modal-card");
+  if (card) card.classList.toggle("wide", Boolean(wide));
+  $("#modal").classList.add("open");
+}
+function closeModal() { $("#modal").classList.remove("open"); }
+
+const WB_STEPS = [
+  { step: "icebreak", label: "认识共识", desc: "先互相认识，再共识这场开说要做什么" },
+  { step: "moment", label: "写朋友圈文案", desc: "三版招募文案，选一版就发" },
+  { step: "info", label: "写开说官介绍", desc: "五句话介绍自己，再定演说标题" },
+  { step: "notice", label: "写演说注意事项", desc: "设备、内容、当天流程逐条确认" },
+  { step: "dm", label: "写挑战游戏", desc: "给现场加一个互动挑战" },
+  { step: "qa", label: "写锦囊", desc: "创造关系 · 锻炼营销" }
+];
+
+function openGo(event) {
+  const pop = $("#goPop");
+  if (!pop) return;
+  pop.classList.toggle("open");
+  if (event) event.stopPropagation();
+}
+function closeGo() {
+  const pop = $("#goPop");
+  if (pop) pop.classList.remove("open");
+}
+document.addEventListener("click", (event) => {
+  const pop = $("#goPop");
+  if (!pop || !pop.classList.contains("open")) return;
+  if (pop.contains(event.target)) return;
+  if (event.target.closest && event.target.closest("#goBtn")) return;
+  closeGo();
+});
+document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeGo(); });
+
+function workbenchURL(opts) {
+  const extra = opts || {};
+  const params = new URLSearchParams();
+  if (extra.board) params.set("board", extra.board);
+  if (extra.step) params.set("step", extra.step);
+  if (extra.ai) params.set("ai", "1");
+  if (state.event && state.event.id) params.set("event", state.event.id);
+  const query = params.toString();
+  return "开说工作台.html" + (query ? "?" + query : "");
+}
+
+function openWorkbenchPage(opts) {
+  const url = workbenchURL(opts);
+  let win = null;
+  try { win = window.open(url, "_blank"); } catch (err) { win = null; }
+  if (win) { try { win.opener = null; } catch (err) {} return; }
+  location.href = url;
+}
+
+function openWorkbench() {
+  closeGo();
+  openWorkbenchPage();
+}
+
+function wbHome() {
+  const home = $("#wbHome");
+  const stage = $("#deckStage");
+  if (home) home.hidden = false;
+  if (stage) stage.hidden = true;
+  renderWb();
+}
+
+function renderWb() {
+  const ev = state.event;
+  $("#wbEventName").textContent = ev ? (ev.name || "未命名活动") : "还没有档期";
+  $("#wbEventMeta").textContent = ev
+    ? [ev.date || "日期待定", ev.time || "", ev.form || ""].filter(Boolean).join(" · ")
+    : "先去办公室发起一场新的开说";
+  const boards = [
+    { id: "workshop", name: "共事会", desc: "认识共识 · 文案 · 开说官介绍 · 注意事项 · 挑战 · 锦囊" },
+    { id: "ops", name: "云管家", desc: "群公告、报名、提醒与运营节奏" },
+    { id: "host", name: "主持台", desc: "主持 PPT、逐字稿与现场清单" }
+  ];
+  $("#wbBoards").innerHTML = boards.map((b) => {
+    const isWb = b.id === "workshop";
+    const head = '<button class="wb-board-head" onclick="' + (isWb ? "toggleWbBoard(this)" : "enterBoard('" + b.id + "')") + '">' +
+      '<span class="wb-board-ic" aria-hidden="true">' + (GO_ICONS[b.id] || "") + "</span>" +
+      '<span class="wb-board-copy"><span class="wb-board-name">' + b.name + '</span><span class="wb-board-desc">' + b.desc + "</span></span>" +
+      '<span class="wb-board-arrow">' + (isWb ? "›" : "↗") + "</span></button>";
+    const steps = isWb
+      ? '<div class="wb-steps">' + WB_STEPS.map((st, i) =>
+          '<button class="wb-step" onclick="enterBoard(\'workshop\',\'' + st.step + '\',\'' + st.label + '\')">' +
+          "<i>0" + (i + 1) + "</i><span>" + st.label + "</span><small>" + st.desc + '</small><span class="go">↗</span></button>').join("") + "</div>"
+      : "";
+    return '<div class="wb-board" data-board="' + b.id + '">' + head + steps + "</div>";
+  }).join("");
+}
+
+function toggleWbBoard(btn) {
+  const board = btn.closest(".wb-board");
+  if (!board) return;
+  const willOpen = !board.classList.contains("open");
+  $$("#wbBoards .wb-board").forEach((node) => node.classList.toggle("open", node === board && willOpen));
+}
+
+function enterBoard(id, step, label) {
+  const item = WORKBENCHES.find((entry) => entry.id === id) || WORKBENCHES[0];
+  $("#wbHome").hidden = true;
+  $("#deckStage").hidden = false;
+  const stageTitleEl = $("#stageTitle");
+  if (stageTitleEl) stageTitleEl.textContent = item.full;
+  const stageSubEl = $("#stageSub");
+  if (stageSubEl) stageSubEl.textContent = label || item.desc || "";
+  switchDeck(id);
+  if (step) {
+    const send = () => {
+      const frame = document.querySelector('#deckBody iframe[data-deck="' + id + '"]');
+      try { if (frame && frame.contentWindow) frame.contentWindow.postMessage({ type: "kaishuo:step", step }, location.origin); } catch (err) {}
+    };
+    setTimeout(send, 300);
+    setTimeout(send, 1300);
+  }
+}
+
+function backToWb() { closeDeck(); }
+
+function deckSrc(item) {
+  const params = new URLSearchParams({ embed: "1" });
+  if (state.event && state.event.id) params.set("event", state.event.id);
+  return item.file + "?" + params.toString();
+}
+
+function b64utf8(value) {
+  const bin = atob(value);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes);
+}
+
+function deckDoc(item) {
+  const packed = EMBEDDED_PAGES[item.id];
+  if (!packed) return "";
+  const params = new URLSearchParams({ embed: "1" });
+  if (state.event && state.event.id) params.set("event", state.event.id);
+  let html = "";
+  try { html = b64utf8(packed); } catch (err) { return ""; }
+  const base = location.protocol === "file:" ? '<base href="http://127.0.0.1:8787/">' : "";
+  const boot = base + "<script>window.__KQ__=" + JSON.stringify("?" + params.toString()) +
+    ";window.__KQ_PROTO__=" + JSON.stringify(location.protocol === "file:" ? "http:" : location.protocol) +
+    ";window.__KQ_BASE__=" + JSON.stringify(location.protocol === "file:" ? "http://127.0.0.1:8787/" : location.origin + "/") +
+    ";</" + "script>";
+  return html.replace(/<head([^>]*)>/i, "<head$1>" + boot);
+}
+
+function mountDeck(frame, item, want) {
+  const doc = deckDoc(item);
+  if (doc) {
+    frame.removeAttribute("src");
+    frame.srcdoc = doc;
+  } else {
+    frame.removeAttribute("srcdoc");
+    frame.src = want;
+  }
+}
+
+function openDeck(id) {
+  closeModal();
+  closeGo();
+  openWorkbenchPage({ board: id });
+}
+
+function openAiImageDeck() {
+  closeModal();
+  closeGo();
+  openWorkbenchPage({ board: "workshop", ai: 1 });
+}
+
+function switchDeck(id) {
+  const item = WORKBENCHES.find((entry) => entry.id === id) || WORKBENCHES[0];
+  deckState.current = item.id;
+  const home = $("#wbHome");
+  const stage = $("#deckStage");
+  if (home) home.hidden = true;
+  if (stage) stage.hidden = false;
+  const stageTitle = $("#stageTitle");
+  if (stageTitle) stageTitle.textContent = item.full;
+  const body = $("#deckBody");
+  const want = deckSrc(item);
+  let frame = body.querySelector('iframe[data-deck="' + item.id + '"]');
+  if (!frame) {
+    frame = document.createElement("iframe");
+    frame.dataset.deck = item.id;
+    frame.dataset.src = want;
+    frame.className = "deck-frame";
+    frame.title = item.full;
+    frame.setAttribute("allow", "fullscreen; autoplay");
+    frame.allowFullscreen = true;
+    mountDeck(frame, item, want);
+    body.appendChild(frame);
+  } else if (frame.dataset.src !== want) {
+    frame.dataset.src = want;
+    mountDeck(frame, item, want);
+  }
+  $$("#deckBody iframe").forEach((node) => { node.hidden = node.dataset.deck !== item.id; });
+  setTimeout(() => {
+    try { frame.contentWindow.postMessage({ type: "kaishuo:refresh" }, location.origin); } catch (err) {}
+  }, 80);
+}
+
+async function closeDeck() {
+  $("#deck").hidden = true;
+  document.body.classList.remove("deck-open");
+  deckState.current = "";
+  closeGo();
+  const stage = $("#deckStage");
+  if (stage) stage.hidden = true;
+  try {
+    const studio = await api("/api/data/studio");
+    state.studio = studio.data;
+    state.event = currentEvent();
+    render();
+  } catch (err) {}
+}
+
+async function api(path, options = {}) {
+  const opts = Object.assign({}, options);
+  opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+  const res = await fetch(path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || ("请求失败：" + res.status));
+  return data;
+}
+
+function currentEvent() {
+  const events = (state.studio && state.studio.events) || [];
+  return events.find((e) => e.id === state.studio.currentEventId) || events[0] || null;
+}
+function storageKey() { return "ks_simple_v2:" + ((state.event && state.event.id) || "_global"); }
+
+const PROFILE_KEY = "ks_profile_v1";
+function applyProfileStore(src) {
+  if (!src || typeof src !== "object") return;
+  for (const key of ROLE_KEYS) {
+    const item = src[key];
+    if (!item || typeof item !== "object") continue;
+    state.profile[key] = {
+      status: typeof item.status === "string" ? item.status : "",
+      title: typeof item.title === "string" ? item.title : "",
+      duty: typeof item.duty === "string" ? item.duty : "",
+      avatar: typeof item.avatar === "string" ? item.avatar : ""
+    };
+  }
+}
+function loadUI() {
+  state.chat = { home: [], dm: { linyi: [], poster: [], ops: [], host: [] } };
+  state.threads = { home: {}, dm: {} };
+  state.completion = {};
+  state.wizard = null;
+  state.mode = "task";
+  let profileStored = false;
+  try {
+    const profRaw = localStorage.getItem(PROFILE_KEY);
+    if (profRaw) { applyProfileStore(JSON.parse(profRaw)); profileStored = true; }
+  } catch (err) {}
+  try {
+    const raw = localStorage.getItem(storageKey());
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (Array.isArray(saved.chat && saved.chat.home)) state.chat.home = saved.chat.home;
+    if (saved.chat && saved.chat.dm) {
+      for (const key of ROLE_KEYS) if (Array.isArray(saved.chat.dm[key])) state.chat.dm[key] = saved.chat.dm[key];
+    }
+    if (saved.threads) {
+      state.threads.home = saved.threads.home || {};
+      state.threads.dm = saved.threads.dm || {};
+    }
+    if (saved.mode === "chat" || saved.mode === "task") state.mode = saved.mode;
+    if (!profileStored && saved.profile) applyProfileStore(saved.profile);
+    if (saved.employee && ROLES[saved.employee]) state.employee = saved.employee;
+    if (saved.view && VIEW_META[saved.view]) {
+      state.view = saved.view === "home" || saved.view === "knowledge" ? "team" : saved.view;
+    }
+    if (saved.projectId && typeof saved.projectId === "string") state.projectId = saved.projectId;
+    if (saved.projectQuestionId && typeof saved.projectQuestionId === "string") state.projectQuestionId = saved.projectQuestionId;
+    if (saved.dialogLarge) state.dialogLarge = true;
+    if (saved.dialogSize && Number(saved.dialogSize.width) > 0 && Number(saved.dialogSize.height) > 0) {
+      state.dialogSize = { width: Number(saved.dialogSize.width), height: Number(saved.dialogSize.height) };
+    }
+    if (saved.completion && typeof saved.completion === "object") {
+      for (const key of ROLE_KEYS) {
+        const item = saved.completion[key];
+        if (item && item.at) state.completion[key] = { ok: item.ok !== false, at: String(item.at) };
+      }
+    }
+    if (saved.wizard && saved.wizard.kind === "new-event" && saved.wizard.data) {
+      saved.wizard.creating = false;
+      state.wizard = saved.wizard;
+    }
+  } catch (err) {}
+}
+function saveUI() {
+  try {
+    const cut = (list) => (list || []).slice(-80);
+    const dm = {};
+    for (const key of ROLE_KEYS) dm[key] = cut(state.chat.dm[key]);
+    localStorage.setItem(storageKey(), JSON.stringify({
+      view: state.view, employee: state.employee, mode: state.mode,
+      dialogLarge: state.dialogLarge, dialogSize: state.dialogSize,
+      projectId: state.projectId, projectQuestionId: state.projectQuestionId,
+      chat: { home: cut(state.chat.home), dm }, threads: state.threads, completion: state.completion, wizard: state.wizard
+    }));
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(state.profile));
+  } catch (err) {}
+}
+
+function messagesFor(scope, who) {
+  return scope === "home" ? state.chat.home : state.chat.dm[who || state.employee];
+}
+function pushMsg(scope, msg, who) {
+  const target = who || state.employee;
+  const list = messagesFor(scope, target);
+  list.push(msg);
+  if (list.length > 90) list.splice(0, list.length - 90);
+  saveUI();
+  if (scope === "home") {
+    if ($("#msgList")) paintMessages("home");
+  } else if (state.dialog === target) {
+    paintMessages("dm", target);
+  }
+}
+let aiSyncTimer = null;
+
+function aiErrorText(raw) {
+  const text = String(raw || "");
+  if (/CODEX_API_KEY|not set/i.test(text)) return "生图密钥还没配置";
+  if (/HTTP 5\d\d|network error|timeout/i.test(text)) return "作图接口刚才不稳，再试一次通常就好";
+  return text.replace(/^error:\s*/i, "") || "未知错误";
+}
+function aiJobMessage(job) {
+  const imgs = (job.images || []).map((im) => ({ url: im.url, v: job.updatedAt }));
+  const at = new Date(job.updatedAt || job.createdAt || Date.now());
+  const time = at.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  let text = "";
+  if (job.status === "queued") text = "接到 " + job.name + " 的生图任务，正在排队。你可以关掉窗口，我跑完会留在这里。";
+  else if (job.status === "running") text = "正在给 " + job.name + " 画人物主视觉…";
+  else if (job.status === "done") text = job.name + " 的主视觉好了，共 " + imgs.length + " 张。点图可以看大图。";
+  else text = job.name + " 这张没画成：" + aiErrorText(job.error);
+  return { kind: "agent", who: "poster", text: text, images: imgs, time: time, jobId: job.id, aiStatus: job.status };
+}
+
+async function syncAiJobs() {
+  const eventId = (state.event && state.event.id) || "current";
+  let jobs = [];
+  try {
+    const res = await fetch("/api/ai-image/jobs?eventId=" + encodeURIComponent(eventId) + "&limit=20");
+    if (!res.ok) return;
+    const data = await res.json();
+    jobs = data.jobs || [];
+  } catch (err) { return; }
+  const list = state.chat.dm.poster;
+  if (!Array.isArray(list)) return;
+  let changed = false;
+  for (const job of jobs) {
+    const next = aiJobMessage(job);
+    const idx = list.findIndex((m) => m && m.jobId === job.id);
+    if (idx >= 0) {
+      const cur = list[idx];
+      if (cur.aiStatus !== job.status || (cur.images || []).length !== next.images.length || cur.time !== next.time || cur.text !== next.text) {
+        list[idx] = Object.assign({}, cur, next);
+        changed = true;
+      }
+    } else {
+      list.push(next);
+      changed = true;
+    }
+  }
+  if (changed) {
+    saveUI();
+    if (state.dialog === "poster") paintMessages("dm", "poster");
+  }
+  const active = jobs.some((j) => j.status === "queued" || j.status === "running");
+  if (aiSyncTimer) { clearTimeout(aiSyncTimer); aiSyncTimer = null; }
+  if (active) aiSyncTimer = setTimeout(syncAiJobs, 3000);
+}
+
+function transcript(limit) {
+  return state.chat.home.slice(-limit).filter((m) => m.kind !== "system" && m.text)
+    .map((m) => (m.kind === "user" ? "老板" : roleOf(m.who).name) + "：" + String(m.text).replace(/\s+/g, " ").slice(0, 600))
+    .join("\n");
+}
+function parseMentions(text) {
+  return ROLE_KEYS.filter((key) => String(text).includes("@" + ROLES[key].name))
+    .sort((a, b) => text.indexOf("@" + ROLES[a].name) - text.indexOf("@" + ROLES[b].name));
+}
+
+const paintTimers = {};
+function schedulePaint(scope, who) {
+  const key = scope + ":" + (who || "");
+  clearTimeout(paintTimers[key]);
+  paintTimers[key] = setTimeout(() => paintMessages(scope, who), 70);
+}
+function stepHTML(step) {
+  const cls = step.kind === "err" ? "step err" : "step";
+  return '<div class="' + cls + '">' + esc(String(step.text || "").slice(0, 260)) + "</div>";
+}
+function msgHTML(m) {
+  if (m.kind === "system") return '<div class="msg-system">' + esc(m.text) + "</div>";
+  if (m.kind === "user") {
+    const ui = Array.isArray(m.images) ? m.images : [];
+    const uiBox = ui.length
+      ? '<div class="msg-imgs">' + ui.map((im) => '<a href="' + esc(im.url || "#") + '" target="_blank" rel="noopener"><img src="' + esc(im.url || "") + '" alt=""></a>').join("") + "</div>"
+      : "";
+    const bubble = String(m.text || "").trim() ? '<div class="bubble">' + fmt(m.text) + "</div>" : "";
+    return '<div class="msg-user"><div class="user-stack">' + bubble + uiBox + "</div></div>";
+  }
+  if (m.kind === "link") {
+    return '<div class="msg-linkcard"><b>' + esc(m.title || "已经好了") + '</b><p>' + fmt(m.text || "") +
+      '</p><a class="btn primary small" href="' + esc(m.href || "#") + '" target="_blank" rel="noopener">' +
+      esc(m.label || "打开") + "</a></div>";
+  }
+  if (m.kind === "actions") {
+    const buttons = (m.actions || []).map((action, index) =>
+      '<button class="btn small" onclick="runLinyiCommand(\'' + esc(action.cmd || "") + '\',\'' + esc(m.scope || "dm") + '\')">' + esc(action.label || "继续") + "</button>"
+    ).join("");
+    return '<div class="msg-actions-card"><div>' + fmt(m.text || "") + '</div><div class="row-actions">' + buttons + "</div></div>";
+  }
+  const role = roleOf(m.who);
+  const steps = (m.steps || []).filter(Boolean);
+  const stepsBox = steps.length
+    ? '<details class="steps"><summary>执行记录 · ' + steps.length + ' 步</summary>' + steps.map(stepHTML).join("") + "</details>"
+    : "";
+  const links = (m.links || []).map((link) => '<a href="' + esc(link.url || "#") + '" target="_blank" rel="noopener">' + esc(link.name || "打开文件") + "</a>").join("");
+  const linksBox = links ? '<div class="msg-files">' + links + "</div>" : "";
+  const imgs = Array.isArray(m.images) ? m.images : [];
+  const imgsBox = imgs.length
+    ? '<div class="msg-imgs">' + imgs.map((im) => '<a href="' + esc(im.url || "#") + '" target="_blank" rel="noopener"><img src="' + esc(im.url || "") + "?v=" + esc(String(im.v || "")) + '" alt=""></a>').join("") + "</div>"
+    : "";
+  const rawText = String(m.text || "").trim();
+  const pendingPlaceholder = /^正在处理[….\.]*$/.test(rawText);
+  const hasText = Boolean(rawText) && !(m.pending && pendingPlaceholder);
+  const text = hasText ? fmt(rawText) : (m.pending ? "" : '<span class="hint">已完成。</span>');
+  return '<div class="msg-agent">' + avatarHTML(m.who) +
+    '<div><div class="agent-head"><span class="agent-name">' + role.name + '</span><span class="agent-role">' + role.title +
+    '</span><span class="agent-time">' + esc(m.time || "") + "</span></div>" +
+    (text ? '<div class="agent-body">' + text + "</div>" : "") + imgsBox + linksBox + stepsBox + "</div></div>";
+}
+function typingHTML(scope, target) {
+  let who = [];
+  if (scope === "home") {
+    if (state.homeRunning) who = ROLE_KEYS.filter((k) => state.busy[k] && state.busy[k].scope === "home");
+  } else {
+    const key = target || state.employee;
+    if (state.busy[key] && state.busy[key].scope === "dm") who = [key];
+  }
+  if (!who.length) return "";
+  const label = who.map((k) => roleOf(k).name).join("、") + " 正在处理";
+  return '<div class="typing"><i></i><i></i><i></i><span>' + label + "…</span></div>";
+}
+function paintMessages(scope, who) {
+  let list = null;
+  const target = who || state.employee;
+  if (scope === "home") {
+    list = $("#msgList");
+  } else {
+    if (state.dialog !== target) return;
+    list = $("#dmList");
+  }
+  if (!list) return;
+  const msgs = messagesFor(scope, target);
+  const html = msgs.map(msgHTML).join("") + typingHTML(scope, target);
+  list.innerHTML = html || emptyChatHTML(scope);
+  list.scrollTop = list.scrollHeight;
+}
+
+function employeeStatus(who) {
+  const busy = state.busy[who];
+  if (busy) return { tone: "running", card: "工作中", detail: busy.label || "正在处理…" };
+  const manual = profileOf(who).status || "";
+  if (manual === "工作中") return { tone: "running", card: "工作中", detail: "手动标记" };
+  if (manual === "完成") return { tone: "done", card: "完成", detail: "手动标记" };
+  if (manual === "请假") return { tone: "away", card: "请假", detail: "手动标记" };
+  if (manual === "空闲") return { tone: "idle", card: "空闲", detail: "手动标记" };
+  const done = state.completion[who];
+  if (done && done.at) {
+    return done.ok === false
+      ? { tone: "error", card: "出错 · " + done.at, detail: "上次任务中断 · " + done.at }
+      : { tone: "done", card: "完成 · " + done.at, detail: "已完成 · " + done.at };
+  }
+  return { tone: "idle", card: "空闲", detail: "空闲" };
+}
+
+function updateBusy() {
+  ROLE_KEYS.forEach((key) => {
+    const info = employeeStatus(key);
+    const card = $('.employee-card[data-emp="' + key + '"]');
+    if (!card) return;
+    card.dataset.status = info.tone;
+    const dot = $(".emp-status-dot", card);
+    if (dot) dot.className = "emp-status-dot " + info.tone;
+    const text = $("[data-emp-status]", card);
+    if (text) text.textContent = info.card;
+  });
+  if (state.dialog) {
+    const info = employeeStatus(state.dialog);
+    const status = $("#dialogStatus");
+    if (status) {
+      status.textContent = info.tone === "running" ? "工作中" : info.detail;
+      status.title = info.detail;
+      status.className = "dialog-status-chip " + info.tone;
+    }
+    const send = $("#dmSend");
+    if (send) send.disabled = info.tone === "running";
+    const hint = $("#dialogHint");
+    if (hint) hint.textContent = info.tone === "running" ? "任务在后台继续，关掉窗口也可以" : "Enter 发送 · Shift+Enter 换行";
+  }
+}
+
+async function runRole(scope, who, prompt, mode, storeWho, attachments) {
+  const store = storeWho || who;
+  if (state.busy[who]) throw new Error(roleOf(who).name + " 手上还有一个任务，等它完成再继续。");
+  const msg = { id: uid(), kind: "agent", who, text: "", time: nowTime(), steps: [], pending: true, ok: true };
+  delete state.completion[who];
+  state.busy[who] = { scope, label: "正在处理…" };
+  saveUI();
+  pushMsg(scope, msg, store);
+  updateBusy();
+  try {
+    const res = await fetch("/api/codex/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        role: who, mode: mode || state.mode, prompt,
+        threadId: (state.threads[scope] && state.threads[scope][who]) || "",
+        images: (attachments || []).map((item) => (item && item.path) || "").filter(Boolean)
+      })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || ("执行失败：" + res.status));
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        let ev; try { ev = JSON.parse(line); } catch { continue; }
+        if (ev.type === "session" && ev.threadId) {
+          state.threads[scope] = state.threads[scope] || {};
+          state.threads[scope][who] = ev.threadId;
+          saveUI();
+        } else if (ev.type === "queued" || ev.type === "status") {
+          state.busy[who].label = ev.message || "正在处理…";
+          updateBusy();
+        } else if (ev.type === "message" && ev.text) {
+          msg.text = String(ev.text);
+          msg.pending = false;
+          schedulePaint(scope, store);
+        } else if (ev.type === "command" && ev.command) {
+          msg.steps.push({ kind: "cmd", text: String(ev.command).replace(/\s+/g, " ").slice(0, 180) });
+          schedulePaint(scope, store);
+        } else if (ev.type === "file_change") {
+          const changes = ev.changes || [];
+          for (const change of changes) {
+            const p = typeof change === "string" ? change : (change.path || change.file || "");
+            if (p) msg.steps.push({ kind: "file", text: "写入 " + p });
+          }
+          schedulePaint(scope, store);
+        } else if (ev.type === "error") {
+          msg.ok = false;
+          msg.steps.push({ kind: "err", text: ev.message || "执行出错" });
+          schedulePaint(scope, store);
+        } else if (ev.type === "done") {
+          if (Array.isArray(ev.images) && ev.images.length) msg.images = ev.images;
+          msg.pending = false;
+          if (ev.threadId) {
+            state.threads[scope] = state.threads[scope] || {};
+            state.threads[scope][who] = ev.threadId;
+          }
+          if (!msg.text) msg.text = "完成了，这次没有额外的文字说明。";
+          schedulePaint(scope, store);
+        }
+      }
+    }
+  } catch (err) {
+    msg.ok = false;
+    msg.pending = false;
+    msg.text = msg.text || ("执行中断：" + err.message);
+    msg.steps.push({ kind: "err", text: err.message });
+  } finally {
+    delete state.busy[who];
+    msg.pending = false;
+    msg.finishedAt = nowTime();
+    state.completion[who] = { ok: msg.ok !== false, at: msg.finishedAt };
+    saveUI();
+    paintMessages(scope, store);
+    updateBusy();
+    if (scope === "dm" && state.dialog !== store) {
+      toast(roleOf(who).name + (msg.ok === false ? " 执行中断" : " 已完成"));
+    }
+  }
+  return msg;
+}
+
+async function sendHome() {
+  if (state.homeRunning) return;
+  const input = $("#chatInput");
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const targets = parseMentions(text);
+  if (!targets.length) targets.push("linyi");
+  pushMsg("home", { id: uid(), kind: "user", text, time: nowTime() });
+  input.value = "";
+  input.style.height = "";
+  if (targets.length === 1 && targets[0] === "linyi" && await handleLinyiFlow(text, "home")) {
+    if ($("#chatInput")) $("#chatInput").focus();
+    return;
+  }
+  state.homeRunning = true;
+  updateBusy();
+  for (const who of targets) {
+    if (state.busy[who]) {
+      pushMsg("home", { id: uid(), kind: "system", text: roleOf(who).name + " 正在另一个对话里执行，先跳过。" });
+      continue;
+    }
+    const context = transcript(10);
+    const prompt = [
+      "【群聊上下文】", context || "（还没有历史消息）", "",
+      "【本轮任务】", text, "",
+      "【你的身份】", "你是" + roleOf(who).name + "（" + roleOf(who).title + "）。只处理与你职责相关、明确 @ 你的部分；需要动手就直接在工作区完成；不要替其他员工发言，也不要重复别人已经做完的事。信息不足时先列缺口。"
+    ].join("\n");
+    await runRole("home", who, prompt, state.mode);
+  }
+  state.homeRunning = false;
+  updateBusy();
+  if ($("#chatInput")) $("#chatInput").focus();
+}
+
+async function sendDM() {
+  const who = state.dialog || state.employee;
+  const input = $("#dmInput");
+  if (!input) return;
+  const text = input.value.trim();
+  const atts = dmAttach.slice();
+  if (!text && !atts.length) return;
+  if (state.busy[who]) { toast(roleOf(who).name + " 正在执行，稍等一下"); return; }
+  const userMsg = { id: uid(), kind: "user", text, time: nowTime() };
+  if (atts.length) userMsg.images = atts.map((a) => ({ url: a.url }));
+  pushMsg("dm", userMsg, who);
+  input.value = "";
+  input.style.height = "";
+  dmAttach = [];
+  renderDmAttach();
+  if (who === "linyi" && await handleLinyiFlow(text, "dm")) {
+    if (state.dialog === who && $("#dmInput")) $("#dmInput").focus();
+    return;
+  }
+  const prompt = atts.length
+    ? text + "\n\n【附图】" + atts.map((a) => a.path).join("、") + "（请直接读取图片内容）"
+    : text;
+  const msg = await runRole("dm", who, prompt, state.mode, null, atts);
+  pushMsg("dm", { id: uid(), kind: "system", text: (msg.ok === false ? "任务中断 · " : "任务完成 · ") + (msg.finishedAt || nowTime()) }, who);
+  if (state.dialog === who && $("#dmInput")) $("#dmInput").focus();
+}
+
+function linyiSay(text, extra, scope) {
+  scope = scope || "dm";
+  const msg = Object.assign({ id: uid(), kind: "agent", who: "linyi", text, time: nowTime(), steps: [] }, extra || {});
+  msg.scope = scope;
+  pushMsg(scope, msg, "linyi");
+  return msg;
+}
+
+function isNewEventIntent(text) {
+  return /(发起|开始|做|办|筹备).{0,6}(新的?|一场|下一场).{0,5}开说|新的开说|新一场开说|接下去.{0,8}开说/.test(String(text || ""));
+}
+
+function beginNewEventWizard(scope) {
+  state.wizard = {
+    kind: "new-event", step: "speakers",
+    data: { speakers: [], dateText: "", time: "", meetingBooked: false, meetingNo: "", meetingLink: "", meetingRaw: "" }
+  };
+  saveUI();
+  linyiSay("可以。我们发起一场新的开说。先确认第一件事：这场有哪几位演说者？把名字发我就行，比如「小周、阿宁」。", null, scope);
+}
+
+function cnNumber(value) {
+  const text = String(value == null ? "" : value).trim();
+  if (/^\d+$/.test(text)) return Number(text);
+  const map = { 零: 0, 〇: 0, 一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+  if (text === "十") return 10;
+  if (text.includes("十")) {
+    const parts = text.split("十");
+    return (parts[0] ? (map[parts[0]] || 0) : 1) * 10 + (parts[1] ? (map[parts[1]] || 0) : 0);
+  }
+  return Object.prototype.hasOwnProperty.call(map, text) ? map[text] : NaN;
+}
+
+function parseSpeakerNames(text) {
+  const raw = String(text || "")
+    .replace(/^(?:这场|活动|开说)?的?(?:演说者|分享者|嘉宾)?(?:分别|一共)?(?:是|有|为|包括)?/, "")
+    .replace(/还有|以及|和|与/g, "、")
+    .replace(/[，,；;\/]/g, "、")
+    .replace(/\s+/g, "、");
+  const stop = /^(我们|大家|就|一共|两位|三位|四位|几位|个人|人|这场|开说|演说者|分享者|嘉宾)$/;
+  return raw.split("、").map((item) => item
+    .replace(/^[：:\s]+|[。.!！?？\s]+$/g, "")
+    .replace(/^\d+[.、]?\s*/, "")
+    .replace(/^(?:有|是|请|帮我)/, "")
+    .replace(/(?:两位|三位|四位|几位|[位个名])$/, "")
+    .trim())
+    .filter((item) => item && item.length <= 20 && !stop.test(item))
+    .slice(0, 8);
+}
+
+function parseEventWhen(text) {
+  const raw = String(text || "");
+  let date = "";
+  let match = raw.match(/(\d{4})[年./-](\d{1,2})[月./-](\d{1,2})/);
+  if (match) date = Number(match[2]) + "月" + Number(match[3]) + "日";
+  if (!date) {
+    match = raw.match(/(\d{1,2}|[一二三四五六七八九十]+)月(\d{1,2}|[一二三四五六七八九十]+)[日号]?/);
+    if (match) date = cnNumber(match[1]) + "月" + cnNumber(match[2]) + "日";
+  }
+  if (!date) {
+    const weekday = raw.match(/周[一二三四五六日天]/);
+    if (weekday) date = weekday[0];
+  }
+  if (!date) {
+    let offset = null;
+    if (/后天/.test(raw)) offset = 2;
+    else if (/明天|明晚/.test(raw)) offset = 1;
+    else if (/今天|今晚/.test(raw)) offset = 0;
+    if (offset !== null) {
+      const day = new Date();
+      day.setDate(day.getDate() + offset);
+      date = (day.getMonth() + 1) + "月" + day.getDate() + "日";
+    }
+  }
+  let time = "";
+  const tm = raw.match(/(\d{1,2}|[一二三四五六七八九十两]+)[点:：](\d{1,2}|[一二三四五六七八九十两]+)?(?:分)?/);
+  if (tm) {
+    let hour = cnNumber(tm[1]);
+    let minute = tm[2] ? cnNumber(tm[2]) : 0;
+    if (/半/.test(raw) && !tm[2]) minute = 30;
+    if (/下午|晚上|晚/.test(raw) && hour < 12) hour += 12;
+    if (hour === 24) hour = 0;
+    if (!Number.isNaN(hour)) {
+      if (Number.isNaN(minute)) minute = 0;
+      time = String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+    }
+  }
+  return { date, time };
+}
+
+function parseMeeting(text) {
+  const raw = String(text || "");
+  const link = (raw.match(/https?:\/\/[^\s，。；;]+/) || [])[0] || "";
+  const numberMatch = raw.match(/\d[\d\s-]{6,}\d/);
+  const meetingNo = numberMatch ? numberMatch[0].replace(/\D/g, "") : "";
+  const notBooked = /还没|还没有|没有订|没订|未订|没定|未定|未预约|没预约|还没好/.test(raw);
+  const saidYes = /订好|预定好|预订好|约好|有了|可以|已经/.test(raw);
+  return {
+    meetingBooked: !notBooked && (Boolean(link) || meetingNo.length >= 6 || saidYes),
+    meetingNo, meetingLink: link, meetingRaw: raw
+  };
+}
+
+function wizardSummary(wizard) {
+  const data = wizard.data || {};
+  const meeting = data.meetingBooked
+    ? (data.meetingLink || (data.meetingNo ? "会议号 " + data.meetingNo : "已经预定，链接待补"))
+    : "还没预定";
+  const when = [data.dateText || "时间待定", data.time || ""].filter(Boolean).join(" ");
+  return "我确认一下：\n• 演说者：" + (data.speakers || []).join("、") +
+    "\n• 开始时间：" + when + "\n• 腾讯会议：" + meeting +
+    "\n\n没问题回复「确认」，我就把新的共事会建好。要改直接说「改时间」「改人」或「改会议」。";
+}
+
+async function handleLinyiFlow(text, scope) {
+  scope = scope || "dm";
+  if (state.wizard && state.wizard.kind === "new-event") return await advanceNewEventWizard(text, scope);
+  if (isNewEventIntent(text)) {
+    beginNewEventWizard(scope);
+    return true;
+  }
+  const kind = parseDispatchIntent(text);
+  if (kind) {
+    await orchestrateLinyi(kind, scope);
+    return true;
+  }
+  return false;
+}
+
+async function advanceNewEventWizard(text, scope) {
+  const wizard = state.wizard;
+  if (!wizard || wizard.kind !== "new-event") return false;
+  if (/^(取消|算了|先不|不建了|暂停)/.test(text)) {
+    state.wizard = null;
+    saveUI();
+    linyiSay("好，这场先不建。需要的时候再跟我说「发起一场新的开说」。", null, scope);
+    return true;
+  }
+  if (wizard.step === "speakers") {
+    const names = parseSpeakerNames(text);
+    if (!names.length) {
+      linyiSay("我没听清名字。直接发我姓名就行，多位用「、」隔开，比如「小周、阿宁」。", null, scope);
+      return true;
+    }
+    wizard.data.speakers = names;
+    wizard.step = "time";
+    saveUI();
+    linyiSay("好，收到：" + names.join("、") + "。这场什么时候开始？日期和时间一起给我就行，比如「11月2日晚上8点」。", null, scope);
+    return true;
+  }
+  if (wizard.step === "time") {
+    const parsed = parseEventWhen(text);
+    if (parsed.date) wizard.data.dateText = parsed.date;
+    if (parsed.time) wizard.data.time = parsed.time;
+    if (/待定|还没定|没定|不确定/.test(text)) {
+      if (!wizard.data.dateText) wizard.data.dateText = "待定";
+      if (!wizard.data.time) wizard.data.time = "待定";
+    }
+    if (!wizard.data.dateText) {
+      linyiSay("日期我没听清。具体是哪一天？比如「11月2日」。", null, scope);
+      return true;
+    }
+    if (!wizard.data.time) {
+      linyiSay("日期收到：" + wizard.data.dateText + "。几点开始？", null, scope);
+      return true;
+    }
+    wizard.step = "meeting";
+    saveUI();
+    linyiSay("时间记下了：" + wizard.data.dateText + " " + wizard.data.time + "。腾讯会议订好了吗？有会议号或链接就发我；还没有就回「还没订」。", null, scope);
+    return true;
+  }
+  if (wizard.step === "meeting") {
+    Object.assign(wizard.data, parseMeeting(text));
+    wizard.step = "confirm";
+    saveUI();
+    linyiSay(wizardSummary(wizard), null, scope);
+    return true;
+  }
+  if (wizard.step === "confirm") {
+    if (/改.{0,4}(人|演说者|分享者)/.test(text)) {
+      wizard.step = "speakers";
+      saveUI();
+      linyiSay("可以，重新告诉我这场有哪几位演说者。", null, scope);
+      return true;
+    }
+    if (/改.{0,4}(时间|日期|几点)/.test(text)) {
+      wizard.step = "time";
+      saveUI();
+      linyiSay("可以，新的日期和时间是什么？", null, scope);
+      return true;
+    }
+    if (/改.{0,4}(会议|会议号|链接)/.test(text)) {
+      wizard.step = "meeting";
+      saveUI();
+      linyiSay("可以，把新的会议号或链接发我；还没订就回「还没订」。", null, scope);
+      return true;
+    }
+    if (/确认|可以|没问题|对的|^对$|^好$|建吧|开始|重试|再试/.test(text)) {
+      await createEventFromWizard(wizard, scope);
+      return true;
+    }
+    linyiSay("回复「确认」我就建好共事会；要改就说「改人」「改时间」或「改会议」。", null, scope);
+    return true;
+  }
+  return false;
+}
+
+async function createEventFromWizard(wizard, scope) {
+  scope = scope || "dm";
+  if (wizard.creating) return;
+  if (!state.studio) {
+    linyiSay("我这边还没读到主档，先检查本地服务是否启动。", null, scope);
+    return;
+  }
+  wizard.creating = true;
+  saveUI();
+  const data = wizard.data;
+  if (!data.eventId) {
+    const stamp = Date.now();
+    data.eventId = "evt-" + stamp;
+    data.slug = "kaishuo-" + String(stamp).slice(-6);
+    saveUI();
+  }
+  const id = data.eventId;
+  const event = {
+    id, slug: data.slug,
+    name: "开说 · " + (data.dateText && data.dateText !== "待定" ? data.dateText : "新一场") + "主题演说",
+    theme: "", date: data.dateText || "", time: data.time || "", form: "腾讯会议（线上）",
+    audience: "", goal: "", register: "群内接龙报名", deadline: "",
+    meetingNo: data.meetingNo || "", meetingLink: data.meetingLink || "", meetingBooked: Boolean(data.meetingBooked),
+    host: (state.event && state.event.host) || "小P",
+    speakers: (data.speakers || []).map((name) => ({ name, title: "", intro: "", photo: "" })),
+    intake: { source: "林一对话", missing: [] },
+    stages: { brief: "draft", poster: "todo", ops: "todo", host: "todo" },
+    review: { status: "draft", notes: "由林一在对话框创建，等待补齐分享者标题、简介和照片。" },
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+  };
+  let baseStudio = state.studio;
+  try {
+    const fresh = await api("/api/data/studio");
+    if (fresh && fresh.data) baseStudio = fresh.data;
+  } catch (err) {}
+  const nextStudio = Object.assign({}, baseStudio, {
+    events: [].concat(baseStudio.events || []).filter((item) => item.id !== id).concat([event]),
+    currentEventId: id
+  });
+  let prevHost = {};
+  try {
+    const currentHost = await api("/api/data/host");
+    if (currentHost && currentHost.data && typeof currentHost.data === "object") prevHost = currentHost.data;
+  } catch (err) {}
+  if (!prevHost.steps || !Object.keys(prevHost.steps).length) {
+    try {
+      const localHost = JSON.parse(localStorage.getItem("kaishuo_host_v1") || "{}");
+      if (localHost && typeof localHost === "object") prevHost = Object.assign({}, prevHost, localHost);
+    } catch (err) {}
+  }
+  const workshop = buildWorkshop(event, {});
+  const ops = buildOps(event, {});
+  const host = buildHost(event, prevHost);
+  try {
+    await Promise.all([
+      api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: nextStudio }) }),
+      api("/api/data/workshop", { method: "PUT", body: JSON.stringify({ data: workshop }) }),
+      api("/api/workshop/archive", { method: "PUT", body: JSON.stringify({ eventId: id, data: workshop }) }),
+      api("/api/data/ops", { method: "PUT", body: JSON.stringify({ data: ops }) }),
+      api("/api/data/host", { method: "PUT", body: JSON.stringify({ data: host }) })
+    ]);
+  } catch (err) {
+    wizard.creating = false;
+    saveUI();
+    linyiSay("创建时出错了：" + err.message + "。你回复「重试」，我再建一次。", null, scope);
+    return;
+  }
+  wizard.creating = false;
+  state.wizard = null;
+  saveUI();
+  state.studio = nextStudio;
+  state.event = event;
+  state.deliverables = [];
+  state.completion.linyi = { ok: true, at: nowTime() };
+  localStorage.setItem("kaishuo_workshop_v1", JSON.stringify(workshop));
+  localStorage.setItem("kaishuo_ops_system_v1", JSON.stringify(ops));
+  localStorage.setItem("kaishuo_host_v1", JSON.stringify(host));
+  saveUI();
+  render();
+  updateBusy();
+  linyiSay("新开说已经建好。", null, scope);
+  pushMsg(scope, {
+    id: uid(), kind: "link", title: "共事会 · " + event.name.replace(/^开说\s*·\s*/, ""),
+    text: [data.dateText || "时间待定", data.time || "", data.meetingBooked ? "腾讯会议已确认" : "腾讯会议待预定"].filter(Boolean).join(" · "),
+    href: workshopHref(id), label: "打开本场共事会 →", time: nowTime()
+  }, "linyi");
+  linyiSay("进去以后，先把每位演说者的标题、自我介绍和照片补齐。补齐后回来跟我说「做海报」，我再安排阿图。", null, scope);
+}
+
+function parseDispatchIntent(text) {
+  const raw = String(text || "").trim();
+  if (!raw) return null;
+  const asking = /为什么|怎么|如何|什么|是否|能不能|可不可以|要不要|需不需要|该不该/.test(raw);
+  const direct = /(让|叫|安排|请|帮我|给我|直接|马上|现在)/.test(raw);
+  if (asking && !direct) return null;
+  if (/[？?]$/.test(raw) && !direct) return null;
+  const action = /做|生成|准备|安排|开始|出|写|继续|帮我|让|叫|去|推进/.test(raw);
+  if (!action) return null;
+  const all = /全部|整套|三件套|都安排|剩下的|一起安排|全流程/.test(raw);
+  const poster = /海报/.test(raw);
+  const article = /推文|公众号/.test(raw);
+  const ops = /运营|云管家|云朵|群公告|报名/.test(raw);
+  const host = /主持|麦田|串场|ppt/i.test(raw);
+  if (all) return "all";
+  if (poster && article) return "poster-article";
+  if (poster) return "poster";
+  if (article) return "article";
+  if (ops) return "ops";
+  if (host) return "host";
+  return null;
+}
+
+async function runLinyiCommand(command, scope) {
+  if (state.busy.linyi) { toast("林一正在调度团队，稍等一下"); return; }
+  await orchestrateLinyi(command, scope || "dm");
+}
+
+async function refreshStudio() {
+  try {
+    const fresh = await api("/api/data/studio");
+    if (fresh && fresh.data) {
+      state.studio = fresh.data;
+      state.event = currentEvent();
+    }
+  } catch (err) {}
+}
+
+async function orchestrateLinyi(kind, scope) {
+  scope = scope || "dm";
+  if (state.busy.linyi) { toast("林一正在调度团队，稍等一下"); return; }
+  await refreshStudio();
+  if (!state.event) {
+    linyiSay("先把新活动建起来，我才能安排物料。跟我说「发起一场新的开说」。", null, scope);
+    return;
+  }
+  const plans = {
+    poster: "@阿图，先做三套海报。",
+    "poster-article": "@阿图，先做三套海报，完成后接着写公众号推文。",
+    article: "@阿图，接着把公众号推文写出来。",
+    ops: "@云朵，把运营工作台补好。",
+    host: "@麦田，把主持包准备好。",
+    all: "我按顺序来：@阿图 做海报和推文，@云朵 准备运营，@麦田 准备主持。"
+  };
+  linyiSay(plans[kind] || "好，我来安排。", null, scope);
+  delete state.completion.linyi;
+  state.busy.linyi = { scope: "dm", label: "正在调度团队…" };
+  saveUI();
+  updateBusy();
+  const results = [];
+  try {
+    if (kind === "poster" || kind === "poster-article" || kind === "all") {
+      results.push(await runProductionFor("poster", "poster", "海报", scope));
+    }
+    if (kind === "article" || kind === "poster-article" || kind === "all") {
+      const posterStep = results.find((item) => item.kind === "poster");
+      if (kind === "article" || !posterStep || posterStep.ok) {
+        results.push(await runArticleForPoster(scope));
+      } else {
+        results.push({ kind: "article", label: "推文", ok: false, error: "海报未完成，推文先跳过" });
+      }
+    }
+    if (kind === "ops" || kind === "all") results.push(await runProductionFor("ops", "ops", "运营包", scope));
+    if (kind === "host" || kind === "all") results.push(await runProductionFor("host", "host", "主持包", scope));
+  } finally {
+    const ok = results.every((item) => item.ok);
+    delete state.busy.linyi;
+    state.completion.linyi = { ok, at: nowTime() };
+    if (state.event && state.event.stages) {
+      if (results.some((item) => item.kind === "poster" && item.ok)) state.event.stages.poster = "done";
+      if (results.some((item) => item.kind === "ops" && item.ok)) state.event.stages.ops = "done";
+      if (results.some((item) => item.kind === "host" && item.ok)) state.event.stages.host = "done";
+      state.event.updatedAt = new Date().toISOString();
+      api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: state.studio }) }).catch(() => {});
+    }
+    saveUI();
+    updateBusy();
+    const done = results.filter((item) => item.ok).map((item) => item.label);
+    const failed = results.filter((item) => !item.ok);
+    let summary = done.length ? "这一轮完成了：" + done.join("、") + "。" : "这一轮没有产出。";
+    if (failed.length) summary += " 没完成：" + failed.map((item) => item.label + (item.error ? "（" + item.error + "）" : "")).join("、") + "。";
+    linyiSay(summary, null, scope);
+    const finishedKinds = new Set(results.filter((item) => item.ok).map((item) => item.kind));
+    const actions = [];
+    if (!finishedKinds.has("poster")) actions.push({ label: "让阿图做海报", cmd: "poster" });
+    if (!finishedKinds.has("article")) actions.push({ label: "让阿图写推文", cmd: "article" });
+    if (!finishedKinds.has("ops")) actions.push({ label: "让云朵准备运营", cmd: "ops" });
+    if (!finishedKinds.has("host")) actions.push({ label: "让麦田准备主持", cmd: "host" });
+    if (actions.length) pushMsg(scope, { id: uid(), kind: "actions", scope, text: "下一步我可以继续安排：", actions: actions.slice(0, 3), time: nowTime() }, "linyi");
+  }
+}
+
+async function runProductionFor(who, only, label, scope) {
+  scope = scope || "dm";
+  if (state.busy[who]) {
+    linyiSay(roleOf(who).name + " 手上还有一个任务，这一步先跳过。", null, scope);
+    return { kind: only, label, ok: false, error: "正在忙" };
+  }
+  delete state.completion[who];
+  state.busy[who] = { scope, label: "正在生成" + label + "…" };
+  saveUI();
+  updateBusy();
+  const msg = { id: uid(), kind: "agent", who, text: "", time: nowTime(), steps: [], pending: true, ok: true };
+  pushMsg(scope, msg, "linyi");
+  try {
+    const res = await fetch("/api/produce", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId: state.event ? state.event.id : "", only })
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "生成失败");
+    await readStream(res, (event) => {
+      if (event.type === "status") {
+        state.busy[who].label = event.message || ("正在生成" + label + "…");
+        msg.steps.push({ kind: "cmd", text: event.message || "处理中" });
+        updateBusy();
+        schedulePaint(scope, "linyi");
+      } else if (event.type === "done") {
+        const files = event.files || [];
+        state.deliverables = event.allFiles || (files.length ? files : state.deliverables);
+        msg.links = files.slice(0, 6).map((file) => ({ name: file.name, url: file.url }));
+        msg.text = label + "完成" + (files.length ? "，共 " + files.length + " 个文件。" : "。");
+      } else if (event.type === "error") {
+        throw new Error(event.message || (label + "生成失败"));
+      }
+    });
+    msg.pending = false;
+    if (!msg.text) msg.text = label + "完成。";
+  } catch (err) {
+    msg.ok = false;
+    msg.pending = false;
+    msg.text = label + "没有完成：" + err.message;
+    msg.steps.push({ kind: "err", text: err.message });
+  } finally {
+    delete state.busy[who];
+    msg.pending = false;
+    msg.finishedAt = nowTime();
+    state.completion[who] = { ok: msg.ok !== false, at: msg.finishedAt };
+    saveUI();
+    paintMessages(scope, scope === "home" ? null : "linyi");
+    updateBusy();
+  }
+  return { kind: only, label, ok: msg.ok !== false, msg };
+}
+
+async function runArticleForPoster(scope) {
+  scope = scope || "dm";
+  const event = state.event;
+  if (!event) return { kind: "article", label: "推文", ok: false, error: "还没有活动" };
+  const slug = event.slug || event.id;
+  const prompt = [
+    "你是阿图。林一已经安排你接着写公众号推文。",
+    "先读取 data/studio.json、data/workshop.json，以及 deliverables/" + slug + "/02_海报/ 里已有的海报文案。",
+    "写一篇可以直接发布的公众号推文：标题、开场、每位演说者一段、活动信息、报名行动。",
+    "保存为 deliverables/" + slug + "/02_海报/推文.md。",
+    "不要生成图片，不要修改主档。完成后只回复文件路径和一句话摘要。"
+  ].join("\n");
+  linyiSay("海报好了，我让阿图接着写推文。", null, scope);
+  const msg = await runRole(scope, "poster", prompt, "task", "linyi");
+  return { kind: "article", label: "推文", ok: msg.ok !== false, msg };
+}
+
+function go(view) {
+  closeGo();
+  if (state.dialog) closeEmployeeDialog();
+  if (view === "projects") {
+    state.projectId = "";
+    state.projectQuestionId = "";
+  }
+  state.view = view;
+  saveUI();
+  render();
+  window.scrollTo({ top: 0 });
+}
+function switchEmployee(key) {
+  if (!ROLES[key]) return;
+  openEmployeeDialog(key);
+}
+function setMode(mode) {
+  state.mode = mode === "chat" ? "chat" : "task";
+  saveUI();
+  const btn = $("#modeBtn");
+  if (btn) {
+    btn.textContent = state.mode === "task" ? "允许执行" : "只聊不改";
+    btn.className = "modebtn " + (state.mode === "task" ? "task" : "");
+    btn.title = state.mode === "task" ? "可以读写工作区文件" : "只读，不改任何文件";
+  }
+  toast(state.mode === "task" ? "执行模式：可以改工作区文件" : "只聊模式：只读，不动文件");
+}
+
+async function openFolder(target) {
+  try { await api("/api/open", { method: "POST", body: JSON.stringify({ target }) }); }
+  catch (err) { toast(err.message); }
+}
+function copyText(text, okText) {
+  const done = () => toast(okText || "已复制");
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+  else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done) {
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) { toast("复制失败，请手动选择"); }
+  ta.remove();
+}
+
+function completeness(event) {
+  if (!event) return { score: 0, missing: [] };
+  const checks = [
+    ["活动名称", event.name], ["活动主题", event.theme], ["活动日期", event.date], ["开始时间", event.time],
+    ["活动形式", event.form], ["主持人", event.host], ["目标受众", event.audience], ["活动目标", event.goal],
+    ["腾讯会议号", event.meetingNo], ["分享者", (event.speakers || []).filter((s) => s.name && s.title).length]
+  ];
+  const missing = checks.filter(([, v]) => !v).map(([k]) => k);
+  return { score: Math.round(((checks.length - missing.length) / checks.length) * 100), missing };
+}
+
+function speakerMissing(sp) {
+  sp = sp || {};
+  const missing = [];
+  if (!String(sp.name || "").trim()) missing.push("称呼");
+  if (!String(sp.title || "").trim()) missing.push("开说标题");
+  if (!String(sp.intro || sp.identity || "").trim()) missing.push("一句话简介");
+  if (!String(sp.story || "").trim()) missing.push("核心故事");
+  if (!String(sp.takeaway || "").trim()) missing.push("听众收获");
+  if (!String(sp.photo || "").trim()) missing.push(sp.photoStatus === "received" ? "照片归档" : "照片");
+  if ((sp.photoConsent || "") !== "confirmed") missing.push("照片授权");
+  if (!String(sp.rehearsal || "").trim()) missing.push("彩排时间");
+  return missing;
+}
+
+function intakeStats(event) {
+  const speakers = (event && event.speakers) || [];
+  const rows = speakers.map((sp) => ({ sp, missing: speakerMissing(sp) }));
+  return { rows, total: rows.length, complete: rows.filter((row) => !row.missing.length).length };
+}
+
+function intakeGaps(event) {
+  const gaps = completeness(event).missing.slice();
+  intakeStats(event).rows.forEach(({ sp, missing }) => {
+    if (missing.length) gaps.push((sp.name || "未命名") + "：" + missing.join("、"));
+  });
+  return gaps;
+}
+
+function parseIntakeBlock(block) {
+  const draft = {
+    name: block.mention || "", title: "", intro: "", story: "", takeaway: "",
+    rehearsal: "", photo: "", photoStatus: "", photoConsent: ""
+  };
+  const fields = [
+    ["name", /^(?:\d+[.、)]\s*)?(?:希望我怎么称呼你|称呼|姓名|名字)[^：:]*[：:]\s*(.*)$/],
+    ["title", /^(?:\d+[.、)]\s*)?(?:开说标题|演讲标题|标题)[^：:]*[：:]\s*(.*)$/],
+    ["intro", /^(?:\d+[.、)]\s*)?(?:你现在的身份|身份|现在在做的事|一句话简介|简介|自我介绍)[^：:]*[：:]\s*(.*)$/],
+    ["story", /^(?:\d+[.、)]\s*)?(?:你想讲的那件事|想讲的那件事|核心故事|故事)[^：:]*[：:]\s*(.*)$/],
+    ["takeaway", /^(?:\d+[.、)]\s*)?(?:你希望听众听完记住什么|听众听完记住什么|听众收获|收获)[^：:]*[：:]\s*(.*)$/],
+    ["rehearsal", /^(?:\d+[.、)]\s*)?(?:你方便彩排的时间|彩排时间|彩排)[^：:]*[：:]\s*(.*)$/],
+    ["photoConsent", /^(?:\d+[.、)]\s*)?(?:照片授权|授权)[^：:]*[：:]\s*(.*)$/],
+    ["photo", /^(?:\d+[.、)]\s*)?(?:照片状态|照片)[^：:]*[：:]\s*(.*)$/]
+  ];
+  for (const line of block.lines) {
+    let matched = false;
+    for (const [key, pattern] of fields) {
+      const match = line.match(pattern);
+      if (!match) continue;
+      const value = (match[1] || "").trim();
+      if (key === "photoConsent") {
+        if (/同意|确认|授权|可以/.test(value)) draft.photoConsent = "confirmed";
+      } else if (key === "photo") {
+        const pathMatch = value.match(/(?:assets\/|https?:\/\/|\/)[^\s，。]+/);
+        if (pathMatch) {
+          draft.photo = pathMatch[0];
+          draft.photoStatus = "received";
+        } else if (/已|收到|有|上传/.test(value)) {
+          draft.photoStatus = "received";
+        } else if (!/未|没有|待|没/.test(value)) {
+          draft.photo = value;
+          if (value) draft.photoStatus = "received";
+        }
+      } else if (value) {
+        draft[key] = value;
+      }
+      matched = true;
+      break;
+    }
+    if (!matched && !draft.name && line.length <= 20 && !/[：:]/.test(line) && !/^@/.test(line)) {
+      draft.name = line.trim();
+    }
+  }
+  if (!draft.name && block.mention) draft.name = block.mention;
+  return draft;
+}
+
+function parseIntake(text) {
+  const raw = String(text || "").trim();
+  if (!raw) return [];
+  const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const blocks = [];
+  let current = { mention: "", lines: [] };
+  const push = () => {
+    if (current.mention || current.lines.length) blocks.push(current);
+    current = { mention: "", lines: [] };
+  };
+  for (const line of lines) {
+    if (/^[-=]{3,}$/.test(line)) { push(); continue; }
+    const mention = line.match(/^@([^\s：:，,]+)\s*(.*)$/);
+    if (mention) {
+      const name = mention[1];
+      const rest = (mention[2] || "").trim();
+      if (name === "林一" || name === "小P") {
+        if (rest && /^(?:\d+[.、)]\s*)?(?:希望我怎么称呼你|称呼|姓名|名字)/.test(rest)) {
+          push();
+          current.lines.push(rest);
+        }
+        continue;
+      }
+      push();
+      current.mention = name;
+      if (rest) current.lines.push(rest);
+      continue;
+    }
+    current.lines.push(line);
+  }
+  push();
+  return blocks.map(parseIntakeBlock).filter((draft) => draft.name || draft.title || draft.intro || draft.story || draft.takeaway);
+}
+
+function intakeTemplate() {
+  return [
+    "@某某",
+    "1. 希望我怎么称呼你：",
+    "2. 你现在的身份 / 在做的事：",
+    "3. 你想讲的那件事，一句话：",
+    "4. 你希望听众听完记住什么：",
+    "5. 你方便彩排的时间："
+  ].join("\n");
+}
+
+function copyIntakeTemplate() {
+  copyText(intakeTemplate(), "采集模板已复制，可以直接发到群里");
+}
+
+function openIntake() {
+  const body = '<div class="hint" style="margin-bottom:8px">把分享者的回复原样粘进来。支持一次多位，用 @姓名 分段；只写入非空字段，不会用空值覆盖已有内容。</div>' +
+    '<div class="field"><label>群回复</label><textarea id="intakeRaw" rows="13" style="font-family:var(--mono);font-size:11.5px;line-height:1.65" placeholder="' + esc(intakeTemplate()) + '">' + esc(state.intakeRaw || "") + '</textarea></div>' +
+    '<div class="hint" style="margin-top:8px">识别字段：称呼、开说标题、身份/简介、核心故事、听众收获、照片、授权、彩排时间。识别不了的，可以在下一屏手动补。</div>';
+  showModal("粘贴采集回复", body,
+    '<button class="btn small" onclick="fillIntakeTemplate()">填入模板</button><button class="btn primary small" onclick="parseIntakePreview()">整理成采集卡</button>', true);
+}
+
+function fillIntakeTemplate() {
+  const textarea = $("#intakeRaw");
+  if (!textarea) return;
+  textarea.value = intakeTemplate();
+  textarea.focus();
+}
+
+function parseIntakePreview() {
+  const textarea = $("#intakeRaw");
+  const raw = textarea ? textarea.value.trim() : "";
+  if (!raw) { toast("先粘贴一段群回复"); return; }
+  const drafts = parseIntake(raw);
+  if (!drafts.length) { toast("没有识别到分享者，请按模板补齐称呼或字段"); return; }
+  state.intakeRaw = raw;
+  state.intakeDraft = drafts;
+  showIntakePreview();
+}
+
+function intakeFieldHTML(key, label, value, textarea) {
+  const input = textarea
+    ? '<textarea data-intake="' + key + '" rows="2">' + esc(value || "") + '</textarea>'
+    : '<input data-intake="' + key + '" value="' + esc(value || "") + '">';
+  return '<div class="field"><label>' + esc(label) + '</label>' + input + '</div>';
+}
+
+function showIntakePreview() {
+  const drafts = state.intakeDraft || [];
+  const cards = drafts.map((draft, index) => {
+    const missing = speakerMissing(draft);
+    return '<div class="intake-card" data-intake-index="' + index + '">' +
+      '<div class="intake-card-head"><b>' + esc(draft.name || ("分享者 " + (index + 1))) + '</b><span>缺 ' + missing.length + ' 项</span></div>' +
+      '<div class="grid2">' +
+      intakeFieldHTML("name", "称呼", draft.name) +
+      intakeFieldHTML("title", "开说标题", draft.title) +
+      intakeFieldHTML("intro", "身份 / 一句话简介", draft.intro, true) +
+      intakeFieldHTML("story", "核心故事", draft.story, true) +
+      intakeFieldHTML("takeaway", "听众收获", draft.takeaway, true) +
+      intakeFieldHTML("rehearsal", "彩排时间", draft.rehearsal) +
+      '</div>' +
+      '<div class="field" style="margin-top:8px"><label>照片</label><div class="intake-photo">' +
+      '<input data-intake="photo" value="' + esc(draft.photo || "") + '" placeholder="上传后自动填入，或粘贴路径">' +
+      '<input type="file" accept="image/*" onchange="uploadIntakePhoto(this)"></div></div>' +
+      '<label class="intake-consent"><input type="checkbox" data-intake="photoReceived" ' + (draft.photoStatus === "received" ? "checked" : "") + '> 照片已收到（可稍后归档）</label>' +
+      '<label class="intake-consent"><input type="checkbox" data-intake="photoConsent" ' + (draft.photoConsent === "confirmed" ? "checked" : "") + '> 已确认照片授权</label>' +
+      '</div>';
+  }).join("");
+  showModal("确认采集卡",
+    '<div class="hint" style="margin-bottom:10px">核对后写入主档。已有分享者按姓名合并，空字段不会覆盖旧内容。</div>' + cards,
+    '<button class="btn small" onclick="openIntake()">返回粘贴</button><button class="btn primary small" onclick="applyIntake()">写入主档</button>', true);
+}
+
+function readIntakeDrafts() {
+  return $$(".intake-card").map((card) => {
+    const get = (key) => {
+      const element = card.querySelector('[data-intake="' + key + '"]');
+      if (!element) return "";
+      if (element.type === "checkbox") return element.checked;
+      return String(element.value || "").trim();
+    };
+    const photo = get("photo");
+    return {
+      name: get("name"), title: get("title"), intro: get("intro"),
+      story: get("story"), takeaway: get("takeaway"), rehearsal: get("rehearsal"),
+      photo, photoStatus: (get("photoReceived") || photo) ? "received" : "",
+      photoConsent: get("photoConsent") ? "confirmed" : ""
+    };
+  });
+}
+
+function uploadIntakePhoto(input) {
+  const file = input && input.files && input.files[0];
+  if (!file) return;
+  const card = input.closest(".intake-card");
+  if (!card) return;
+  const nameInput = card.querySelector('[data-intake="name"]');
+  const name = nameInput ? nameInput.value.trim() : "";
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const result = await api("/api/upload", {
+        method: "POST",
+        body: JSON.stringify({ dataUrl: reader.result, name: file.name || ((name || "speaker") + ".jpg") })
+      });
+      const photoInput = card.querySelector('[data-intake="photo"]');
+      if (photoInput) photoInput.value = result.path;
+      const received = card.querySelector('[data-intake="photoReceived"]');
+      if (received) received.checked = true;
+      toast("照片已上传：" + result.path);
+    } catch (err) {
+      toast("上传失败：" + err.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function syncWorkshopOnly() {
+  if (!state.event) return;
+  const current = await api("/api/data/workshop").catch(() => ({ data: {} }));
+  const next = buildWorkshop(state.event, current.data);
+  await api("/api/data/workshop", { method: "PUT", body: JSON.stringify({ data: next }) });
+  localStorage.setItem("kaishuo_workshop_v1", JSON.stringify(next));
+}
+
+async function applyIntake() {
+  if (!state.event) { toast("还没有活动主档"); return; }
+  const drafts = readIntakeDrafts().filter((draft) => draft.name || draft.title || draft.intro || draft.story || draft.takeaway || draft.photo || draft.rehearsal);
+  if (!drafts.length) { toast("没有可写入的分享者"); return; }
+  const speakers = Array.isArray(state.event.speakers) ? state.event.speakers.slice() : [];
+  const fields = ["name", "title", "intro", "story", "takeaway", "rehearsal", "photo", "photoStatus", "photoConsent"];
+  for (const draft of drafts) {
+    const patch = {};
+    for (const key of fields) {
+      const value = draft[key];
+      if (key === "photoConsent") {
+        if (value === "confirmed") patch[key] = value;
+      } else if (String(value || "").trim()) {
+        patch[key] = String(value).trim();
+      }
+    }
+    if (!patch.name && !patch.title && !patch.intro && !patch.story && !patch.takeaway) continue;
+    let index = speakers.findIndex((speaker) => speaker && speaker.name && patch.name && String(speaker.name).trim() === patch.name);
+    if (index === -1 && patch.name) {
+      index = speakers.findIndex((speaker) => speaker && speaker.name && String(speaker.name).trim().toLowerCase() === patch.name.toLowerCase());
+    }
+    if (index >= 0) speakers[index] = Object.assign({}, speakers[index], patch);
+    else if (patch.name) speakers.push(Object.assign({ source: "微信群" }, patch));
+  }
+  state.event.speakers = speakers;
+  const stats = intakeStats(state.event);
+  const intake = Object.assign({}, state.event.intake || {}, {
+    missing: intakeGaps(state.event),
+    lastPasteAt: new Date().toISOString(),
+    lastPasteChars: String(state.intakeRaw || "").length,
+    source: "微信群"
+  });
+  delete intake.lastPaste;
+  state.event.intake = intake;
+  state.event.updatedAt = new Date().toISOString();
+  try {
+    await api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: state.studio }) });
+    let workshopOk = true;
+    try { await syncWorkshopOnly(); } catch (err) { workshopOk = false; }
+    closeModal();
+    state.intakeDraft = null;
+    toast("已写入 " + drafts.length + " 位分享者" + (workshopOk ? "，共事会已同步" : "，但共事会同步失败") + " · 完整 " + stats.complete + "/" + stats.total);
+    render();
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+function openFollowups() {
+  const stats = intakeStats(state.event);
+  const rows = stats.rows.filter((row) => row.missing.length);
+  if (!rows.length) { toast("所有分享者信息都齐了"); return; }
+  const text = rows.map(({ sp, missing }) => {
+    return "@" + (sp.name || "某某") + " 我这边还差：" + missing.join("、") + "。\n其他已经收到，不用重复发。\n如果不方便，先回我“明天发”，我先往下排。";
+  }).join("\n\n---\n\n");
+  window.__previewText = text;
+  showModal("催收话术",
+    '<div class="hint" style="margin-bottom:8px">只追缺项，不重复问。复制后按人发送。</div><pre>' + esc(text) + '</pre>',
+    '<button class="btn small" onclick="copyPreview()">复制全部</button><button class="btn primary small" onclick="closeModal()">关闭</button>', true);
+}
+
+async function submitReview() {
+  if (!state.event) return;
+  if ($("#fName")) collectForm();
+  state.event.review = Object.assign({}, state.event.review || {}, { status: "in_review" });
+  state.event.stages = Object.assign({}, state.event.stages || {}, { brief: "in_review" });
+  state.event.updatedAt = new Date().toISOString();
+  try {
+    await api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: state.studio }) });
+    toast("已提交审核");
+    render();
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+function render() {
+  $$("#nav .navbtn").forEach((b) => b.classList.toggle("active", b.dataset.view === state.view));
+  const meta = VIEW_META[state.view] || VIEW_META.home;
+  $("#pageTitle").textContent = meta.title;
+  const goBtn = $("#goBtn");
+  if (goBtn) goBtn.hidden = false;
+  renderFoot();
+  const root = $("#viewRoot");
+  if (!state.loaded) { root.innerHTML = '<div class="loading">正在打开办公室…</div>'; return; }
+  if (state.view === "home") { state.scope = "home"; root.innerHTML = viewHome(); }
+  else if (state.view === "team") { state.scope = null; root.innerHTML = viewTeam(); }
+  else if (state.view === "projects") { state.scope = null; root.innerHTML = viewProjects(); }
+  else if (state.view === "knowledge") { state.scope = null; root.innerHTML = viewKnowledge(); }
+  else { state.scope = null; root.innerHTML = viewSettings(); }
+  afterRender();
+}
+
+function renderFoot() {
+  const foot = $("#codexFoot");
+  if (!foot) return;
+  const ver = $("#codexVer");
+  const btn = $("#connectBtn");
+  const codex = state.health && state.health.codex;
+  if (state.connecting) {
+    foot.innerHTML = '<span class="dot off"></span>正在启动本地服务…';
+    if (ver) ver.textContent = "通常几秒就好，请稍候";
+    if (btn) { btn.hidden = false; btn.disabled = true; btn.textContent = "启动中…"; }
+    return;
+  }
+  if (!state.health) {
+    foot.innerHTML = '<span class="dot off"></span>本地服务未启动';
+    if (ver) ver.textContent = state.connectError || "点下面的按钮，一键启动";
+    if (btn) { btn.hidden = false; btn.disabled = false; btn.textContent = "一键启动服务"; }
+    return;
+  }
+  if (btn) { btn.hidden = true; btn.disabled = false; }
+  if (codex && codex.installed) {
+    foot.innerHTML = '<span class="dot"></span>Codex 已连接';
+    if (ver) ver.textContent = codex.version || "local studio";
+  } else {
+    foot.innerHTML = '<span class="dot off"></span>Codex 未就绪';
+    if (ver) ver.textContent = "未找到 Codex CLI";
+  }
+}
+
+async function checkHealth() {
+  try {
+    const res = await fetch(LOCAL_BASE + "/api/health", { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    return null;
+  }
+}
+
+function connectLocal() {
+  if (state.connecting) return;
+  state.connecting = true;
+  state.connectError = "";
+  renderFoot();
+  try { window.location.href = "kaishuo://connect?from=page"; } catch (err) {}
+  const startedAt = Date.now();
+  const timer = setInterval(async () => {
+    const health = await checkHealth();
+    if (health) {
+      clearInterval(timer);
+      state.connecting = false;
+      state.health = health;
+      if (LOCAL_BASE) { window.location.replace(LOCAL_BASE + "/"); return; }
+      window.location.reload();
+      return;
+    }
+    if (Date.now() - startedAt > 45000) {
+      clearInterval(timer);
+      state.connecting = false;
+      state.connectError = "启动超时：先双击一次 start.bat";
+      renderFoot();
+      toast("没能自动启动，请先双击一次 start.bat");
+    }
+  }, 1200);
+}
+
+let healthCheckedAt = 0;
+async function refreshHealth() {
+  if (Date.now() - healthCheckedAt < 20000) return;
+  healthCheckedAt = Date.now();
+  const health = await checkHealth();
+  if (health) {
+    if (!state.health) {
+      if (LOCAL_BASE) { window.location.replace(LOCAL_BASE + "/"); return; }
+      window.location.reload();
+      return;
+    }
+    state.health = health;
+    renderFoot();
+    return;
+  }
+  if (state.health) {
+    state.health = null;
+    renderFoot();
+  }
+}
+
+function viewHome() {
+  const event = state.event;
+  const c = completeness(event);
+  const missing = c.missing.length ? '<span class="sep"></span><span class="warn">还缺 ' + c.missing.length + ' 项：' + esc(c.missing.slice(0, 4).join("、")) + "</span>" : '<span class="sep"></span><span>' + c.score + "% 信息齐全</span>";
+  const strip = '<div class="context-strip"><span>当前活动</span><b>' + esc(event ? (event.name || "未命名活动") : "还没有活动") +
+    "</b>" + (event ? '<span class="sep"></span><span>' + esc(event.date || "日期待定") + " · " + esc(event.time || "时间待定") + "</span>" : "") +
+    missing + '<button class="btn ghost small" style="margin-left:auto" onclick="go(\'settings\')">补主档 →</button></div>';
+  const banner = state.error ? '<div class="banner">本地服务没有响应：' + esc(state.error) + "。点左下角「一键启动服务」，或双击 start.bat。</div>" : "";
+  return '<div class="home-wrap">' + banner + strip +
+    '<div class="chat-shell"><div class="msg-list" id="msgList"></div>' + composerHTML("home") + "</div></div>";
+}
+
+function emptyChatHTML(scope) {
+  if (scope === "home") {
+    return '<div class="empty-chat"><b>把要做的事说出来。</b>' +
+      "@ 谁，谁就去做；不 @ 默认找林一。需要动手时，他会直接读写工作区文件。<div class=\"starter\">" +
+      '<button data-fill="把群里的信息整理成活动主档">整理群信息</button>' +
+      '<button data-fill="这场活动现在还缺什么？">查还缺什么</button>' +
+      '<button data-fill="@阿图 按模板做三套海报">@阿图 做海报</button>' +
+      '<button data-fill="@云朵 写一版群公告">@云朵 写群公告</button>' +
+      "</div></div>";
+  }
+  const role = roleOf(state.employee);
+  return '<div class="empty-chat"><b>' + role.name + " 在这里。</b>" + esc(role.duty) +
+    "。把初始信息或要求发在下面，他会直接去做。任务开始后，这个窗口可以关掉。</div>";
+}
+
+function composerHTML(scope) {
+  const isHome = scope === "home";
+  const role = roleOf(state.employee);
+  const chips = isHome
+    ? ROLE_KEYS.map((k) => '<button class="mention" data-mention="' + ROLES[k].name + '">@' + ROLES[k].name + "</button>").join("")
+    : role.starters.map((s) => '<button class="mention" data-fill="' + esc(s) + '">' + esc(s) + "</button>").join("");
+  const placeholder = isHome ? "说要做的事，或 @ 一位员工…" : "给" + role.name + "下指令…";
+  const modeText = state.mode === "task" ? "允许执行" : "只聊不改";
+  const modeClass = state.mode === "task" ? "modebtn task" : "modebtn";
+  return '<div class="composer"><textarea id="chatInput" rows="1" placeholder="' + esc(placeholder) + '"></textarea>' +
+    '<div class="composer-bar">' + chips + '<span class="composer-state" id="composerState"></span>' +
+    '<div class="composer-actions"><button id="modeBtn" class="' + modeClass + '" onclick="toggleMode()" title="' +
+    (state.mode === "task" ? "可以读写工作区文件" : "只读，不改任何文件") + '">' + modeText + "</button>" +
+    '<button class="send" id="sendBtn" onclick="sendCurrent()" title="发送">↑</button></div></div></div>';
+}
+
+function viewTeam() {
+  const cards = ROLE_KEYS.map((key) => {
+    const r = roleOf(key);
+    const info = employeeStatus(key);
+    return '<button class="employee-card" data-emp="' + key + '" data-status="' + info.tone + '" onclick="openEmployeeDialog(\'' + key + '\')">' +
+      '<div class="emp-card-head">' + avatarHTML(key, "emp-card-avatar") +
+      '<div><div class="emp-card-name">' + r.name + '</div><div class="emp-card-role">' + esc(r.title) + "</div></div></div>" +
+      '<div class="emp-card-duty">' + esc(r.duty) + "</div>" +
+      '<div class="emp-card-status"><span class="emp-status-dot ' + info.tone + '"></span><span data-emp-status>' + esc(info.card) + '</span><span class="emp-arrow">↗</span></div>' +
+      "</button>";
+  }).join("");
+  return '<div class="team-home"><div class="team-lead"><h2>今天找谁做事？</h2></div>' +
+    '<div class="employee-grid">' + cards + "</div></div>";
+}
+
+/* ---------- 项目涌现 ---------- */
+function projectStore() {
+  if (!state.projects || typeof state.projects !== "object") state.projects = { projects: [] };
+  if (!Array.isArray(state.projects.projects)) state.projects.projects = [];
+  return state.projects;
+}
+function projectById(id) {
+  return projectStore().projects.find((p) => p && p.id === id) || null;
+}
+function projectOpenQuestions(project) {
+  return ((project && project.questions) || []).filter((q) => q && q.status !== "answered" && q.status !== "archived");
+}
+function projectAnsweredQuestions(project) {
+  return ((project && project.questions) || []).filter((q) => q && q.status === "answered");
+}
+function projectQuestionById(project, id) {
+  return ((project && project.questions) || []).find((q) => q && q.id === id) || null;
+}
+function projectTouch(project) {
+  const stamp = new Date().toISOString();
+  project.updatedAt = stamp;
+  project.lastTouchAt = stamp;
+}
+function projectTimeLabel(value) {
+  const d = new Date(value || 0);
+  if (Number.isNaN(d.getTime())) return "";
+  const now = new Date();
+  if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  return (d.getMonth() + 1) + "." + d.getDate();
+}
+function projectQuestionLabel(status) {
+  return { open: "待想", thinking: "在想", answered: "已回答", archived: "已作废" }[status] || "待想";
+}
+
+function viewProjects() {
+  const store = projectStore();
+  if (!state.projectId) state.projectQuestionId = "";
+  if (state.projectId) return viewProjectWorkspace();
+  const projects = store.projects.slice().sort((a, b) => String(b.lastTouchAt || b.updatedAt || "").localeCompare(String(a.lastTouchAt || a.updatedAt || "")));
+  const cards = projects.map(projectCardHTML).join("");
+  return '<div class="projects-wrap view">' +
+    '<div class="projects-head"><div><h2>让事情先在问题里长出来</h2><p>不写现状总结，不排优先级。只留下此刻真正值得想的问题。</p></div>' +
+    '<button class="btn primary small" onclick="openNewProject()">＋ 新建项目</button></div>' +
+    '<div class="projects-count">' + (projects.length ? projects.length + " 个项目 · " + projects.reduce((n, p) => n + projectOpenQuestions(p).length, 0) + " 个问题待想" : "PROJECTS / 从一个小念头开始") + '</div>' +
+    (projects.length
+      ? '<div class="project-grid">' + cards + newProjectCardHTML() + '</div>'
+      : '<div class="projects-empty"><b>还没有项目</b><span>新建一个项目，丢进第一句话。它会先长成几个问题，而不是一张计划表。</span><div style="margin-top:18px"><button class="btn primary small" onclick="openNewProject()">新建第一个项目</button></div></div>') +
+    '</div>';
+}
+
+function projectCardHTML(project) {
+  const open = projectOpenQuestions(project);
+  const shown = open.slice(0, 3);
+  const rows = shown.map((q) =>
+    '<button class="project-q-row" onclick="event.stopPropagation();openProject(' + JSON.stringify(project.id).replace(/"/g, '&quot;') + ',' + JSON.stringify(q.id).replace(/"/g, '&quot;') + ')">' +
+      '<span class="q-bullet"></span><span>' + esc(q.text) + '</span></button>'
+  ).join("");
+  const more = open.length > shown.length ? '<div class="project-more">+' + (open.length - shown.length) + ' 还有 ' + (open.length - shown.length) + ' 个待想</div>' : "";
+  return '<article class="project-card" tabindex="0" onclick="openProject(' + JSON.stringify(project.id).replace(/"/g, '&quot;') + ')" onkeydown="if(event.key===\'Enter\')openProject(' + JSON.stringify(project.id).replace(/"/g, '&quot;') + ')">' +
+    '<div class="project-card-top"><div class="project-card-title">' + esc(project.title || "未命名项目") + '</div><span class="project-open-card">↗</span></div>' +
+    '<div class="project-q-list">' + (rows || '<div class="project-more" style="padding-left:0">这一段暂时没有待想问题，可以继续随口说。</div>') + '</div>' + more +
+    '<div class="project-card-foot"><span>' + open.length + ' 个问题待想</span><span>' + esc(projectTimeLabel(project.lastTouchAt || project.updatedAt)) + '</span></div>' +
+    '</article>';
+}
+
+function newProjectCardHTML() {
+  return '<button class="project-card new-project" onclick="openNewProject()"><span class="project-new-inner"><span class="project-new-plus">＋</span><b>新建项目</b><small>从一个还没想清楚的问题开始</small></span></button>';
+}
+
+function openProject(id, questionId) {
+  const project = projectById(id);
+  if (!project) return;
+  state.view = "projects";
+  state.projectId = id;
+  state.projectQuestionId = questionId || "";
+  if (questionId) {
+    const q = projectQuestionById(project, questionId);
+    if (q && q.status === "open") q.status = "thinking";
+  }
+  projectTouch(project);
+  saveUI();
+  persistProjects();
+  render();
+  window.scrollTo({ top: 0 });
+}
+
+function backToProjects() {
+  state.projectId = "";
+  state.projectQuestionId = "";
+  saveUI();
+  render();
+}
+
+function viewProjectWorkspace() {
+  const project = projectById(state.projectId);
+  if (!project) {
+    state.projectId = "";
+    return viewProjects();
+  }
+  const open = projectOpenQuestions(project);
+  const answered = projectAnsweredQuestions(project);
+  const selected = projectQuestionById(project, state.projectQuestionId);
+  const qRows = open.map((q) => projectQuestionButton(project, q, selected)).join("");
+  const answeredRows = answered.map((q) => projectQuestionButton(project, q, selected)).join("");
+  const nodeRows = ((project.nodes || []).slice()).sort((a, b) => String(a.at || "").localeCompare(String(b.at || ""))).map((node, index) =>
+    '<div class="tree-node' + (index === 0 ? " root" : "") + '"><b>' + esc(node.text || node.summary || "未命名节点") + '</b><small>' + esc(projectTimeLabel(node.at)) + '</small></div>'
+  ).join("");
+
+  return '<div class="project-workspace view">' +
+    '<aside class="proj-panel proj-left">' +
+      '<div class="proj-left-head">' +
+        '<button class="proj-back" onclick="backToProjects()">← 全部项目</button>' +
+        '<div class="proj-title-line"><h2 class="proj-title">' + esc(project.title || "未命名项目") + '</h2>' +
+          '<button class="proj-icon-btn" onclick="renameProject()" title="重命名项目" aria-label="重命名项目"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>' +
+          '<button class="proj-icon-btn" onclick="showProjectCompose()" title="成型以后交给本地 agent" aria-label="成型"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="M8 9h8M8 13h8M8 17h5"></path></svg></button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="proj-intake"><div class="proj-intake-label"><span>随口说</span><span>IDEA / DATA / LINK</span></div>' +
+        '<textarea id="projectIdea" placeholder="想法、数据、看到的一段话，直接丢进来…" ' + (state.projectBusy ? "disabled" : "") + '></textarea>' +
+        '<div class="proj-intake-foot"><span class="hint">每次只长出 0–2 个新问题</span><button class="btn primary small" onclick="sendProjectIdea()" ' + (state.projectBusy ? "disabled" : "") + '>' + (state.projectBusy ? "正在想…" : "丢进去") + '</button></div>' +
+      '</div>' +
+      (project.lastNote ? '<div class="proj-last-note">' + esc(project.lastNote) + '</div>' : "") +
+      '<div class="proj-questions">' +
+        '<div class="proj-list-label">待想 · ' + open.length + '</div>' + (qRows || '<div class="tree-empty">暂时没有问题。继续随口说一段。</div>') +
+        (answered.length ? '<details class="proj-answered"><summary>已回答 · ' + answered.length + '</summary>' + answeredRows + '</details>' : "") +
+      '</div>' +
+    '</aside>' +
+    '<main class="proj-panel proj-focus">' + projectFocusHTML(project, selected) + '</main>' +
+    '<aside class="proj-panel proj-tree"><div class="proj-tree-head"><h3>脉络</h3><p>每回答一次，长出一个结论节点</p></div>' +
+      '<div class="proj-tree-body">' + (nodeRows ? '<div class="node-list">' + nodeRows + '</div>' : '<div class="tree-empty">还没有脉络。先回答一个问题，或者随口说一段。</div>') + '</div>' +
+    '</aside>' +
+  '</div>';
+}
+
+function projectQuestionButton(project, q, selected) {
+  return '<button class="proj-question ' + (q.status || "open") + (selected && selected.id === q.id ? " active" : "") + '" onclick="selectProjectQuestion(' + JSON.stringify(q.id).replace(/"/g, '&quot;') + ')">' +
+    '<span class="q-status"></span><span>' + esc(q.text) + '</span></button>';
+}
+
+function projectFocusHTML(project, q) {
+  if (!q) {
+    return '<div class="proj-empty-center"><div><b>从左边选一个问题</b><span>项目不需要先有完整方案。选一个现在最有张力的未知，回答它。</span></div></div>';
+  }
+  const isAnswered = q.status === "answered";
+  return '<div class="proj-focus-head"><div><div class="proj-kicker">' + (isAnswered ? "ANSWERED / 已回答" : "THINKING / 正在想") + '</div><h2>' + esc(q.text) + '</h2></div><span class="proj-status">' + projectQuestionLabel(q.status) + '</span></div>' +
+    (q.summary ? '<div class="proj-summary"><b>一句话摘要</b>' + esc(q.summary) + '</div>' : "") +
+    '<div class="proj-answer-area"><div class="proj-answer-label"><span>你的回答</span><span>' + (isAnswered ? "可以继续修改，再整理一次" : "不用写完整，先把真实判断放下来") + '</span></div>' +
+      '<textarea class="proj-answer" id="projectAnswer" placeholder="先写你真正相信的答案，不用组织成文章…">' + esc(q.answer || "") + '</textarea>' +
+      '<div class="proj-focus-actions"><button class="btn small" onclick="saveProjectAnswerOnly()">仅保存</button><span class="spacer"></span><button class="btn primary small" onclick="submitProjectAnswer()" ' + (state.projectBusy ? "disabled" : "") + '>' + (state.projectBusy ? "正在整理…" : (isAnswered ? "再整理一次" : "提交并继续")) + '</button></div>' +
+    '</div>';
+}
+
+function openNewProject() {
+  showModal("新建项目", '<div class="pform"><div class="row"><label>项目名（可以先不写）</label><input id="pNewTitle" placeholder="例如：把开说工作台长成一条可复制的业务线"></div>' +
+    '<div class="row"><label>你现在脑子里那句话</label><textarea id="pNewIdea" placeholder="不用整理。把一个念头、一组数据、一个卡住你的问题直接放进来…"></textarea></div>' +
+    '<div class="hint">创建后会先长出 3 个起始问题。</div></div>',
+    '<button class="btn small" onclick="closeModal()">取消</button><button class="btn primary small" onclick="createProjectFromModal()">开始涌现</button>', true);
+  setTimeout(() => { const el = $("#pNewIdea"); if (el) el.focus(); }, 40);
+}
+
+async function createProjectFromModal() {
+  const titleEl = $("#pNewTitle");
+  const ideaEl = $("#pNewIdea");
+  const title = (titleEl ? titleEl.value : "").trim();
+  const idea = (ideaEl ? ideaEl.value : "").trim();
+  if (!idea) { toast("先放一句话进来"); if (ideaEl) ideaEl.focus(); return; }
+  const stamp = new Date().toISOString();
+  const project = {
+    id: "prj-" + Date.now().toString(36) + "-" + uid(),
+    title: title || "未命名项目",
+    createdAt: stamp,
+    updatedAt: stamp,
+    lastTouchAt: stamp,
+    feed: [{ id: "feed-" + uid(), text: idea, at: stamp }],
+    questions: [],
+    nodes: [{ id: "node-" + uid(), text: "起点：" + idea.slice(0, 180), summary: "", parentId: "", questionId: "", at: stamp }],
+    lastNote: ""
+  };
+  projectStore().projects.unshift(project);
+  state.projectId = project.id;
+  state.projectQuestionId = "";
+  closeModal();
+  state.projectBusy = true;
+  render();
+  persistProjects();
+  try {
+    const result = await projectAsk("create", project, { input: idea });
+    if (!title && result.title) project.title = result.title;
+    const added = addProjectQuestions(project, result.questions, "ai");
+    project.lastNote = result.note || (added ? "先把这几个问题放着，选一个进入。" : "");
+    if (!added) addProjectQuestions(project, projectStarterQuestions(idea), "fallback");
+  } catch (err) {
+    addProjectQuestions(project, projectStarterQuestions(idea), "fallback");
+    project.lastNote = "AI 暂时没接上，先给你三个通用问题.";
+    toast("项目已创建；AI 追问失败：" + err.message);
+  } finally {
+    projectTouch(project);
+    state.projectBusy = false;
+    persistProjects();
+    render();
+  }
+}
+
+function projectStarterQuestions(idea) {
+  const hint = String(idea || "").replace(/\s+/g, " ").slice(0, 26);
+  return [
+    "如果把「" + hint + "」缩成一个最小动作，那是什么？",
+    "现在最关键的未知，不是资源，而是哪一个判断？",
+    "什么结果出现，才说明这件事真的成立了？"
+  ];
+}
+
+function addProjectQuestions(project, texts, source) {
+  let added = 0;
+  (Array.isArray(texts) ? texts : []).forEach((text) => {
+    const clean = String(text || "").replace(/\s+/g, " ").trim();
+    if (!clean || clean.length < 4) return;
+    const norm = clean.replace(/[\s，。？！、：:；;,.?!]/g, "");
+    const duplicate = (project.questions || []).some((q) => String(q.text || "").replace(/[\s，。？！、：:；;,.?!]/g, "") === norm);
+    if (duplicate) return;
+    project.questions = project.questions || [];
+    project.questions.push({
+      id: "q-" + Date.now().toString(36) + "-" + uid(),
+      text: clean.slice(0, 240),
+      status: "open",
+      answer: "",
+      summary: "",
+      createdAt: new Date().toISOString(),
+      source: source || "ai"
+    });
+    added += 1;
+  });
+  return added;
+}
+
+async function projectAsk(mode, project, extra) {
+  const payload = Object.assign({ mode, project: { title: project.title, recentFeed: (project.feed || []).slice(-8).map((f) => f.text), openQuestions: projectOpenQuestions(project).map((q) => q.text), answered: projectAnsweredQuestions(project).slice(-6).map((q) => ({ question: q.text, summary: q.summary || q.answer })) } }, extra || {});
+  return api("/api/projects/ask", { method: "POST", body: JSON.stringify(payload) });
+}
+
+function persistProjects() {
+  if (state.projectSaveTimer) clearTimeout(state.projectSaveTimer);
+  projectStore().selectedProjectId = state.projectId || "";
+  projectStore().selectedQuestionId = state.projectQuestionId || "";
+  state.projectSaveTimer = setTimeout(async () => {
+    state.projectSaveTimer = null;
+    try { await api("/api/data/projects", { method: "PUT", body: JSON.stringify({ data: projectStore() }) }); }
+    catch (err) { toast("项目保存失败：" + err.message); }
+  }, 220);
+}
+
+async function sendProjectIdea() {
+  if (state.projectBusy) return;
+  const project = projectById(state.projectId);
+  const input = $("#projectIdea");
+  const text = input ? input.value.trim() : "";
+  if (!project || !text) { toast("先写一句想丢进去的话"); return; }
+  project.feed = project.feed || [];
+  project.feed.push({ id: "feed-" + uid(), text, at: new Date().toISOString() });
+  project.lastNote = "";
+  projectTouch(project);
+  if (input) input.value = "";
+  state.projectBusy = true;
+  render();
+  persistProjects();
+  try {
+    const result = await projectAsk("feed", project, { input: text });
+    if (project.title === "未命名项目" && result.title) project.title = result.title;
+    const added = addProjectQuestions(project, result.questions, "ai");
+    project.lastNote = result.note || (added ? "这段话长出了 " + added + " 个新问题。" : "记下了。这段话暂时没有长出新的未知。");
+  } catch (err) {
+    addProjectQuestions(project, ["关于「" + text.replace(/\s+/g, " ").slice(0, 28) + "」，现在最需要想清楚的是什么？"], "fallback");
+    project.lastNote = "已记下，先补一个问题。";
+    toast("AI 追问失败，已保留这段话：" + err.message);
+  } finally {
+    projectTouch(project);
+    state.projectBusy = false;
+    persistProjects();
+    render();
+  }
+}
+
+function selectProjectQuestion(qid) {
+  const project = projectById(state.projectId);
+  if (!project) return;
+  const q = projectQuestionById(project, qid);
+  if (!q) return;
+  state.projectQuestionId = qid;
+  if (q.status === "open") q.status = "thinking";
+  projectTouch(project);
+  saveUI();
+  persistProjects();
+  render();
+  setTimeout(() => { const el = $("#projectAnswer"); if (el) el.focus(); }, 30);
+}
+
+function readProjectAnswer() {
+  const el = $("#projectAnswer");
+  return el ? el.value.trim() : "";
+}
+
+function saveProjectAnswerOnly() {
+  const project = projectById(state.projectId);
+  const q = project && projectQuestionById(project, state.projectQuestionId);
+  if (!project || !q) return;
+  q.answer = readProjectAnswer();
+  if (q.answer && q.status !== "answered") q.status = "thinking";
+  projectTouch(project);
+  persistProjects();
+  toast("回答已保存");
+}
+
+async function submitProjectAnswer() {
+  if (state.projectBusy) return;
+  const project = projectById(state.projectId);
+  const q = project && projectQuestionById(project, state.projectQuestionId);
+  if (!project || !q) return;
+  const answer = readProjectAnswer();
+  if (!answer) { toast("先写下你的回答"); const el = $("#projectAnswer"); if (el) el.focus(); return; }
+  q.answer = answer;
+  q.status = "answered";
+  q.answeredAt = new Date().toISOString();
+  q.summary = q.summary || localProjectSummary(answer);
+  projectTouch(project);
+  const parentId = (project.nodes || []).length ? project.nodes[project.nodes.length - 1].id : "";
+  state.projectBusy = true;
+  persistProjects();
+  render();
+  try {
+    const result = await projectAsk("answer", project, { question: q.text, answer });
+    if (result.summary) q.summary = result.summary;
+    const nodeText = result.node || q.summary;
+    if (nodeText) addProjectNode(project, nodeText, q.id, parentId);
+    const added = addProjectQuestions(project, result.questions, "ai");
+    project.lastNote = result.note || (added ? "回答已经挂上脉络，又长出 " + added + " 个新问题。" : "回答已经挂上脉络。");
+  } catch (err) {
+    q.summary = localProjectSummary(answer);
+    addProjectNode(project, q.summary, q.id, parentId);
+    project.lastNote = "回答已保存，并挂上了一个结论节点。";
+    toast("回答已保存；AI 整理失败：" + err.message);
+  } finally {
+    projectTouch(project);
+    state.projectBusy = false;
+    persistProjects();
+    render();
+  }
+}
+
+function localProjectSummary(text) {
+  return String(text || "").replace(/\s+/g, " ").trim().slice(0, 96) || "这一题已经有了一个初步回答。";
+}
+
+function addProjectNode(project, text, questionId, parentId) {
+  project.nodes = project.nodes || [];
+  project.nodes.push({
+    id: "node-" + Date.now().toString(36) + "-" + uid(),
+    text: String(text || "").slice(0, 500),
+    summary: "",
+    parentId: parentId || "",
+    questionId: questionId || "",
+    at: new Date().toISOString()
+  });
+}
+
+function renameProject() {
+  const project = projectById(state.projectId);
+  if (!project) return;
+  const next = prompt("项目名", project.title || "未命名项目");
+  if (next == null) return;
+  project.title = next.trim() || "未命名项目";
+  projectTouch(project);
+  persistProjects();
+  render();
+}
+
+function deleteProject() {
+  const project = projectById(state.projectId);
+  if (!project) return;
+  if (!confirm("彻底删除「" + (project.title || "未命名项目") + "」？项目里的问题和脉络会一起消失。")) return;
+  projectStore().projects = projectStore().projects.filter((p) => p.id !== project.id);
+  state.projectId = "";
+  state.projectQuestionId = "";
+  persistProjects();
+  render();
+  toast("项目已删除");
+}
+
+function composeProjectMarkdown(project) {
+  const answered = projectAnsweredQuestions(project);
+  const open = projectOpenQuestions(project);
+  const feed = (project.feed || []).map((f) => f.text).filter(Boolean);
+  const title = project.title || "未命名项目";
+  const background = feed.length ? feed.join("\n") : "（还没有补充背景）";
+  const confirmed = answered.length ? answered.map((q, i) => (i + 1) + ". **" + q.text + "**\n   " + (q.summary || q.answer)).join("\n") : "- 暂无已确认结论。";
+  const pending = open.length ? open.map((q) => "- " + q.text).join("\n") : "- 暂无未决问题。";
+  return [
+    "# " + title,
+    "",
+    "## 背景",
+    background,
+    "",
+    "## 目标",
+    answered.length ? (answered[0].summary || "把「" + title + "」推进到一个可以被别人使用和验证的版本。") : "把「" + title + "」从一个模糊方向，推进到一个可以被别人使用和验证的版本。",
+    "",
+    "## 已确认",
+    confirmed,
+    "",
+    "## 关键决策",
+    "- 先处理能改变方向的问题，不先铺完整计划。",
+    "- 每次只推进一个最小可验证动作。",
+    "",
+    "## 未决",
+    pending,
+    "",
+    "## 交付要求",
+    "- 产物必须能让没有参与讨论的人直接理解并使用。",
+    "- 保留判断依据，不只给结论。",
+    "",
+    "## 任务线 1：收束定义",
+    "- 目标：把尚未决的问题收敛成一个明确判断。",
+    "- 输入：本文件「背景 / 已确认 / 未决」。",
+    "- 产出：一页项目定义，包含对象、边界、最小动作。",
+    "- 验收：所有未决问题都有结论或被明确删除。",
+    "",
+    "## 任务线 2：做出最小交付",
+    "- 目标：做出第一个能给别人看的版本。",
+    "- 输入：项目定义 + 已确认结论。",
+    "- 产出：可运行的页面、文档或流程。",
+    "- 验收：一个没参与讨论的人能独立走完核心路径。",
+    "",
+    "## 任务线 3：拿真实反馈验证",
+    "- 目标：验证这件事是否真的有人需要。",
+    "- 输入：最小交付 + 3 个目标用户。",
+    "- 产出：反馈记录与下一轮问题池。",
+    "- 验收：至少得到一个会改变下一版动作的真实反馈。"
+  ].join("\n");
+}
+
+function showProjectCompose() {
+  const project = projectById(state.projectId);
+  if (!project) return;
+  const md = composeProjectMarkdown(project);
+  window.__projectMd = md;
+  showModal("成型 · " + (project.title || "未命名项目"), '<div class="compose-md">' + esc(md) + '</div>', 
+    '<button class="btn small" onclick="closeModal()">关闭</button><button class="btn small" onclick="copyProjectMd()">复制 MD</button><button class="btn primary small" onclick="downloadProjectMd()">下载 MD</button>', true);
+}
+function copyProjectMd() { if (window.__projectMd) copyText(window.__projectMd, "项目 MD 已复制"); }
+function downloadProjectMd() {
+  const project = projectById(state.projectId);
+  if (!window.__projectMd || !project) return;
+  const blob = new Blob([window.__projectMd], { type: "text/markdown;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = String(project.title || "项目").replace(/[\\/:*?"<>|]/g, "_") + ".md";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+let dmAttach = [];
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("读取失败"));
+    reader.readAsDataURL(file);
+  });
+}
+async function pickDmImages(input) {
+  const files = [...(input.files || [])].slice(0, 4);
+  input.value = "";
+  for (const file of files) {
+    if (!/^image\//.test(file.type)) continue;
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataUrl, name: file.name })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "上传失败");
+      dmAttach.push({ path: data.path, url: data.url, name: file.name });
+    } catch (err) {
+      toast("图片上传失败：" + err.message);
+    }
+  }
+  renderDmAttach();
+}
+function renderDmAttach() {
+  const strip = $("#dmAttachStrip");
+  if (!strip) return;
+  strip.innerHTML = dmAttach.map((a, i) =>
+    '<span class="attach-thumb"><img src="' + esc(a.url) + '" alt=""><button type="button" onclick="removeDmImage(' + i + ')" aria-label="移除">×</button></span>'
+  ).join("");
+  strip.classList.toggle("has", dmAttach.length > 0);
+}
+function removeDmImage(index) {
+  dmAttach.splice(index, 1);
+  renderDmAttach();
+}
+function dialogHTML(who) {
+  const role = roleOf(who);
+  const quick = role.starters.map((text) => '<button data-dmfill="' + esc(text) + '">' + esc(text) + "</button>").join("");
+  const boardLink = who === "linyi"
+    ? '<a class="btn small" href="' + workshopHref(state.event && state.event.id) + '" target="_blank" rel="noopener">共事会 ↗</a>'
+    : "";
+  const placeholder = who === "linyi" ? "把活动信息或群聊原文整段贴进来…" : "把要求写在这里…";
+  return '<div class="emp-dialog-head">' + avatarHTML(who) +
+    '<div class="emp-dialog-title" title="双击标题栏放大或还原"><h2>' + role.name + ' <span class="dialog-status-chip" id="dialogStatus">空闲</span></h2>' +
+    '<p>' + esc(role.title) + " · " + esc(role.duty) + "</p></div><div class=\"spacer\"></div>" + boardLink +
+    '<button class="dialog-gear" type="button" onclick="openProfileEditor()" aria-label="员工设置" title="员工设置：状态、角色、分工、头像">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></button>' +
+    '<button class="dialog-size-btn" id="dialogSizeBtn" onclick="toggleEmployeeDialogSize()" aria-label="放大" title="放大；也可拖动右下角，或双击标题栏">' +
+    '<svg class="icon-expand" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2H2v4M10 2h4v4M6 14H2v-4M10 14h4v-4"/></svg>' +
+    '<svg class="icon-restore" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6V2M6 6H2M10 6V2M10 6h4M6 10v4M6 10H2M10 10v4M10 10h4"/></svg></button>' +
+    '<button class="dialog-close" onclick="closeEmployeeDialog()" aria-label="关闭">×</button></div>' +
+    '<div class="dialog-quick"><span class="q-label">快捷</span>' + quick + "</div>" +
+    '<div class="msg-list dialog-msg-list" id="dmList"></div>' +
+    '<div class="dialog-composer"><div class="attach-strip" id="dmAttachStrip"></div><textarea id="dmInput" rows="1" placeholder="' + esc(placeholder) + '"></textarea>' +
+    '<div class="dialog-composer-bar"><label class="attach-btn" title="添加图片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"></rect><circle cx="8.5" cy="8.5" r="1.6"></circle><path d="m21 15-4.5-4.5L7 20"></path></svg><input type="file" accept="image/*" multiple onchange="pickDmImages(this)"></label>' +
+    '<span class="hint" id="dialogHint">Enter 发送 · Shift+Enter 换行</span>' +
+    '<div class="dialog-actions"><button class="send" id="dmSend" onclick="sendDM()" title="发送">↑</button></div></div></div>';
+}
+
+/* ---------- 员工设置：状态 / 角色 / 分工 / 头像 ---------- */
+let profileDraft = null;
+const PROFILE_STATUS = ["", "空闲", "工作中", "完成", "请假"];
+function openProfileEditor(){
+  const key = state.employee;
+  const p = profileOf(key);
+  profileDraft = {
+    status: p.status || "",
+    title: p.title || "",
+    duty: p.duty || "",
+    avatar: p.avatar || ""
+  };
+  renderProfileEditor();
+}
+function profileStatusChips(){
+  return PROFILE_STATUS.map((v) =>
+    '<button type="button" class="pf-chip' + (profileDraft.status === v ? " on" : "") + '" onclick="setProfileStatus(' + JSON.stringify(v).replace(/"/g, "&quot;") + ')">' +
+    (v || "自动") + "</button>").join("");
+}
+function renderProfileEditor(){
+  const key = state.employee;
+  const role = roleOf(key);
+  const src = profileDraft.avatar || AVATAR_SRC[key];
+  const body =
+    '<div class="pf-row">' +
+      '<span class="avatar pf-avatar"><img id="pfAvatarImg" src="' + esc(src) + '" alt=""></span>' +
+      '<div class="pf-avatar-ops">' +
+        '<label class="btn small" style="cursor:pointer">换一张<input type="file" accept="image/*" class="hidden" onchange="pickProfileAvatar(this)"></label>' +
+      "</div>" +
+    "</div>" +
+    '<div class="pf-field"><label>状态</label><div class="pf-chips">' + profileStatusChips() + "</div></div>" +
+    '<div class="pf-field"><label>角色</label><input id="pfTitle" value="' + esc(profileDraft.title || role.title) + '" placeholder="例如 共事会流程组织教练"></div>' +
+    '<div class="pf-field"><label>分工</label><input id="pfDuty" value="' + esc(profileDraft.duty || role.duty) + '" placeholder="例如 发起新开说、调度其他员工"></div>';
+  showModal("员工设置 · " + role.name, body,
+    '<button class="btn small" onclick="closeModal()">取消</button>' +
+    '<button class="btn small primary" onclick="saveProfile()">保存</button>');
+}
+function readProfileInputs(){
+  const t = $("#pfTitle");
+  const d = $("#pfDuty");
+  if (t) profileDraft.title = t.value;
+  if (d) profileDraft.duty = d.value;
+}
+function setProfileStatus(v){
+  readProfileInputs();
+  profileDraft.status = v;
+  renderProfileEditor();
+}
+function clearProfileAvatar(){
+  readProfileInputs();
+  profileDraft.avatar = "";
+  const img = $("#pfAvatarImg");
+  if (img) img.src = AVATAR_SRC[state.employee];
+  renderProfileEditor();
+}
+function pickProfileAvatar(input){
+  const f = input.files && input.files[0];
+  input.value = "";
+  if (!f) return;
+  readProfileInputs();
+  const fr = new FileReader();
+  fr.onload = async () => {
+    const dataUrl = String(fr.result || "");
+    const img = $("#pfAvatarImg");
+    if (img) img.src = dataUrl;
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: f.name || "avatar.png", dataUrl })
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || "上传失败");
+      profileDraft.avatar = d.url || d.path || dataUrl;
+      if (img) img.src = profileDraft.avatar;
+      toast("头像已上传，记得点保存");
+    } catch (err) {
+      toast("头像上传失败：" + (err.message || "未知错误"));
+    }
+  };
+  fr.readAsDataURL(f);
+}
+function saveProfile(){
+  readProfileInputs();
+  const key = state.employee;
+  const base = ROLES[key];
+  const title = String(profileDraft.title || "").trim();
+  const duty = String(profileDraft.duty || "").trim();
+  state.profile[key] = {
+    status: profileDraft.status || "",
+    title: title && title !== base.title ? title : "",
+    duty: duty && duty !== base.duty ? duty : "",
+    avatar: profileDraft.avatar || ""
+  };
+  saveUI();
+  closeModal();
+  render();
+  if (state.dialog === key) {
+    const r2 = roleOf(key);
+    const head = $("#empDialogCard .emp-dialog-head");
+    if (head) {
+      const av = head.querySelector(".avatar");
+      if (av) av.innerHTML = '<img src="' + esc(avatarSrcOf(key)) + '" alt="">';
+      const pEl = head.querySelector(".emp-dialog-title p");
+      if (pEl) pEl.textContent = r2.title + " · " + r2.duty;
+    }
+  }
+  toast("已保存");
+}
+function applyDialogSize() {
+  const card = $("#empDialogCard");
+  if (!card) return;
+  const mobile = window.innerWidth <= 760;
+  card.classList.toggle("expanded", !mobile && Boolean(state.dialogLarge));
+  if (mobile || state.dialogLarge || !state.dialogSize) {
+    card.style.width = "";
+    card.style.height = "";
+  } else {
+    const width = Math.max(320, Math.min(Number(state.dialogSize.width) || 0, window.innerWidth - 24));
+    const height = Math.max(360, Math.min(Number(state.dialogSize.height) || 0, window.innerHeight - 24));
+    card.style.width = width + "px";
+    card.style.height = height + "px";
+  }
+  const button = $("#dialogSizeBtn");
+  if (button) {
+    const label = state.dialogLarge ? "还原" : "放大";
+    button.setAttribute("aria-label", label);
+    button.title = label + "；也可拖动右下角，或双击标题栏";
+  }
+}
+
+function rememberDialogSize() {
+  if (state.dialogLarge || window.innerWidth <= 760) return;
+  const card = $("#empDialogCard");
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  if (rect.width > 0 && rect.height > 0) {
+    state.dialogSize = { width: Math.round(rect.width), height: Math.round(rect.height) };
+  }
+}
+
+function toggleEmployeeDialogSize() {
+  if (window.innerWidth <= 760) return;
+  if (!state.dialogLarge) rememberDialogSize();
+  state.dialogLarge = !state.dialogLarge;
+  saveUI();
+  applyDialogSize();
+}
+
+function bindDialog() {
+  const input = $("#dmInput");
+  if (!input) return;
+  input.addEventListener("input", () => autoGrow(input));
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      sendDM();
+    }
+  });
+  const head = $("#empDialogCard .emp-dialog-head");
+  if (head) head.addEventListener("dblclick", (event) => {
+    if (event.target.closest("button, a")) return;
+    toggleEmployeeDialogSize();
+  });
+  $$("#empDialog [data-dmfill]").forEach((button) => button.addEventListener("click", () => fillDialogInput(button.dataset.dmfill || "")));
+  $$("#empDialog [data-fill]").forEach((button) => button.addEventListener("click", () => fillDialogInput(button.dataset.fill || "")));
+}
+
+function fillDialogInput(text) {
+  const input = $("#dmInput");
+  if (!input) return;
+  input.value = text;
+  input.focus();
+  autoGrow(input);
+}
+
+function openEmployeeDialog(who, draft) {
+  if (!ROLES[who]) return;
+  state.employee = who;
+  state.view = "team";
+  state.dialog = who;
+  saveUI();
+  render();
+  const card = $("#empDialogCard");
+  if (!card) return;
+  card.innerHTML = dialogHTML(who);
+  dmAttach = [];
+  renderDmAttach();
+  applyDialogSize();
+  $("#empDialog").classList.add("open");
+  document.body.classList.add("dialog-open");
+  bindDialog();
+  paintMessages("dm", who);
+  updateBusy();
+  if (who === "poster") syncAiJobs();
+  if (draft) fillDialogInput(draft);
+  setTimeout(() => { const input = $("#dmInput"); if (input) input.focus(); }, 30);
+}
+
+function closeEmployeeDialog() {
+  if (!state.dialog) return;
+  rememberDialogSize();
+  state.dialog = null;
+  $("#empDialog").classList.remove("open");
+  document.body.classList.remove("dialog-open");
+  saveUI();
+  updateBusy();
+}
+
+function boardHTML(who) {
+  if (who === "linyi") {
+    const c = completeness(state.event);
+    const intake = intakeStats(state.event);
+    const reviewStatus = (state.event && state.event.review && state.event.review.status) || "draft";
+    const reviewLabel = { approved: "已通过", in_review: "审核中", changes: "待修改" }[reviewStatus] || "草稿";
+    const intakeRows = intake.rows.length
+      ? intake.rows.map(({ sp, missing }) => '<div class="intake-row"><div class="intake-name">' + esc(sp.name || "未命名") + "</div>" +
+          (missing.length
+            ? '<div class="missing">' + missing.map((m) => "<span>" + esc(m) + "</span>").join("") + "</div>"
+            : '<div class="hint">信息已齐全</div>') + "</div>").join("")
+      : '<div class="hint">还没有分享者。先粘贴群回复，或去设置里添加。</div>';
+    return '<div class="board-card"><div class="board-label">INTAKE / 采集</div>' +
+      '<div class="score">' + intake.complete + '<span> / ' + intake.total + ' 人齐全</span></div>' +
+      '<div class="intake-list">' + intakeRows + "</div>" +
+      '<div class="board-actions"><button class="btn primary small" onclick="openIntake()">粘贴群回复</button>' +
+      '<button class="btn small" onclick="openFollowups()">生成催收</button>' +
+      '<button class="btn small" onclick="copyIntakeTemplate()">复制采集模板</button></div></div>' +
+      '<div class="board-card"><div class="board-label">BRIEF / 主档</div>' +
+      '<div class="score">' + c.score + '<span>/ 100</span></div><div class="bar"><i style="width:' + c.score + '%"></i></div>' +
+      (c.missing.length ? '<div class="missing">' + c.missing.slice(0, 6).map((m) => "<span>" + esc(m) + "</span>").join("") + "</div>"
+        : '<div class="hint">主档信息已经齐全，可以进入审核。</div>') +
+      '<div class="board-actions"><button class="btn primary small" onclick="prefillDM(\'请先读 data/studio.json，告诉我这场活动还缺什么，并按发布优先级排序。不要编造缺失信息。\')">让林一查缺口</button>' +
+      '<button class="btn small" onclick="openDeck(\'workshop\')">打开共事会</button></div></div>' +
+      '<div class="board-card"><div class="board-label">NEXT / 下一步</div><div class="hint">' +
+      "审核状态：<b>" + reviewLabel + "</b>。" +
+      (reviewStatus === "approved"
+        ? "主档已通过审核，海报、运营、主持物料可以对外使用。"
+        : "对外发布前，先把主档提交审核。") +
+      '</div><div class="board-actions">' +
+      (reviewStatus === "approved" ? "" : '<button class="btn primary small" onclick="submitReview()">' + (reviewStatus === "in_review" ? "重新提交" : "提交审核") + '</button>') +
+      '<button class="btn small" onclick="openDeck(\'workshop\')">打开共事会</button>' +
+      '<button class="btn small" onclick="go(\'settings\')">去设置</button></div></div>';
+  }
+  const dirMap = { poster: "02_海报", ops: "03_运营", host: "04_主持" };
+  const files = (state.deliverables || []).filter((f) => (f.dir || "").indexOf(dirMap[who]) !== -1);
+  const images = files.filter((f) => f.ext === ".png").slice(0, 3);
+  let body = "";
+  if (who === "poster") {
+    body = images.length
+      ? '<div class="thumb-grid">' + images.map((f) => '<a href="' + f.url + '" target="_blank"><img src="' + f.url + '" alt="' + esc(f.name) + '"></a>').join("") + "</div>"
+      : '<div class="hint" style="margin-bottom:10px">还没有海报。点下面生成三套。</div>';
+  } else {
+    body = files.length
+      ? files.slice(0, 6).map((f) => '<div class="file-row"><span class="file-ext">' + esc((f.ext || "").replace(".", "")) + '</span><a href="' + f.url + '" target="_blank">' + esc(f.name) + "</a></div>").join("")
+      : '<div class="hint" style="margin-bottom:10px">还没有文件。点下面生成。</div>';
+  }
+  const extra = who === "ops"
+    ? '<button class="btn small" onclick="previewOps()">预览群公告</button><button class="btn small" onclick="copyOps()">复制群公告</button>'
+    : who === "host" && files.some((f) => f.ext === ".pptx")
+      ? (() => { const ppt = files.find((f) => f.ext === ".pptx"); return '<a class="btn small" href="' + ppt.url + '" download>下载 PPT</a>'; })()
+      : who === "poster"
+        ? '<button class="btn small" onclick="openAiImageDeck()">AI 生图</button>'
+        : "";
+  const label = { poster: "POSTERS / 海报", ops: "OPS / 运营", host: "HOST / 主持" }[who];
+  return '<div class="board-card"><div class="board-label">' + label + "</div>" + body +
+    '<div class="board-actions"><button class="btn primary small" onclick="produceAll(\'' + who + '\')" ' + (state.producing ? "disabled" : "") + ">" +
+    (state.producing ? "生成中…" : ({ poster: "生成海报", ops: "生成运营包", host: "生成主持包" }[who])) + "</button>" + extra +
+    '<button class="btn small" onclick="openFolder(\'deliverables\')">文件夹</button></div></div>' +
+    '<div class="board-card"><div class="board-label">NOTE / 边界</div><div class="hint">' +
+    (who === "ops" ? "群公告和私信默认只出待审稿，不会自动发微信。" : who === "host" ? "腾讯会议只生成预约参数，不会替你点击预约。" : "海报文字由本地模板排入，不交给生图模型，避免错字。") +
+    "</div></div>";
+}
+
+function afterRender() {
+  updateBusy();
+  if (state.scope) paintMessages(state.scope);
+  const input = $("#chatInput");
+  if (input) {
+    input.addEventListener("input", () => autoGrow(input));
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendCurrent(); }
+    });
+    setTimeout(() => input.focus(), 30);
+  }
+  $$("[data-fill]").forEach((btn) => btn.addEventListener("click", () => {
+    const ta = $("#chatInput"); if (!ta) return;
+    ta.value = btn.dataset.fill || "";
+    ta.focus(); autoGrow(ta);
+  }));
+  $$("[data-mention]").forEach((btn) => btn.addEventListener("click", () => {
+    const ta = $("#chatInput"); if (!ta) return;
+    const token = "@" + btn.dataset.mention + " ";
+    ta.value = ta.value ? (ta.value.replace(/\s+$/, "") + " " + token) : token;
+    ta.focus(); autoGrow(ta);
+  }));
+  if (state.view === "knowledge") renderKnowledge();
+}
+
+function autoGrow(target) {
+  const ta = target && target.tagName === "TEXTAREA" ? target : ($("#dmInput") || $("#chatInput"));
+  if (!ta) return;
+  ta.style.height = "auto";
+  ta.style.height = Math.min(ta.scrollHeight, 150) + "px";
+}
+function sendCurrent() { if (state.scope === "home") sendHome(); else if (state.scope === "dm") sendDM(); }
+function toggleMode() { setMode(state.mode === "task" ? "chat" : "task"); }
+function clearCurrent() {
+  const scope = state.dialog ? "dm" : state.scope;
+  const who = state.dialog || state.employee;
+  const label = scope === "home" ? "办公室群聊" : roleOf(who).name + " 的对话";
+  if (!confirm("清空" + label + "的全部聊天记录？工作区文件不会受影响。")) return;
+  if (scope === "home") state.chat.home = []; else state.chat.dm[who] = [];
+  saveUI(); paintMessages(scope, who); toast("对话已清空");
+}
+function prefillDM(text) {
+  openEmployeeDialog("linyi", text);
+}function knowledgeItems() {
+  const items = [];
+  (state.knowledge || []).forEach((file) => {
+    const chunks = String(file.content || "").split(/^##\s+/m).slice(1);
+    chunks.forEach((chunk) => {
+      const lines = chunk.split(/\r?\n/);
+      const q = (lines.shift() || "").trim();
+      const a = lines.join("\n").trim();
+      if (q && a) items.push({ q, a, file: file.name });
+    });
+  });
+  return items;
+}
+function renderKnowledge() {
+  const list = $("#kbList");
+  if (!list) return;
+  const items = knowledgeItems();
+  const count = $("#kbCount");
+  if (count) count.textContent = items.length + " 条 · " + (state.knowledge || []).length + " 个文件";
+  if (!items.length) {
+    list.innerHTML = '<div style="padding:22px;color:#8d8069;font-size:12px">没有读到知识库。检查 knowledge/ 目录，或刷新页面。</div>';
+    return;
+  }
+  list.innerHTML = items.map((it, i) => {
+    const preview = it.a.replace(/\s+/g, " ").slice(0, 90);
+    return '<div class="kb-item" data-search="' + esc((it.q + " " + it.a).toLowerCase()) + '">' +
+      '<button class="kb-q"><span class="idx">' + String(i + 1).padStart(2, "0") + '</span><span class="qtext">' + esc(it.q) +
+      '</span><span class="arrow">›</span></button><div class="kb-a">' + fmt(it.a) +
+      '<div class="src"><span>' + esc(it.file) + '</span><button class="btn ghost small" data-ask="' + esc(it.q) + '">问林一 →</button></div></div></div>';
+  }).join("");
+  list.onclick = (e) => {
+    const ask = e.target.closest("[data-ask]");
+    if (ask) {
+      e.stopPropagation();
+      prefillDM("知识库里有一条「" + ask.dataset.ask + "」。请结合我们当前这场活动，给我一个可以直接执行的回答。");
+      return;
+    }
+    const q = e.target.closest(".kb-q");
+    if (q) q.parentElement.classList.toggle("open");
+  };
+  const search = $("#kbSearch");
+  if (search) {
+    search.oninput = () => {
+      const key = search.value.trim().toLowerCase();
+      $$(".kb-item", list).forEach((el) => {
+        el.style.display = (!key || (el.dataset.search || "").indexOf(key) !== -1) ? "" : "none";
+      });
+    };
+  }
+}
+function viewKnowledge() {
+  return '<div class="kb-wrap"><div class="kb-tools"><input class="search" id="kbSearch" placeholder="搜一个具体问题：紧张、开场、忘词、线上、提问…">' +
+    '<span class="kb-count" id="kbCount"></span><button class="btn small" onclick="openFolder(\'knowledge\')">打开文件夹</button></div>' +
+    '<div class="kb-list" id="kbList"></div></div>';
+}
+
+function fieldHTML(label, id, value, opts) {
+  opts = opts || {};
+  const cls = opts.span2 ? "field span2" : "field";
+  const input = opts.textarea
+    ? '<textarea id="' + id + '" rows="' + (opts.rows || 2) + '" placeholder="' + esc(opts.placeholder || "") + '">' + esc(value || "") + "</textarea>"
+    : '<input id="' + id + '" value="' + esc(value || "") + '" placeholder="' + esc(opts.placeholder || "") + '">';
+  return '<div class="' + cls + '"><label>' + esc(label) + "</label>" + input + (opts.tip ? '<span class="tip">' + esc(opts.tip) + "</span>" : "") + "</div>";
+}
+const REVIEW_STATUS = {
+  draft: ["草稿", ""], in_review: ["待审核", "warn"], approved: ["已通过", "ok"], changes: ["需修改", "bad"]
+};
+function viewSettings() {
+  const event = state.event;
+  const events = (state.studio && state.studio.events) || [];
+  const eventSelect = events.length > 1
+    ? '<select onchange="switchEvent(this.value)" style="border:1px solid var(--line);padding:6px 9px;font-size:11px;background:#fffefa;border-radius:3px">' +
+      events.map((e) => '<option value="' + esc(e.id) + '"' + (event && e.id === event.id ? " selected" : "") + ">" + esc(e.name) + "</option>").join("") + "</select>"
+    : "";
+  return '<div class="settings-wrap">' +
+    '<div class="panel"><div class="panel-head"><div><h2>系统</h2></div></div>' +
+    '<div class="sys-row"><span class="k">本地服务</span><span class="v">' + (state.health ? "运行中 · 127.0.0.1:8787" : "未启动") + "</span></div>" +
+    '<div class="sys-row"><span class="k">开机自启</span><span class="v">' + (state.autostart ? "已开启" : "未开启") + "</span></div>" +
+    '<div class="sys-row"><span class="k">Codex CLI</span><span class="v">' + esc((state.health && state.health.codex && state.health.codex.version) || "未连接") + "</span></div>" +
+    '<div class="sys-row"><span class="k">工作区</span><span class="v">' + esc((state.health && state.health.codex && state.health.codex.workspace) || "—") + "</span></div>" +
+    '<div class="sys-row"><span class="k">交付物</span><span class="v">' + (state.deliverables || []).length + ' 个文件</span></div>' +
+    '<div class="board-actions" style="margin-top:12px"><button class="btn small" onclick="openFolder(\'deliverables\')">打开交付物</button>' +
+    '<button class="btn small" onclick="openFolder(\'workspace\')">打开工作区</button>' +
+    '<button class="btn small" onclick="clearAllChats()">清空所有对话</button>' +
+    (state.health ? "" : '<button class="btn primary small" onclick="connectLocal()">一键启动服务</button>') +
+    '<button class="btn small" onclick="toggleAutostart()">' + (state.autostart ? "关闭开机自启" : "开机自动启动") + "</button></div></div>" +
+    '<div class="panel"><div class="panel-head"><div><h2>活动</h2></div>' +
+    '<div class="board-actions">' + eventSelect + '<button class="btn small" onclick="newEvent()">新建活动</button></div></div>' +
+    (event ? '<div class="sys-row"><span class="k">当前活动</span><span class="v">' + esc(event.name || "未命名") + "</span></div>"
+           : '<div class="hint">还没有活动。</div>') +
+    '</div></div>';
+}
+
+function collectForm() {
+  if (!state.event) return;
+  const get = (id) => { const el = $("#" + id); return el ? el.value.trim() : ""; };
+  Object.assign(state.event, {
+    name: get("fName"), theme: get("fTheme"), date: get("fDate"), time: get("fTime"),
+    form: get("fForm"), host: get("fHost"), meetingNo: get("fMeetingNo"),
+    register: get("fRegister"), deadline: get("fDeadline"), audience: get("fAudience"), goal: get("fGoal")
+  });
+  state.event.speakers = $$(".sp-row").map((row, index) => {
+    const prev = (state.event.speakers || [])[index] || {};
+    return Object.assign({}, prev, {
+      name: (($("[data-f=name]", row) || {}).value || "").trim(),
+      title: (($("[data-f=title]", row) || {}).value || "").trim(),
+      intro: (($("[data-f=intro]", row) || {}).value || "").trim()
+    });
+  }).filter((sp) => sp.name || sp.title || sp.intro);
+}
+async function saveStudio() {
+  if (!state.event) return;
+  collectForm();
+  state.event.updatedAt = new Date().toISOString();
+  try {
+    await api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: state.studio }) });
+    toast("主档已保存");
+    render();
+  } catch (err) { toast(err.message); }
+}
+function addSpeaker() {
+  collectForm();
+  state.event.speakers = state.event.speakers || [];
+  state.event.speakers.push({ name: "", title: "", intro: "" });
+  render();
+}
+function removeSpeaker(index) {
+  collectForm();
+  state.event.speakers.splice(index, 1);
+  render();
+}
+async function setReview(status) {
+  if (!state.event) return;
+  collectForm();
+  const notes = $("#fReviewNotes") ? $("#fReviewNotes").value.trim() : "";
+  state.event.review = Object.assign({}, state.event.review || {}, { status, notes });
+  state.event.updatedAt = new Date().toISOString();
+  try {
+    await api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: state.studio }) });
+    toast({ in_review: "已提交审核", approved: "已通过审核", changes: "已打回修改" }[status] || "已更新");
+    render();
+  } catch (err) { toast(err.message); }
+}
+async function newEvent() {
+  const name = prompt("新活动名称", "开说 · 新一场主题演说");
+  if (!name) return;
+  if (!state.studio) state.studio = { version: 1, events: [], tasks: [], approvals: [] };
+  const id = "evt-" + Date.now();
+  const event = {
+    id, slug: "kaishuo-" + String(Date.now()).slice(-6), name: name.trim(), theme: "", date: "", time: "20:00",
+    form: "腾讯会议（线上）", audience: "", goal: "", register: "群内接龙报名", deadline: "", meetingNo: "", host: "",
+    speakers: [], intake: { groupMessages: "", missing: [], source: "微信群" },
+    stages: { brief: "draft", poster: "todo", ops: "todo", host: "todo" },
+    review: { status: "draft", notes: "" }, createdAt: new Date().toISOString()
+  };
+  state.studio.events = state.studio.events || [];
+  state.studio.events.push(event);
+  state.studio.currentEventId = id;
+  try {
+    await api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: state.studio }) });
+    state.event = event;
+    loadUI();
+    render();
+    toast("已新建活动");
+  } catch (err) { toast(err.message); }
+}
+async function switchEvent(id) {
+  if (!state.studio || id === state.studio.currentEventId) return;
+  state.studio.currentEventId = id;
+  state.event = currentEvent();
+  try {
+    await api("/api/data/studio", { method: "PUT", body: JSON.stringify({ data: state.studio }) });
+    loadUI(); render(); toast("已切换活动");
+  } catch (err) { toast(err.message); }
+}
+function clearAllChats() {
+  if (!confirm("清空总工作台和四位员工的全部对话？工作区文件不会受影响。")) return;
+  state.chat = { home: [], dm: { linyi: [], poster: [], ops: [], host: [] } };
+  state.threads = { home: {}, dm: {} };
+  state.completion = {};
+  state.wizard = null;
+  saveUI(); render(); toast("对话已清空");
+}
+
+async function toggleAutostart() {
+  try {
+    const res = await api("/api/service/autostart", { method: "POST", body: JSON.stringify({ enabled: !state.autostart }) });
+    state.autostart = Boolean(res.autostart);
+    toast(state.autostart ? "已开启：开机时自动准备本地服务" : "已关闭开机自启");
+    render();
+  } catch (err) {
+    toast("设置失败：" + err.message);
+  }
+}
+
+function buildWorkshop(event, prev) {
+  prev = prev || {};
+  const oldSpeakers = Array.isArray(prev.speakers) ? prev.speakers : [];
+  const hasSteps = prev.steps && Object.keys(prev.steps).length > 0;
+  const initialSteps = hasSteps ? prev.steps : {
+    opening: { inputs: {}, out: "", source: "", done: false, active: true }
+  };
+  return Object.assign({}, prev, {
+    phase: 1,
+    eventId: event.id || "",
+    updatedAt: new Date().toISOString(),
+    activity: Object.assign({}, prev.activity || {}, {
+      name: event.name || "", date: event.date || "", time: event.time || "", form: event.form || "",
+      meetingNo: event.meetingNo || "", meetingLink: event.meetingLink || "",
+      join: event.meetingLink || (event.meetingNo ? "腾讯会议 " + event.meetingNo : (prev.activity && prev.activity.join) || "会议链接在群里公布"),
+      register: event.register || "群内接龙报名", deadline: event.deadline || ""
+    }),
+    speakers: (event.speakers || []).map((sp, i) => {
+      const old = oldSpeakers.find((x) => x.name && x.name === sp.name) || oldSpeakers[i] || {};
+      return Object.assign({}, old, {
+        name: sp.name || "", title: sp.title || "", intro: sp.intro || old.intro || "",
+        highlight: sp.highlight || old.highlight || "",
+        story: sp.story || old.story || "", takeaway: sp.takeaway || old.takeaway || "",
+        rehearsal: sp.rehearsal || old.rehearsal || "",
+        photo: sp.photo || old.photo || "",
+        photoStatus: sp.photoStatus || (sp.photo ? "received" : old.photoStatus || ""),
+        photoConsent: sp.photoConsent || old.photoConsent || "",
+        poster: old.poster || "", article: old.article || ""
+      });
+    }),
+    ai: prev.ai || undefined, poster: prev.poster || undefined, steps: initialSteps, stepsCfg: prev.stepsCfg || {},
+    checklist: prev.checklist || { device: {}, content: {}, flow: {} },
+    qaNotes: prev.qaNotes || [],
+    agenda: Object.assign({ opening: 5, icebreak: 10, info: 25, moment: 15, dm: 15, qa: 15, notice: 10, closing: 5 }, prev.agenda || {})
+  });
+}
+function buildOps(event, prev) {
+  prev = prev || {};
+  const id = "ops-" + (event.slug || event.id);
+  const oldEvents = Array.isArray(prev.events) ? prev.events : [];
+  const old = oldEvents.find((e) => e.id === id) || oldEvents.find((e) => e.activityName === event.name) || {};
+  const oldSpeakers = Array.isArray(old.speakers) ? old.speakers : [];
+  const next = Object.assign({}, old, {
+    id, activityName: event.name || "", talkDate: event.date || "", talkTime: event.time || "",
+    meetingNo: event.meetingNo || "", publicLink: old.publicLink || "", registerLink: old.registerLink || "",
+    note: "由开说工作室主档同步，发布前需老板审核。",
+    speakers: (event.speakers || []).map((sp, i) => ({
+      id: (oldSpeakers[i] && oldSpeakers[i].id) || ("s" + (i + 1)), name: sp.name || "", topic: sp.title || ""
+    })),
+    modules: Array.isArray(old.modules) && old.modules.length ? old.modules : undefined
+  });
+  const events = oldEvents.filter((e) => e.id !== id && e.activityName !== event.name);
+  events.push(next);
+  return Object.assign({}, prev, { currentId: id, events });
+}
+function buildHost(event, prev) {
+  prev = prev || {};
+  const oldGuests = Array.isArray(prev.guests) ? prev.guests : [];
+  return Object.assign({}, prev, {
+    guests: (event.speakers || []).map((sp, i) => Object.assign({}, oldGuests[i] || {}, {
+      name: sp.name || "", body: sp.title || "", comment: (oldGuests[i] && oldGuests[i].comment) || ""
+    }))
+  });
+}
+async function syncWorkbenches() {
+  if (!state.event) { toast("还没有活动主档"); return; }
+  try {
+    const [w, o, h] = await Promise.all([
+      api("/api/data/workshop").catch(() => ({ data: {} })),
+      api("/api/data/ops").catch(() => ({ data: {} })),
+      api("/api/data/host").catch(() => ({ data: {} }))
+    ]);
+    const workshop = buildWorkshop(state.event, w.data);
+    const ops = buildOps(state.event, o.data);
+    const host = buildHost(state.event, h.data);
+    await Promise.all([
+      api("/api/data/workshop", { method: "PUT", body: JSON.stringify({ data: workshop }) }),
+      api("/api/data/ops", { method: "PUT", body: JSON.stringify({ data: ops }) }),
+      api("/api/data/host", { method: "PUT", body: JSON.stringify({ data: host }) })
+    ]);
+    localStorage.setItem("kaishuo_workshop_v1", JSON.stringify(workshop));
+    localStorage.setItem("kaishuo_ops_system_v1", JSON.stringify(ops));
+    localStorage.setItem("kaishuo_host_v1", JSON.stringify(host));
+    $$("#deckBody iframe").forEach((frame) => {
+      try { frame.contentWindow.postMessage({ type: "kaishuo:refresh" }, location.origin); } catch (err) {}
+    });
+    toast("三个工作台已同步");
+  } catch (err) { toast(err.message); }
+}
+
+async function readStream(res, onEvent) {
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const chunk = await reader.read();
+    if (chunk.done) break;
+    buffer += decoder.decode(chunk.value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      let ev; try { ev = JSON.parse(line); } catch { continue; }
+      onEvent(ev);
+    }
+  }
+}
+async function produceAll(only) {
+  if (state.producing) return;
+  only = ["poster", "ops", "host"].includes(only) ? only : "all";
+  const draft = $("#chatInput") ? $("#chatInput").value : "";
+  state.producing = true;
+  render();
+  if (draft && $("#chatInput")) $("#chatInput").value = draft;
+  try {
+    const res = await fetch("/api/produce", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId: state.event ? state.event.id : "", only })
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "生成失败");
+    let count = 0;
+    await readStream(res, (ev) => {
+      if (ev.type === "done") {
+        count = ev.count || (ev.files || []).length;
+        state.deliverables = ev.allFiles || ev.files || state.deliverables;
+      }
+      if (ev.type === "error") throw new Error(ev.message || "生成失败");
+    });
+    const label = { all: "三件套", poster: "海报", ops: "运营包", host: "主持包" }[only];
+    toast(label + "已更新" + (count ? " · " + count + " 个文件" : ""));
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    state.producing = false;
+    if (draft && $("#chatInput")) $("#chatInput").value = draft;
+    render();
+  }
+}
+
+function opsFile(ext) {
+  return (state.deliverables || []).find((f) => (f.dir || "").indexOf("03_运营") !== -1 && f.ext === ext);
+}
+async function previewOps() {
+  const file = opsFile(".txt") || opsFile(".md");
+  if (!file) { toast("还没有群公告，先点重新生成"); return; }
+  try {
+    const text = await (await fetch(file.url)).text();
+    window.__previewText = text;
+    showModal("群公告预览", "<pre>" + esc(text) + "</pre>",
+      '<button class="btn small" onclick="copyPreview()">复制</button><button class="btn primary small" onclick="closeModal()">关闭</button>');
+  } catch (err) { toast("读取失败：" + err.message); }
+}
+function copyPreview() { if (window.__previewText) copyText(window.__previewText, "群公告已复制"); }
+async function copyOps() {
+  const file = opsFile(".txt") || opsFile(".md");
+  if (!file) { toast("还没有群公告，先点重新生成"); return; }
+  try { copyText(await (await fetch(file.url)).text(), "群公告已复制"); }
+  catch (err) { toast("读取失败：" + err.message); }
+}
+
+let officeAiTimer = null;
+let officeAiSeen = null;
+let officeToastTimer = null;
+function officeSeenMap(){
+  if (officeAiSeen) return officeAiSeen;
+  try { officeAiSeen = JSON.parse(localStorage.getItem("kaishuo.aiStatusSeen") || "{}") || {}; }
+  catch (e) { officeAiSeen = {}; }
+  return officeAiSeen;
+}
+function officeSeenSave(){
+  try { localStorage.setItem("kaishuo.aiStatusSeen", JSON.stringify(officeAiSeen)); } catch (e) {}
+}
+function aiToldOnce(ids){
+  const key = "kaishuo.aiTold";
+  let told = {};
+  try { told = JSON.parse(localStorage.getItem(key) || "{}") || {}; }
+  catch (e) { told = {}; }
+  const stamp = (ids || []).slice().sort().join(",");
+  const now = Date.now();
+  Object.keys(told).forEach((k) => { if (!(now - told[k] < 1800000)) delete told[k]; });
+  const hit = Boolean(told[stamp]) && (now - told[stamp] < 180000);
+  told[stamp] = now;
+  try { localStorage.setItem(key, JSON.stringify(told)); } catch (e) {}
+  return hit;
+}
+function officeToast(title, desc){
+  const el = $("#officeToast");
+  if (!el) return;
+  $("#officeToastTitle").textContent = title || "老大，工作完成了。";
+  $("#officeToastDesc").textContent = desc || "";
+  el.classList.add("show");
+  clearTimeout(officeToastTimer);
+  officeToastTimer = setTimeout(() => el.classList.remove("show"), 7000);
+}
+function openPosterFromToast(){
+  const el = $("#officeToast");
+  if (el) el.classList.remove("show");
+  if (state.dialog !== "poster") openEmployeeDialog("poster");
+}
+async function watchAiJobs(){
+  let jobs = [];
+  try {
+    const res = await fetch("/api/ai-image/jobs?limit=20");
+    if (!res.ok) return;
+    jobs = ((await res.json()).jobs) || [];
+  } catch (e) { return; }
+  const seen = officeSeenMap();
+  const fresh = [];
+  jobs.forEach((job) => {
+    const prev = seen[job.id];
+    if (prev && prev !== job.status && (job.status === "done" || job.status === "error")) fresh.push(job);
+  });
+  jobs.forEach((job) => { seen[job.id] = job.status; });
+  const live = new Set(jobs.map((job) => job.id));
+  Object.keys(seen).forEach((id) => { if (!live.has(id)) delete seen[id]; });
+  officeSeenSave();
+  if (fresh.length && !aiToldOnce(fresh.map((job) => job.id))) {
+    const okJobs = fresh.filter((job) => job.status === "done");
+    const failCount = fresh.length - okJobs.length;
+    if (okJobs.length) {
+      officeToast("老大，工作完成了。", failCount
+        ? failCount + " 个没画成，点这里看结果"
+        : "阿图交了 " + okJobs.length + " 张图，点这里看");
+    } else {
+      officeToast("老大，这次没画成。", "点这里看原因，可以重试");
+    }
+  }
+  const active = jobs.some((job) => job.status === "queued" || job.status === "running");
+  if (officeAiTimer) { clearTimeout(officeAiTimer); officeAiTimer = null; }
+  officeAiTimer = setTimeout(watchAiJobs, active ? 3000 : 20000);
+}
+
+async function init() {
+  $$("#nav .navbtn").forEach((btn) => btn.addEventListener("click", () => { if (btn.dataset.view) go(btn.dataset.view); }));
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (!$("#deck").hidden) { closeDeck(); return; }
+    if (state.dialog) { closeEmployeeDialog(); return; }
+    if ($("#modal").classList.contains("open")) closeModal();
+  });
+  window.addEventListener("message", (event) => {
+    if (event.origin !== location.origin) return;
+    const data = event.data || {};
+    if (data.type === "kaishuo:switch" && !$("#deck").hidden) switchDeck(data.deck);
+  });
+  window.addEventListener("focus", () => { refreshHealth(); });
+  if (LOCAL_BASE) {
+    const health = await checkHealth();
+    if (health) { window.location.replace(LOCAL_BASE + "/"); return; }
+    state.error = "本地服务未启动";
+    state.loaded = true;
+    healthCheckedAt = Date.now();
+    render();
+    return;
+  }
+  try {
+    const [health, studio, deliv, know, service, projects] = await Promise.all([
+      api("/api/health"), api("/api/data/studio"), api("/api/deliverables"), api("/api/knowledge"),
+      api("/api/service/status").catch(() => ({ autostart: false })),
+      api("/api/data/projects").catch(() => ({ data: { projects: [] } }))
+    ]);
+    state.health = health;
+    state.autostart = Boolean(service.autostart);
+    state.studio = studio.data;
+    state.event = currentEvent();
+    state.deliverables = deliv.files || [];
+    state.knowledge = know.files || [];
+    state.projects = projects && projects.data && typeof projects.data === "object"
+      ? projects.data
+      : { projects: [] };
+    healthCheckedAt = Date.now();
+    state.loaded = true;
+    loadUI();
+    render();
+    if (new URLSearchParams(location.search).get("wb") === "1") openWorkbench();
+    syncAiJobs();
+    watchAiJobs();
+  } catch (err) {
+    state.error = err.message;
+    state.health = null;
+    state.loaded = true;
+    render();
+  }
+}
+init();
+</script>
+<script>
+(async function(){
+  try{
+    const base = (typeof LOCAL_BASE === 'string' && LOCAL_BASE) ? LOCAL_BASE : '';
+    const res = await fetch(base + '/api/auth/me', { cache: 'no-store' });
+    const d = await res.json();
+    if(d && d.account && d.account.role === 'owner'){
+      const el = document.getElementById('goConsole');
+      if(el) el.hidden = false;
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

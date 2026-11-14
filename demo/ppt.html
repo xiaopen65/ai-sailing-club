@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="deep">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 漫剧生产 · 一问一答 PPT</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg1);color:var(--ink);overflow:hidden;-webkit-font-smoothing:antialiased}
+:root,[data-theme="deep"]{--bg1:#0b0f1d;--bg2:#171d35;--ink:#eef1f9;--muted:#9aa3bd;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.09);--bd:rgba(255,255,255,.1);--a1:#ff9a3d;--a2:#ff5e3a;--glow:rgba(255,122,60,.32);--shadow:rgba(0,0,0,.45)}
+[data-theme="cinema"]{--bg1:#170a10;--bg2:#28101a;--ink:#fdf0ec;--muted:#cfa9a4;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.09);--bd:rgba(255,255,255,.1);--a1:#ff5c5c;--a2:#ffb347;--glow:rgba(255,92,92,.35);--shadow:rgba(0,0,0,.45)}
+[data-theme="tech"]{--bg1:#04101a;--bg2:#0a2436;--ink:#e8f7fd;--muted:#8fb7c9;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.09);--bd:rgba(255,255,255,.1);--a1:#22d3ee;--a2:#3b82f6;--glow:rgba(34,211,238,.3);--shadow:rgba(0,0,0,.45)}
+[data-theme="paper"]{--bg1:#f6f1e6;--bg2:#efe5d2;--ink:#26221c;--muted:#7d7463;--card:#fffdf8;--card2:#f4ecdb;--bd:#e3d8c2;--a1:#e0521a;--a2:#c2410c;--glow:rgba(224,82,26,.22);--shadow:rgba(90,60,20,.18)}
+#app{position:fixed;inset:0;overflow:hidden;background:radial-gradient(1300px 900px at 85% -10%,var(--bg2),var(--bg1) 60%)}
+#app::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(120% 120% at 50% 40%,transparent 58%,rgba(0,0,0,.22))}
+#stage{position:absolute;inset:0;z-index:2}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:14px;padding:12px 20px;background:linear-gradient(180deg,rgba(0,0,0,.28),transparent);pointer-events:none}
+#topbar>*{pointer-events:auto}
+.brand{font-size:14px;font-weight:800;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
+.dots{display:flex;gap:7px;align-items:center;flex:1;justify-content:center}
+.dot{width:34px;height:7px;border:none;border-radius:99px;background:var(--card2);cursor:pointer;transition:.25s;padding:0}
+.dot.now{background:linear-gradient(90deg,var(--a1),var(--a2));box-shadow:0 0 12px var(--glow)}
+.dot.done{background:var(--a1);opacity:.85}
+.tools{display:flex;gap:8px}
+.tbtn{border:1px solid var(--bd);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+.tbtn:hover{background:var(--card2);border-color:var(--a1)}
+.tbtn.accent{background:linear-gradient(135deg,var(--a1),var(--a2));border:none;color:#fff;font-weight:700}
+#bottombar{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:16px;padding:14px 22px;background:linear-gradient(0deg,rgba(0,0,0,.3),transparent)}
+.navbtn{border:1px solid var(--bd);background:var(--card);color:var(--ink);padding:10px 20px;border-radius:99px;font-size:14px;cursor:pointer;transition:.2s;font-family:inherit;min-width:118px}
+.navbtn:hover:not(:disabled){background:var(--card2);border-color:var(--a1)}
+.navbtn:disabled{opacity:.35;cursor:default}
+.navbtn.primary{background:linear-gradient(135deg,var(--a1),var(--a2));border:none;color:#fff;font-weight:700}
+.pwrap{flex:1;display:flex;align-items:center;gap:12px}
+.pbar{flex:1;height:6px;border-radius:99px;background:var(--card2);overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .4s ease}
+.ptext{font-size:12px;color:var(--muted);min-width:70px;text-align:right;white-space:nowrap}
+.slide-view{position:absolute;inset:0;display:flex;flex-direction:column;padding:76px 6vw 96px;overflow-y:auto;opacity:0;transform:translateY(14px);transition:opacity .35s ease,transform .35s ease}
+.slide-view.in{opacity:1;transform:none}
+.cslide{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cover-badge{display:inline-flex;align-items:center;padding:8px 18px;border-radius:99px;border:1px solid var(--bd);background:var(--card);font-size:13px;letter-spacing:2px;color:var(--muted);margin-bottom:24px}
+.ctitle{font-size:clamp(38px,7.2vh,76px);font-weight:900;line-height:1.18;letter-spacing:1px;background:linear-gradient(135deg,var(--ink) 15%,var(--a1) 62%,var(--a2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.csub{margin-top:14px;font-size:clamp(15px,2.3vh,21px);color:var(--muted)}
+.cintro{margin:32px auto 0;max-width:680px;font-size:clamp(14.5px,2.1vh,18.5px);line-height:1.9;color:var(--ink);background:var(--card);border:1px solid var(--bd);padding:22px 28px;border-radius:18px;white-space:pre-wrap}
+.cstats{display:flex;gap:36px;margin-top:32px;justify-content:center}
+.stat b{display:block;font-size:30px;font-weight:900;color:var(--a1)}
+.stat span{font-size:13px;color:var(--muted)}
+.startbtn{margin-top:36px;padding:16px 52px;border:none;border-radius:99px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-size:19px;font-weight:800;letter-spacing:2px;cursor:pointer;box-shadow:0 14px 40px var(--glow);transition:.25s;font-family:inherit}
+.startbtn:hover{transform:translateY(-2px) scale(1.03)}
+.startbtn.ghost{background:var(--card);border:1px solid var(--bd);color:var(--ink);box-shadow:none;margin-left:14px}
+.chint{margin-top:18px;font-size:12.5px;color:var(--muted)}
+.qslide{flex:1;display:flex;min-height:0}
+.qa-wrap{width:100%;max-width:980px;margin:auto;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
+.step-chip{display:inline-flex;align-items:center;gap:10px;padding:9px 18px;border-radius:99px;border:1px solid color-mix(in srgb,var(--sc,#ff9a3d) 55%,var(--bd));background:var(--card);font-size:14.5px;font-weight:700;width:fit-content;color:var(--ink)}
+.step-chip .si{font-size:18px}
+.chip-sub{color:var(--muted);font-weight:600;font-size:12.5px}
+.step-desc{margin-top:10px;color:var(--muted);font-size:13.5px;padding-left:4px}
+.qcard{margin-top:18px;padding:34px 40px;border-radius:26px;background:var(--card);border:1px solid var(--bd);box-shadow:0 24px 70px var(--shadow);cursor:pointer;position:relative;transition:.25s}
+.qcard:hover{border-color:var(--a1);transform:translateY(-2px)}
+.qtag{display:inline-block;padding:5px 14px;border-radius:99px;background:color-mix(in srgb,var(--a1) 16%,transparent);color:var(--a1);font-size:12.5px;font-weight:800;letter-spacing:1px;margin-bottom:14px}
+.qtext{font-size:clamp(20px,3.2vh,33px);line-height:1.55;font-weight:800;white-space:pre-wrap;max-height:38vh;overflow-y:auto;padding-right:6px}
+.qhint{margin-top:18px;font-size:13px;color:var(--muted);animation:pulse 1.8s ease infinite}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+.acard{display:none;margin-top:16px;padding:26px 32px;border-radius:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--a1) 13%,var(--card)),color-mix(in srgb,var(--a2) 11%,var(--card)));border:1px solid color-mix(in srgb,var(--a1) 45%,transparent);box-shadow:0 18px 50px var(--shadow)}
+.acard.show{display:block;animation:rise .5s cubic-bezier(.2,.9,.3,1.2)}
+.acard.plan{display:block;border-style:dashed}
+@keyframes rise{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+.atag{display:inline-block;padding:5px 14px;border-radius:99px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-size:12.5px;font-weight:800;letter-spacing:1px;margin-bottom:12px}
+.atext{font-size:clamp(15.5px,2.2vh,20px);line-height:1.8;white-space:pre-wrap;max-height:32vh;overflow-y:auto;padding-right:6px}
+.anote{margin-top:14px;padding-top:12px;border-top:1px dashed var(--bd);font-size:13px;color:var(--a1);line-height:1.7;white-space:pre-wrap}
+.step-result{margin-top:18px;padding:14px 20px;border-radius:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--a2) 14%,transparent),transparent);border:1px dashed var(--bd);font-size:14px;color:var(--ink)}
+.deco-num{position:fixed;right:-20px;bottom:-60px;font-size:46vh;font-weight:900;line-height:1;color:transparent;-webkit-text-stroke:1px var(--card2);user-select:none;z-index:0;pointer-events:none}
+.bonus-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:1080px;margin:0 auto}
+.bonus-title{font-size:clamp(26px,4.5vh,44px);font-weight:900;margin-bottom:28px}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.bcard{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:26px 28px;box-shadow:0 18px 50px var(--shadow)}
+.bcard h4{font-size:18px;margin-bottom:10px;color:var(--a1)}
+.bcard p{font-size:14.5px;line-height:1.8;color:var(--ink);white-space:pre-wrap}
+.chips{display:flex;flex-wrap:wrap;gap:14px}
+.chip{padding:14px 22px;border-radius:16px;background:var(--card);border:1px solid var(--bd);font-size:15px;font-weight:700}
+.chip:hover{border-color:var(--a1)}
+.end-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.recap{display:flex;flex-direction:column;gap:10px;max-width:680px;margin:26px auto 0;text-align:left;width:100%}
+.recap-row{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px 18px;font-size:14px}
+.recap-row b{white-space:nowrap}
+.recap-row span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#overlay{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);overflow-y:auto;padding:6vh 5vw}
+#overlay.show{display:block}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;max-width:1100px;margin:0 auto;padding-top:20px}
+.ov-card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:20px;cursor:pointer;transition:.2s}
+.ov-card:hover{border-color:var(--a1);transform:translateY(-2px)}
+.ov-ico{font-size:30px;margin-bottom:10px}
+.ov-name{font-weight:800;font-size:15px;margin-bottom:6px;line-height:1.5}
+.ov-meta{font-size:12.5px;color:var(--muted)}
+.ov-status{margin-top:10px;font-size:12px;font-weight:700;color:var(--muted)}
+.ov-card.done .ov-status{color:#34d399}
+.ov-card.now .ov-status{color:var(--a1)}
+.ov-head{grid-column:1/-1;cursor:default;text-align:center;background:transparent;border:none}
+.ov-head h2{font-size:28px;margin-bottom:6px}
+.ov-head p{color:var(--muted);font-size:13px;margin-bottom:14px}
+#themePanel{position:fixed;top:64px;right:20px;z-index:40;display:none;background:var(--card2);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 18px 50px var(--shadow);backdrop-filter:blur(8px)}
+#themePanel.show{display:block}
+.tp-title{font-size:12.5px;font-weight:800;margin-bottom:10px;color:var(--muted)}
+.tp-swatch{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;margin:4px 0;border:none;border-radius:10px;background:transparent;color:var(--ink);font-size:13px;cursor:pointer;font-family:inherit}
+.tp-swatch:hover{background:var(--card)}
+.tp-swatch i{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));border:2px solid rgba(255,255,255,.25)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);z-index:80;background:var(--card2);border:1px solid var(--a1);color:var(--ink);padding:12px 24px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;max-width:80vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#app.editing #topbar,#app.editing #bottombar{display:none}
+.editor{max-width:920px;margin:0 auto;padding:26px 20px 140px;overflow-y:auto;height:100%}
+.e-toolbar{position:sticky;top:0;z-index:10;background:var(--bg1);padding:14px 0 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-bottom:1px solid var(--bd)}
+.e-toolbar .sp{flex:1}
+.e-head{margin:18px 0 4px}
+.e-head h2{font-size:24px;margin-bottom:8px}
+.e-head p{font-size:13px;color:var(--muted);line-height:1.7}
+.e-sec{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:22px;margin:18px 0}
+.e-sec h3{font-size:17px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.e-sec label{display:block;font-size:13px;color:var(--muted);margin:10px 0}
+.e-sec input[type=text],.e-sec textarea,.e-sec select{width:100%;margin-top:6px;padding:10px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg1);color:var(--ink);font-family:inherit;font-size:14px}
+.e-sec textarea{resize:vertical;line-height:1.6}
+.e-grid{display:grid;grid-template-columns:90px 1fr;gap:6px 14px;align-items:start}
+.e-grid label:nth-child(3),.e-grid label:nth-child(4){grid-column:1/-1}
+.e-card{background:var(--bg1);border:1px dashed var(--bd);border-radius:14px;padding:14px 16px;margin:12px 0}
+.e-card-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-weight:700;font-size:13.5px}
+.e-ops{display:flex;gap:6px}
+.mini{padding:5px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--ink);font-size:12.5px;cursor:pointer;font-family:inherit}
+.mini:hover{border-color:var(--a1)}
+.mini.danger:hover{border-color:#e5484d;color:#e5484d}
+.prim{padding:10px 20px;border:none;border-radius:99px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:14px}
+.e-tools{display:flex;flex-wrap:wrap;gap:10px}
+.e-tip{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.7}
+@media (max-width:760px){
+  .qa-wrap{padding:0 6px}
+  .qcard{padding:22px 20px}
+  .ctitle{font-size:34px}
+  .tools .tbtn{font-size:12px;padding:6px 10px}
+  .navbtn{min-width:96px;padding:9px 12px;font-size:13px}
+  .dots{display:none}
+  .slide-view{padding:66px 4vw 90px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage"></div>
+  <div id="topbar"></div>
+  <div id="bottombar"></div>
+  <div id="overlay"></div>
+  <div id="themePanel">
+    <div class="tp-title">主题配色</div>
+    <button class="tp-swatch" data-action="theme-set" data-theme="deep"><i style="--c1:#0b0f1d;--c2:#ff9a3d"></i>深空（默认）</button>
+    <button class="tp-swatch" data-action="theme-set" data-theme="cinema"><i style="--c1:#170a10;--c2:#ff5c5c"></i>影院红</button>
+    <button class="tp-swatch" data-action="theme-set" data-theme="tech"><i style="--c1:#04101a;--c2:#22d3ee"></i>科技青</button>
+    <button class="tp-swatch" data-action="theme-set" data-theme="paper"><i style="--c1:#f6f1e6;--c2:#e0521a"></i>纸墨（浅色）</button>
+  </div>
+  <div id="toast"></div>
+  <input type="file" id="fileImport" accept=".json,application/json" style="display:none">
+</div>
+<script id="app-data" type="application/json">{
+  "title": "我从0搓出了1集AI漫剧预告片",
+  "subtitle": "一个纯小白的 AI 漫剧生产全流程 · 一问一答复盘",
+  "intro": "我从0搓出了1集AI漫剧预告片，我看网上一堆人，就是也没什么经验，就拍了一堆东西，我也想试试。\n\n我想着：我想自己试试做一个漫剧出来。",
+  "steps": [
+    {
+      "name": "第一步：先写剧本",
+      "icon": "✍️",
+      "desc": "选题 → 先写 20 章小说 → 再压成 1 分钟分镜脚本",
+      "result": "20 集剧本 + 分镜脚本",
+      "cards": [
+        {
+          "q": "可是，我自己写剧本不会写啊怎么办？要做什么题材的漫剧呢？",
+          "a": "那我就去网上找吧，去借鉴。什么火就先做什么。"
+        },
+        {
+          "q": "可是，我自己这样一个个找，什么时候是个头？谁能帮我做这件事情呢？",
+          "a": "那我就让 AI 帮我去网上找吧？顺便他还可以直接帮我写出一些 demo。"
+        },
+        {
+          "q": "可是，他帮我找到了之后，而且很卖力写了剧本，但我看不懂啊，我又不是专业的，无法判断好不好看，那么之后也不方便改。",
+          "a": "于是，我就让他先写 20 章小说，再由小说推剧本。\n\n小说是纯文本，剧情怎么样、有没有注水，在小说里一眼就能看出来。"
+        },
+        {
+          "q": "可是，我自己看的话，也看不出什么名头出来呀。我没有经验呀。",
+          "a": "于是，我就去网上搜索攻略（抖音、B 站），然后转成文字，和他说，让他按照这个经验改。",
+          "note": "PS：我自己搓了一个 skill，可以直接把抖音等各种视频转成文字。"
+        },
+        {
+          "q": "可是，我觉得还是不太够，就是有一些细节，包括有一些东西针对性的修改，我怎么去判断呢？",
+          "a": "于是，他写好之后，我就去问另一个 AI，让它给一些建议，然后把建议再反馈给他，让他继续写。\n\n过程：多轮深度反馈打磨——优点继续发扬、缺点重点改（心理描写、对话性格、角色旧伤、伏笔回收）。"
+        },
+        {
+          "q": "好，我觉得磨差不多了，反正我自己感觉差不多了。我也不知道效果怎么样，先继续吧，我说让他帮我弄成一个剧本吧。",
+          "a": "让 AI 以「商业短剧编剧」身份，把小说压成 1 分钟单集剧本，再细化成「一镜一动作」的分镜脚本。\n\n过程中，我又去网上找了一些攻略转成文字发给它。比如：每个镜头只安排一个核心动作，写清镜号、时长、景别、视角、动作、表情、台词、音效、光影、场景，方便后续直接生图生视频。"
+        }
+      ]
+    },
+    {
+      "name": "第二步：搞图片",
+      "icon": "🎨",
+      "desc": "先出图，把角色和场景的一致性锁死",
+      "result": "10 分钟批量生成 40+ 张角色 / 分镜 / 道具图",
+      "cards": [
+        {
+          "q": "好，那我先开始做第一集吧。效果怎么样我不知道，如果第一集做的不怎么样，我就把它叫做预告片（嘿嘿）。\n\n接下来该干什么呢？是直接生成视频吗？\n不能直接生成视频。为啥呢？因为你现在就要生成好多好多的视频，但是每一次生成视频，你如何保持角色的一致性呢？",
+          "a": "所以你要去生成你在生成一个视频之前需要用到的图片素材。"
+        },
+        {
+          "q": "可是我不知道我需要用到什么样的图片素材呀？",
+          "a": "于是我让 AI 给到我需要的图片相关素材，以及生成图片相关的提示词。"
+        },
+        {
+          "q": "可是他给我好多好多的图片素材提示词，大概一集就有 40 多张，什么四视图、分镜图、道具图，各种各样的。我这样一个个去生成，感觉好慢啊。",
+          "a": "于是我弄了一个生图 API，把所有的提示词都让它准备好，让它一起全部批量生成。"
+        },
+        {
+          "q": "结果生成的有一些东西不满意怎么办？",
+          "a": "我再把修改意见发给他，让他批量地去修改。最后我用 10 分钟就生成了 40 多张图片。"
+        }
+      ]
+    },
+    {
+      "name": "第三步：搞视频",
+      "icon": "🎬",
+      "desc": "图生视频为主，API 批量出片",
+      "result": "几十分钟批量生成全部镜头视频，Ffmpeg 自动拼接",
+      "cards": [
+        {
+          "q": "好，现在可以搞视频了吧？那么，这个视频要怎么生成呢？\n\n我的理解就是一集视频有很多很多个镜头。那么这个镜头里面有什么样的场景、什么样的人物、说什么样的台词、用什么样的角度去拍，我都要把它讲清楚。可是我不会讲怎么办？",
+          "a": "于是我让 AI 帮我把我需要的镜头脚本全部整理出来，每个镜头脚本都附上一个视频生成的提示词，说明它需要参考什么样的图片，以及怎么样去生成。"
+        },
+        {
+          "q": "那我如果担心他给到的提示词不够专业怎么办？",
+          "a": "我又去搜了一些攻略，把攻略转成文字发给他：“你要这么去写这个剧本上的一些镜头以及提示词。”\n\n比如：用「图生视频」为主（参考图提前锁死角色和场景，可控性高）；对比单图 / 多图参考两个模型选型，统一 720P / 9:16、无水印、去音轨。"
+        },
+        {
+          "q": "然后我就去即梦，或者我找一个视频生成网站去生成。但我觉得太慢了，我能不能像图片一样批量化生成呢？",
+          "a": "于是我调用了一个声视频的 API，让它根据我的提示词，批量生成所有的镜头视频。最后我几十分钟就获得了一堆视频。"
+        },
+        {
+          "q": "然后我要自己去剪映，接下去要把这些视频都合在一起。其实我不太会剪映，那怎么办呢？",
+          "a": "所以我让他装了一个命令行剪辑工具 Ffmpeg，让他自己去剪，就是把这些视频合在一起嘛。"
+        }
+      ]
+    },
+    {
+      "name": "第四步：搞声音",
+      "icon": "🎙️",
+      "desc": "配音 · 音效 · BGM，最后统一合成",
+      "result": "字幕 + 配音 + 音效 + BGM 合成完整成片",
+      "cards": [
+        {
+          "q": "好，接下去这个视频也有了，那缺的是什么？缺的就是一些声音了，像 BGM、人物的台词、一些音效。\n\n这个视频生成的话，其实也能生成，但是可能会不连贯、出错会比较多。\n\n可是 BGM 我知道，直接找一个生成音乐的模型 API 就可以了，音效人物配音我其实不懂啊，我不知道怎么办。",
+          "a": "于是我就让 AI 帮我去搜我可以用到的工具，最好是有 API 可以接入的，这样就可以批量生成。\n\n最后他就帮我找了：配音用海螺，音效用 ElevenLabs，BGM 我直接用即梦做的。"
+        },
+        {
+          "q": "那最后怎么做呢？",
+          "a": "最后我让他用 Ffmpeg，直接把字幕弄起来，把音效、配音还有 BGM 全部剪进去，形成一个完整稿，这样一个视频就完成了。"
+        }
+      ]
+    },
+    {
+      "name": "第五步：数据沉淀 + 系统性复盘",
+      "icon": "🧠",
+      "desc": "把流程沉淀成交接文档，顺便找到进阶方向",
+      "result": "沉淀交接文档 + 三个进阶方向（剧本 / 镜头 / 配音）",
+      "cards": [
+        {
+          "q": "我让 AI 帮我写剧本、生成图片、生成视频、配相关的声音，然后让它帮我加入字幕，最后剪辑。\n\n那我觉得这个过程还挺有意思的，我希望下一次我用一个新的 AI 智能体，也能快速地去理解这个工作的流程。",
+          "a": "于是我让 AI 把我们的「用户原话 + 功能目的 + API 调用规则」沉淀成交接文档，下一个窗口读到这个交接文档之后，就能直接进行。\n\n而且这里面全程记录了我整体执行的一个过程，非常有益于帮助我进行系统性的复盘。"
+        },
+        {
+          "q": "时间有限，其实我觉得还有很多的东西还没有继续打磨，但是这个沉淀下来的文档，就可以让我快速地知道我接下去要去进阶的方向。",
+          "a": "第一，首先是关于这个剧本。它的故事性、节奏感、剧情创新、细节描述，还有很多值得打磨的地方。"
+        },
+        {
+          "q": "那我知道了，我有这样的一个可以修炼的问题。我就可以针对性地去挖掘更多的漫剧和小说，去针对性收集更多的素材，去提取里面的共性，以及去找这方面的创作攻略。",
+          "a": "第二，其实有一些镜头是可以一起生成的，就是你确定几秒到几秒，这样它的稳定性可能会高一些。\n\n以及各种各样的镜头语言、衔接内容，提示词也是可以进一步提升的。"
+        },
+        {
+          "q": "所以这里也是一个可以长期练习的课题。我可以去看到更多漫剧拉片的解析，去收集更多这方面的素材和经验（各种镜头语言、各种剪辑手法）。\n\n另一方面，我可以研究一套抽卡系统：如果有一个镜头让我不满意，我可以启动这个抽卡系统，同时调用不同的模型去尝试生成这个镜头，以及获取与该镜头提示词相关的建议。",
+          "a": "第三，关于配音，这次台词一言难尽哈哈。",
+          "note": "网上全是宝藏：例如 B 站博主「王十二-筑基期」；抖音拉片练习：https://v.douyin.com/p8N0ePoqCt0/"
+        },
+        {
+          "q": "我接下来一方面是找到更好的配音提示词，我这方面还可以系统性地去找；第二方面，如果自己可以配，也可以让配音演员或者朋友一起去体验。",
+          "a": ""
+        }
+      ]
+    }
+  ],
+  "bonus": [
+    {
+      "title": "漫剧行业视野拓展",
+      "style": "two",
+      "items": [
+        "模式 A · 编导流\n前置：编导直接写好分镜提示词，用自己搭建好的 agent 直接丢进去跑视频。\n你的角色：抽卡师（抽卡 + 剪辑牛马）",
+        "模式 B · 教学流\n教你写剧本、写分镜、写提示词，带你拉片（学东西）。"
+      ]
+    },
+    {
+      "title": "调动资源思维 · AI 时代万物皆可调动",
+      "style": "chips",
+      "items": [
+        "学会让 AI 去找各种 skill 和攻略",
+        "提问 → 搜索 → 咨询 → 编辑",
+        "办公 → 信息处理 → 编程",
+        "调用别人的方法进行各种工作"
+      ]
+    }
+  ],
+  "endTitle": "从 0 到 1，你也可以",
+  "endText": "我把整个流程做成了「一问一答」的方式——每次遇到卡点，就让 AI 帮我找解法，再继续往下走。\n\n如果你也想试试，就照着一问一答的节奏，让 AI 陪你一步步把它做出来。"
+}
+</script><script id="app-js">
+(function(){
+'use strict';
+
+var LS_DATA='manju_ppt_data_v1';
+var LS_THEME='manju_ppt_theme_v1';
+
+var app=document.getElementById('app');
+var stage=document.getElementById('stage');
+var topbar=document.getElementById('topbar');
+var bottombar=document.getElementById('bottombar');
+var overlay=document.getElementById('overlay');
+var themePanel=document.getElementById('themePanel');
+var toastEl=document.getElementById('toast');
+
+var STEP_COLORS=['#ff9a3d','#ff5e8a','#38d9e9','#b197fc','#69db7c'];
+var FALLBACK={title:'我的AI漫剧生产',subtitle:'一问一答复盘',intro:'',steps:[],bonus:[],endTitle:'谢谢观看',endText:''};
+
+var DEFAULT_DATA=null;
+try{ DEFAULT_DATA=JSON.parse(document.getElementById('app-data').textContent); }catch(e){}
+
+var data=loadData();
+var theme=localStorage.getItem(LS_THEME)||'deep';
+var mode='present';
+var si=0;
+var revealed={};
+var FLOW=[];
+var stepRange=[];
+
+applyTheme(theme);
+rebuildFlow();
+
+function loadData(){
+  try{
+    var raw=localStorage.getItem(LS_DATA);
+    if(raw){ var d=JSON.parse(raw); if(d&&Array.isArray(d.steps)) return d; }
+  }catch(e){}
+  return DEFAULT_DATA?JSON.parse(JSON.stringify(DEFAULT_DATA)):JSON.parse(JSON.stringify(FALLBACK));
+}
+function saveData(){
+  try{ localStorage.setItem(LS_DATA,JSON.stringify(data)); return true; }catch(e){ return false; }
+}
+function applyTheme(t){
+  theme=t;
+  document.documentElement.setAttribute('data-theme',t);
+  try{ localStorage.setItem(LS_THEME,t); }catch(e){}
+}
+function rebuildFlow(){
+  FLOW=[{type:'cover'}];
+  stepRange=[];
+  data.steps.forEach(function(st,i){
+    var start=FLOW.length;
+    (st.cards||[]).forEach(function(c,ci){ FLOW.push({type:'qa',step:i,card:ci}); });
+    stepRange.push([start,FLOW.length-1]);
+  });
+  (data.bonus||[]).forEach(function(b,i){ FLOW.push({type:'bonus',idx:i}); });
+  FLOW.push({type:'end'});
+  revealed={};
+  if(si>FLOW.length-1) si=FLOW.length-1;
+}
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function curStep(){ var c=FLOW[si]; return c.type==='qa'?c.step:-1; }
+function totalQ(){ return data.steps.reduce(function(n,s){ return n+(s.cards?s.cards.length:0); },0); }
+function totalA(){ return data.steps.reduce(function(n,s){ return n+(s.cards?s.cards.filter(function(c){return c.a&&c.a.trim();}).length:0); },0); }
+
+function render(){
+  if(mode==='edit'){ renderEdit(); return; }
+  app.classList.remove('editing');
+  topbar.style.display='flex';
+  bottombar.style.display='flex';
+  topbar.innerHTML=topbarHTML();
+  bottombar.innerHTML=bottombarHTML();
+  stage.innerHTML='';
+  var cur=FLOW[si];
+  var html='';
+  if(cur.type==='cover') html=coverHTML();
+  else if(cur.type==='qa') html=qaHTML(cur);
+  else if(cur.type==='bonus') html=bonusHTML(cur);
+  else html=endHTML();
+  var v=document.createElement('div');
+  v.className='slide-view';
+  v.innerHTML=html;
+  stage.appendChild(v);
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ v.classList.add('in'); }); });
+}
+
+function topbarHTML(){
+  var dots=data.steps.map(function(st,i){
+    var r=stepRange[i];
+    var cls=si>r[1]?'done':(i===curStep()?'now':'todo');
+    return '<button class="dot '+cls+'" data-action="goto" data-slide="'+r[0]+'" title="'+esc(st.name)+'"></button>';
+  }).join('');
+  return '<div class="brand">🎬 '+esc(data.title)+'</div>'
+    +'<div class="dots">'+dots+'</div>'
+    +'<div class="tools">'
+    +'<button class="tbtn" data-action="overview">🗺 总览</button>'
+    +'<button class="tbtn" data-action="theme">🎨 主题</button>'
+    +'<button class="tbtn accent" data-action="edit">✏️ 修改</button>'
+    +'<button class="tbtn" data-action="full">⛶ 全屏</button>'
+    +'</div>';
+}
+
+function bottombarHTML(){
+  var pct=FLOW.length>1?Math.round(si/(FLOW.length-1)*100):100;
+  return '<button class="navbtn" data-action="prev"'+(si===0?' disabled':'')+'>← 上一步</button>'
+    +'<div class="pwrap"><div class="pbar"><i style="width:'+pct+'%"></i></div><div class="ptext">'+(si+1)+' / '+FLOW.length+' · '+pct+'%</div></div>'
+    +'<button class="navbtn primary" data-action="next">'+nextLabel()+'</button>';
+}
+function nextLabel(){
+  var c=FLOW[si];
+  if(c.type==='qa'){
+    var card=data.steps[c.step].cards[c.card];
+    if(!revealed[si] && card.a && card.a.trim()) return '下一步';
+  }
+  if(si>=FLOW.length-1) return '↻ 再来一遍';
+  return '下一步 →';
+}
+
+function coverHTML(){
+  return '<div class="cslide">'
+    +'<div class="cover-badge">第 1 集 · AI 漫剧预告片</div>'
+    +'<h1 class="ctitle">'+esc(data.title)+'</h1>'
+    +'<div class="csub">'+esc(data.subtitle)+'</div>'
+    +'<div class="cintro">'+esc(data.intro)+'</div>'
+    +'<button class="startbtn" data-action="start">▶ 开始演示</button>'
+    +'</div>';
+}
+
+function qaHTML(cur){
+  var st=data.steps[cur.step];
+  var cards=st.cards||[];
+  var card=cards[cur.card];
+  var plan=!(card.a&&card.a.trim());
+  var sc=STEP_COLORS[cur.step%STEP_COLORS.length];
+  var chip='<div class="step-chip" style="--sc:'+sc+'"><span class="si">'+esc(st.icon||'📌')+'</span>'+esc(st.name)+'<span class="chip-sub">第 '+(cur.step+1)+' 步 / 共 '+data.steps.length+' 步</span></div>';
+  var desc=st.desc?'<div class="step-desc">'+esc(st.desc)+'</div>':'';
+  var result=(cur.card===cards.length-1&&st.result)?'<div class="step-result">🏆 本步成果：'+esc(st.result)+'</div>':'';
+  var note=card.note?'<div class="anote">📎 '+esc(card.note)+'</div>':'';
+  var head='<div class="qslide"><div class="deco-num">'+(cur.step+1)+'</div><div class="qa-wrap">'+chip+desc;
+  if(plan){
+    return head+'<div class="acard plan show"><div class="atext">'+esc(card.q)+'</div>'+note+'</div>'+result+'</div></div>';
+  }
+  var show=revealed[si];
+  return head+'<div class="qcard" data-action="reveal">'
+    +'<div class="qtext">'+esc(card.q)+'</div>'
+    +'</div>'
+    +'<div class="acard'+(show?' show':'')+'"><div class="atext">'+esc(card.a)+'</div>'+note+'</div>'
+    +result+'</div></div>';
+}
+
+function bonusHTML(cur){
+  var b=(data.bonus||[])[cur.idx];
+  if(!b) return '';
+  if(b.style==='chips'){
+    var chips=(b.items||[]).map(function(it){ return '<div class="chip">'+esc(it)+'</div>'; }).join('');
+    return '<div class="bonus-wrap"><div class="bonus-title">🌌 '+esc(b.title)+'</div><div class="chips">'+chips+'</div></div>';
+  }
+  var cards=(b.items||[]).map(function(it){
+    var brk=it.indexOf('\n');
+    var head=brk>=0?it.slice(0,brk):it;
+    var body=brk>=0?it.slice(brk+1):'';
+    return '<div class="bcard"><h4>'+esc(head)+'</h4>'+(body?'<p>'+esc(body)+'</p>':'')+'</div>';
+  }).join('');
+  return '<div class="bonus-wrap"><div class="bonus-title">🌌 '+esc(b.title)+'</div><div class="bgrid">'+cards+'</div></div>';
+}
+
+function endHTML(){
+  var recap=data.steps.map(function(st,i){
+    return '<div class="recap-row"><b>'+esc(st.icon||'📌')+' '+esc(st.name)+'</b><span>'+esc(st.result||'')+'</span></div>';
+  }).join('');
+  return '<div class="end-wrap">'
+    +'<h1 class="ctitle">'+esc(data.endTitle)+'</h1>'
+    +'<div class="cintro">'+esc(data.endText)+'</div>'
+    +'<div class="recap">'+recap+'</div>'
+    +'<div class="cstats">'
+    +'<button class="startbtn" data-action="start">↻ 重新播放</button>'
+    +'<button class="startbtn ghost" data-action="overview">🗺 查看总览</button>'
+    +'</div>'
+    +'</div>';
+}
+
+function renderEdit(){
+  app.classList.add('editing');
+  stage.innerHTML=editHTML();
+}function editHTML(){
+  var d=data;
+  var h='<div class="editor">'
+    +'<div class="e-toolbar"><b>✏️ 修改内容</b><span class="sp"></span>'
+    +'<button class="tbtn" data-action="back-present">▶ 返回演示</button>'
+    +'<button class="prim" data-action="save">💾 保存修改</button></div>'
+    +'<div class="e-head"><h2>编辑你的问答 PPT</h2>'
+    +'<p>改完点「保存修改」或「返回演示」（会自动保存）。内容保存在当前浏览器里；换电脑 / 换浏览器前请「导出 JSON 备份」。想分享给别人，用「导出独立 HTML」。</p></div>'
+    +'<div class="e-sec"><h3>基本信息</h3>'
+    +'<label>标题<input type="text" id="e-title" value="'+esc(d.title)+'"></label>'
+    +'<label>副标题<input type="text" id="e-subtitle" value="'+esc(d.subtitle)+'"></label>'
+    +'<label>开场白<textarea id="e-intro" rows="3">'+esc(d.intro)+'</textarea></label>'
+    +'</div>';
+  h+=d.steps.map(function(st,i){
+    var sec='<div class="e-sec" data-step="'+i+'"><h3>第 '+(i+1)+' 步 · '+esc(st.name)+' <button class="mini danger" data-action="del-step">删除本步骤</button></h3>'
+      +'<div class="e-grid">'
+      +'<label>图标<input type="text" class="e-icon" value="'+esc(st.icon||'📌')+'" style="width:70px"></label>'
+      +'<label>步骤名<input type="text" class="e-name" value="'+esc(st.name)+'"></label>'
+      +'<label>步骤简介<input type="text" class="e-desc" value="'+esc(st.desc||'')+'"></label>'
+      +'<label>本步成果<input type="text" class="e-result" value="'+esc(st.result||'')+'"></label>'
+      +'</div>'
+      +'<div class="e-cards">';
+    sec+=(st.cards||[]).map(function(c,ci){
+      return '<div class="e-card" data-step="'+i+'" data-card="'+ci+'">'
+        +'<div class="e-card-bar"><span>问题 '+(ci+1)+'</span><span class="e-ops">'
+        +'<button class="mini" data-action="move-card" data-d="-1">↑</button>'
+        +'<button class="mini" data-action="move-card" data-d="1">↓</button>'
+        +'<button class="mini danger" data-action="del-card">删除</button></span></div>'
+        +'<label>问题<textarea class="e-q" rows="2">'+esc(c.q)+'</textarea></label>'
+        +'<label>解法（留空 = 显示为「计划卡片」）<textarea class="e-a" rows="3">'+esc(c.a||'')+'</textarea></label>'
+        +'<label>备注（可选）<input type="text" class="e-note" value="'+esc(c.note||'')+'"></label>'
+        +'</div>';
+    }).join('');
+    sec+='</div><button class="mini" data-action="add-card" data-i="'+i+'">+ 添加一个问题</button></div>';
+    return sec;
+  }).join('');
+  h+='<div style="text-align:center"><button class="mini" data-action="add-step">+ 添加新步骤</button></div>';
+  h+='<div class="e-sec"><h3>附加板块</h3>';
+  h+=(d.bonus||[]).map(function(b,i){
+    var c='<div class="e-card" data-bonus="'+i+'"><div class="e-card-bar"><span>板块 '+(i+1)+'</span><span class="e-ops"><button class="mini danger" data-action="del-bonus">删除</button></span></div>'
+      +'<label>标题<input type="text" class="b-title" value="'+esc(b.title)+'"></label>'
+      +'<label>样式<select class="b-style"><option value="two"'+(b.style==='two'?' selected':'')+'>双栏卡片</option><option value="chips"'+(b.style==='chips'?' selected':'')+'>要点标签</option></select></label>';
+    c+=(b.items||[]).map(function(it,ii){
+      return '<label>内容 '+(ii+1)+'<textarea class="b-item" rows="2">'+esc(it)+'</textarea></label>';
+    }).join('');
+    c+='<button class="mini" data-action="add-item" data-i="'+i+'">+ 添加一行</button></div>';
+    return c;
+  }).join('');
+  h+='<div style="text-align:center"><button class="mini" data-action="add-bonus">+ 添加板块</button></div></div>';
+  h+='<div class="e-sec"><h3>片尾</h3>'
+    +'<label>标题<input type="text" id="e-endTitle" value="'+esc(d.endTitle)+'"></label>'
+    +'<label>文案<textarea id="e-endText" rows="3">'+esc(d.endText)+'</textarea></label>'
+    +'</div>'
+    +'<div class="e-sec"><h3>数据工具</h3>'
+    +'<div class="e-tools">'
+    +'<button class="mini" data-action="reset">🔄 恢复默认</button>'
+    +'<button class="mini" data-action="export-json">⬇️ 导出 JSON 备份</button>'
+    +'<button class="mini" data-action="import-json">⬆️ 导入 JSON</button>'
+    +'<button class="mini" data-action="export-html">📄 导出独立 HTML</button>'
+    +'</div>'
+    +'<p class="e-tip">💡 修改会自动保存到当前浏览器。定期「导出 JSON 备份」最保险；换设备时用「导入 JSON」恢复。</p>'
+    +'</div>'
+    +'</div>';
+  return h;
+}
+
+function collect(){
+  function $(id){ return document.getElementById(id); }
+  var d=JSON.parse(JSON.stringify(data));
+  if($('e-title')) d.title=$('e-title').value.trim();
+  if($('e-subtitle')) d.subtitle=$('e-subtitle').value.trim();
+  if($('e-intro')) d.intro=$('e-intro').value;
+  if($('e-endTitle')) d.endTitle=$('e-endTitle').value.trim();
+  if($('e-endText')) d.endText=$('e-endText').value;
+  d.steps=Array.prototype.map.call(document.querySelectorAll('.e-sec[data-step]'),function(sec,i){
+    var base=(d.steps[i]||{cards:[]});
+    return {
+      name:sec.querySelector('.e-name').value.trim()||base.name,
+      icon:sec.querySelector('.e-icon').value.trim()||base.icon||'📌',
+      desc:sec.querySelector('.e-desc').value.trim(),
+      result:sec.querySelector('.e-result').value.trim(),
+      cards:Array.prototype.map.call(sec.querySelectorAll('.e-card[data-card]'),function(card){
+        return { q:card.querySelector('.e-q').value, a:card.querySelector('.e-a').value, note:card.querySelector('.e-note').value.trim() };
+      })
+    };
+  });
+  d.bonus=Array.prototype.map.call(document.querySelectorAll('.e-card[data-bonus]'),function(card){
+    return {
+      title:card.querySelector('.b-title').value.trim(),
+      style:card.querySelector('.b-style').value,
+      items:Array.prototype.map.call(card.querySelectorAll('.b-item'),function(x){ return x.value; })
+    };
+  });
+  return d;
+}
+
+function saveEdit(){
+  data=collect();
+  if(saveData()) toast('✅ 已保存（保存在本浏览器）');
+  else toast('⚠️ 保存失败：浏览器存储不可用，请导出 JSON 备份');
+  rebuildFlow();
+}
+
+function reveal(){
+  var cur=FLOW[si];
+  if(cur.type!=='qa') return;
+  var card=data.steps[cur.step].cards[cur.card];
+  if(!card.a||!card.a.trim()) return;
+  revealed[si]=true;
+  render();
+}
+
+function step(d){
+  var cur=FLOW[si];
+  if(d>0 && cur.type==='qa'){
+    var card=data.steps[cur.step].cards[cur.card];
+    if(!revealed[si] && card.a && card.a.trim()){ reveal(); return; }
+  }
+  var ns=si+d;
+  if(ns<0) return;
+  if(ns>=FLOW.length) ns=0;
+  si=ns;
+  revealed[si]=false;
+  render();
+}
+
+function openOverview(){
+  var h='<div class="ov-grid">'
+    +'<div class="ov-card ov-head"><h2>🗺 流程总览</h2><p>点击任意板块跳转</p><button class="mini" data-action="close-overlay">关闭 ✕</button></div>';
+  data.steps.forEach(function(st,i){
+    var r=stepRange[i];
+    var stt=si>r[1]?'done':(si>=r[0]&&si<=r[1]?'now':'todo');
+    var txt=stt==='done'?'✔ 已完成':(stt==='now'?'▶ 进行中':'待开始');
+    h+='<div class="ov-card '+stt+'" data-action="goto" data-slide="'+r[0]+'">'
+      +'<div class="ov-ico">'+esc(st.icon||'📌')+'</div>'
+      +'<div class="ov-name">'+esc(st.name)+'</div>'
+      +'<div class="ov-meta">'+(st.cards||[]).length+' 个问答</div>'
+      +'<div class="ov-status">'+txt+'</div>'
+      +'</div>';
+  });
+  data.bonus.forEach(function(b,i){
+    var idx=0;
+    for(var j=0;j<FLOW.length;j++){ if(FLOW[j].type==='bonus'&&FLOW[j].idx===i){ idx=j; break; } }
+    h+='<div class="ov-card" data-action="goto" data-slide="'+idx+'"><div class="ov-ico">🌌</div><div class="ov-name">'+esc(b.title)+'</div><div class="ov-status">附加板块</div></div>';
+  });
+  h+='<div class="ov-card" data-action="goto" data-slide="'+(FLOW.length-1)+'"><div class="ov-ico">🎬</div><div class="ov-name">片尾</div><div class="ov-status">总结</div></div>';
+  h+='</div>';
+  overlay.innerHTML=h;
+  overlay.classList.add('show');
+}
+function closeOverlay(){ overlay.classList.remove('show'); }
+
+function toggleThemePanel(force){
+  var show=(force!==undefined)?force:!themePanel.classList.contains('show');
+  if(show) themePanel.classList.add('show'); else themePanel.classList.remove('show');
+}
+function toggleFull(){
+  if(document.fullscreenElement){ document.exitFullscreen(); }
+  else{ document.documentElement.requestFullscreen().catch(function(){}); }
+}
+
+function act(t){
+  var a=t.getAttribute('data-action');
+  if(a==='start'){ si=Math.min(1,FLOW.length-1); render(); }
+  else if(a==='next'){ step(1); }
+  else if(a==='prev'){ step(-1); }
+  else if(a==='reveal'){ reveal(); }
+  else if(a==='close-overlay'){ closeOverlay(); }
+  else if(a==='goto'){ var s=parseInt(t.getAttribute('data-slide'),10); if(!isNaN(s)){ si=s; revealed[si]=false; closeOverlay(); render(); } }
+  else if(a==='overview'){ openOverview(); }
+  else if(a==='theme'){ toggleThemePanel(); }
+  else if(a==='theme-set'){ applyTheme(t.getAttribute('data-theme')); toggleThemePanel(false); if(mode==='edit') renderEdit(); else render(); }
+  else if(a==='edit'){ mode='edit'; render(); }
+  else if(a==='back-present'){ data=collect(); saveData(); rebuildFlow(); mode='present'; render(); toast('✅ 已保存并返回演示'); }
+  else if(a==='save'){ saveEdit(); toast('✅ 已保存（保存在本浏览器）'); }
+  else if(a==='full'){ toggleFull(); }
+  else if(a==='reset'){ if(!confirm('确定恢复默认内容吗？当前修改将丢失。')) return; data=JSON.parse(JSON.stringify(DEFAULT_DATA||FALLBACK)); saveData(); rebuildFlow(); mode='present'; render(); toast('🔄 已恢复默认'); }
+  else if(a==='export-json'){ exportJSON(); }
+  else if(a==='import-json'){ document.getElementById('fileImport').click(); }
+  else if(a==='export-html'){ exportHTML(); }
+  else if(mode==='edit'){
+    if(a==='add-card'){ collect(); data.steps[+t.getAttribute('data-i')].cards.push({q:'新问题？',a:'解法',note:''}); renderEdit(); }
+    else if(a==='del-card'){ collect(); var p=t.closest('.e-card'); data.steps[+p.getAttribute('data-step')].cards.splice(+p.getAttribute('data-card'),1); renderEdit(); }
+    else if(a==='move-card'){ collect(); var p2=t.closest('.e-card'); var si2=+p2.getAttribute('data-step'), ci=+p2.getAttribute('data-card'), dd=+t.getAttribute('data-d'); var arr=data.steps[si2].cards; var ni=ci+dd; if(ni>=0&&ni<arr.length){ var x=arr.splice(ci,1)[0]; arr.splice(ni,0,x); } renderEdit(); }
+    else if(a==='add-step'){ collect(); data.steps.push({name:'新步骤',icon:'📌',desc:'',result:'',cards:[{q:'新问题？',a:'解法',note:''}]}); renderEdit(); }
+    else if(a==='del-step'){ collect(); data.steps.splice(+t.closest('.e-sec').getAttribute('data-step'),1); renderEdit(); }
+    else if(a==='add-item'){ collect(); data.bonus[+t.getAttribute('data-i')].items.push('新内容'); renderEdit(); }
+    else if(a==='del-bonus'){ collect(); data.bonus.splice(+t.closest('.e-card').getAttribute('data-bonus'),1); renderEdit(); }
+    else if(a==='add-bonus'){ collect(); data.bonus.push({title:'新板块',style:'two',items:['第一行']}); renderEdit(); }
+  }
+}function exportJSON(){
+  download('AI漫剧问答PPT-数据.json', JSON.stringify(data,null,2));
+  toast('⬇️ 已导出 JSON 备份');
+}
+function exportHTML(){
+  var styleEl=document.querySelector('style');
+  var css=styleEl?styleEl.textContent:'';
+  var js=document.getElementById('app-js').textContent.trim();
+  var json=JSON.stringify(data,null,2).replace(/</g,'\\u003c');
+  var html='<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>'+esc(data.title)+' · 一问一答PPT</title>\n<style>'+css+'</style>\n</head>\n<body>\n<div id="app"></div>\n<script id="app-data" type="application/json">'+json+'<\/script>\n<script id="app-js">'+js+'<\/script>\n</body>\n</html>';
+  download('AI漫剧一问一答PPT.html', html);
+  toast('📄 已导出独立 HTML，可直接分享');
+}
+function download(name,text){
+  var blob=new Blob([text],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },5000);
+}
+
+function toast(msg){
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ toastEl.classList.remove('show'); },2600);
+}
+var toastTimer=null;
+
+overlay.addEventListener('click',function(e){ if(e.target===overlay) closeOverlay(); });
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-action]');
+  if(t) act(t);
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){ closeOverlay(); toggleThemePanel(false); return; }
+  if(mode==='edit') return;
+  if(overlay.classList.contains('show')) return;
+  if(e.key===' '||e.key==='ArrowRight'||e.key==='Enter'||e.key==='PageDown'){ e.preventDefault(); step(1); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); step(-1); }
+  else if(e.key.toLowerCase()==='o'){ openOverview(); }
+  else if(e.key.toLowerCase()==='f'){ toggleFull(); }
+  else if(e.key.toLowerCase()==='e'){ mode='edit'; render(); }
+});
+var tx=0,ty=0;
+stage.addEventListener('pointerdown',function(e){ tx=e.clientX; ty=e.clientY; });
+stage.addEventListener('pointerup',function(e){
+  var dx=e.clientX-tx, dy=e.clientY-ty;
+  if(Math.abs(dx)>70 && Math.abs(dy)<60) step(dx<0?1:-1);
+});
+document.getElementById('fileImport').addEventListener('change',function(e){
+  var f=e.target.files[0];
+  if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var d=JSON.parse(r.result);
+      if(!d||!Array.isArray(d.steps)) throw new Error('bad');
+      data=d;
+      saveData();
+      rebuildFlow();
+      mode='present';
+      render();
+      toast('✅ 导入成功');
+    }catch(err){ toast('⚠️ 文件格式不对，请选择导出的 JSON'); }
+  };
+  r.readAsText(f,'utf-8');
+  e.target.value='';
+});
+
+render();
+})();
+</script>
+</body>
+</html>

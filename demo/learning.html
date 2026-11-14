@@ -1,0 +1,1885 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>涌现式学习 · Emergent Learning</title>
+<style>
+  :root {
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --surface2: #f0f2f5;
+    --border: #e2e6ed;
+    --text: #1a1a2e;
+    --text2: #6b7280;
+    --text3: #9ca3af;
+    --accent: #6366f1;
+    --accent2: #0ea5a9;
+    --accent3: #ec4899;
+    --accent4: #f59e0b;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-hover: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ========== Header ========== */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .header .logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .header .logo .icon { margin-right: 6px; }
+  .header .logo .accent { color: var(--accent); }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); background: #f5f3ff; }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #4f46e5; border-color: #4f46e5; }
+
+  /* ========== Main Layout ========== */
+  .main-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 32px;
+  }
+
+  /* ========== Tabs ========== */
+  .tabs { display: flex; gap: 4px; margin: 0 auto 24px auto;
+    background: var(--surface);
+    padding: 4px;
+    border-radius: var(--radius);
+    width: fit-content;
+    border: 1px solid var(--border);
+  }
+  .tab-btn {
+    padding: 10px 24px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+  }
+  .tab-btn:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  /* ========== Search Bar ========== */
+  .search-section { margin-bottom: 28px; }
+  .search-bar { display: flex; gap: 10px; max-width: 560px; margin: 0 auto; }
+  .search-input {
+    flex: 1;
+    padding: 13px 18px;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    outline: none;
+  }
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+  .search-input::placeholder { color: var(--text3); }
+
+  /* ========== System Perspective Grid ========== */
+  .perspective-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .perspective-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    transition: all 0.3s;
+  }
+  .perspective-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .perspective-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .perspective-card .card-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .card-icon.industry { background: #eef2ff; color: var(--accent); }
+  .card-icon.tech { background: #e6fffa; color: var(--accent2); }
+  .card-icon.subject { background: #fdf2f8; color: var(--accent3); }
+  .card-icon.history { background: #fffbeb; color: var(--accent4); }
+  .card-icon.applications { background: #f0fdf4; color: #22c55e; }
+  .card-icon.concepts { background: #fefce8; color: #eab308; }
+  .card-icon.figures { background: #fdf2f8; color: #ec4899; }
+  .perspective-card h3 { font-size: 1rem; font-weight: 600; }
+  .perspective-card .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .perspective-card .tag { padding: 5px 14px; cursor: pointer; user-select: all;
+    border-radius: 16px;
+    font-size: 0.82rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .perspective-card .tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #eef2ff;
+  }
+  .perspective-card .sub-section { margin-top: 12px; }
+  .perspective-card .sub-section .sub-title {
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .perspective-card .timeline-item {
+    font-size: 0.85rem;
+    padding: 4px 0;
+    color: var(--text2);
+    border-left: 2px solid var(--border);
+    padding-left: 12px;
+    margin-bottom: 4px;
+  }
+  .timeline-item .year { color: var(--accent4); font-weight: 600; margin-right: 6px; }
+  .timeline-item .person { color: var(--accent2); }
+
+  /* ========== Video Section ========== */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .video-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .video-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .video-card .thumb {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    background: var(--surface2);
+  }
+  .video-card .thumb-placeholder {
+    width: 100%;
+    aspect-ratio: 16/10;
+    background: linear-gradient(135deg, #eef2ff, #e6fffa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+  }
+  .video-card .video-info { padding: 14px; }
+  .video-card .video-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .video-card .video-meta {
+    font-size: 0.78rem;
+    color: var(--text2);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ========== Recommend Section ========== */
+  .recommend-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+  .recommend-section h3 {
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+    color: var(--accent2);
+  }
+  .recommend-list { display: flex; flex-direction: column; gap: 10px; }
+  .recommend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .recommend-item:hover { border-color: var(--accent); background: #eef2ff; }
+  .recommend-item .rec-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .rec-icon.bilibili { background: #fce7f3; color: #fb7299; }
+  .rec-icon.book { background: #e6fffa; color: var(--accent2); }
+  .rec-icon.baike { background: #eef2ff; color: var(--accent); }
+  .recommend-item .rec-body { flex:1; }
+  .recommend-item .rec-title { font-size: 0.9rem; font-weight: 500; }
+  .recommend-item .rec-desc { font-size: 0.78rem; color: var(--text2); }
+  .recommend-item .rec-arrow { color: var(--text3); font-size: 1.2rem; }
+  /* ========== Toggle Switch ========== */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .toggle-row label { margin-bottom: 0; }
+  .toggle-switch { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 26px; cursor: pointer; transition: 0.3s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+  .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+  .toggle-switch input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+
+
+
+  /* ========== Settings Modal ========== */
+  .modal-overlay {
+    position: fixed; inset:0;
+    background: rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(4px);
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    max-width: 460px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .modal h3 { margin-bottom: 16px; font-size: 1.1rem; }
+  .modal label { font-size: 0.85rem; color: var(--text2); display: block; margin-bottom: 4px; font-weight: 500; }
+  .modal input, .modal select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+    margin-bottom: 14px;
+    outline: none;
+  }
+  .modal input:focus, .modal select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+  }
+  .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .provider-presets { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .provider-preset {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: inherit;
+    color: var(--text2);
+    transition: all 0.2s;
+  }
+  .provider-preset:hover { border-color: var(--accent); color: var(--accent); }
+  .provider-preset.selected { background: #eef2ff; border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+  /* ========== Proxy Status ========== */
+  .proxy-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+  .proxy-status .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .proxy-status .dot.online { background: #22c55e; }
+  .proxy-status .dot.offline { background: #ef4444; }
+
+  /* ========== States ========== */
+  .loading {
+    text-align: center;
+    padding: 48px;
+    color: var(--text2);
+  }
+  .loading .spinner {
+    display: inline-block;
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .empty-state {
+    text-align: center;
+    padding: 64px 20px;
+    color: var(--text2);
+  }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.95rem; }
+  .error-msg {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    color: #dc2626;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+  .info-msg {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    color: #2563eb;
+    font-size: 0.83rem;
+    margin-bottom: 16px;
+  }
+  .hidden { display: none !important; }
+
+  
+  .tag.copied { background: #d1fae5 !important; border-color: #6ee7b7 !important; color: #059669 !important; }
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 0.85rem; z-index: 999; animation: toastIn 0.3s ease, toastOut 0.3s ease 1.2s forwards; pointer-events: none; }
+  @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(-8px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+  @keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+  /* ========== Check-in ========== */
+  .checkin-layout { display: flex; gap: 24px; flex-wrap: wrap; }
+  .checkin-main { flex: 1; min-width: 280px; }
+  .checkin-side { width: 300px; flex-shrink: 0; }
+
+  .streak-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+  }
+  .streak-badge {
+    font-size: 3.5rem;
+    margin-bottom: 8px;
+    transition: transform 0.3s;
+  }
+  .streak-badge.pulse { animation: badgePop 0.5s ease; }
+  @keyframes badgePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .streak-days {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .streak-label { font-size: 0.85rem; color: var(--text2); margin-top: 4px; }
+  .streak-title {
+    font-size: 0.78rem;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: #e6fffa;
+    border-radius: 12px;
+    display: inline-block;
+  }
+
+  .btn-checkin {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin-top: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+  }
+  .btn-checkin:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(99,102,241,0.4); }
+  .btn-checkin:active { transform: translateY(0); }
+  .btn-checkin.done {
+    background: var(--surface2);
+    color: var(--text2);
+    box-shadow: none;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Calendar */
+  .calendar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .calendar-card h4 {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+  }
+  .calendar-grid .day-header {
+    font-size: 0.7rem;
+    color: var(--text3);
+    padding: 4px 0;
+  }
+  .calendar-grid .day-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all 0.2s;
+  }
+  .calendar-grid .day-cell.empty { background: transparent; }
+  .calendar-grid .day-cell.checked {
+    background: #dbeafe;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .calendar-grid .day-cell.today {
+    border: 2px solid var(--accent);
+    font-weight: 700;
+  }
+  .calendar-grid .day-cell.checked.today {
+    background: #c7d2fe;
+    border-color: #4f46e5;
+  }
+
+  /* History */
+  .history-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .history-card h4 { font-size: 0.9rem; margin-bottom: 12px; }
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .h-date { color: var(--text3); font-size: 0.78rem; min-width: 80px; }
+  .history-item .h-keyword { color: var(--accent); font-weight: 500; }
+  .history-item .h-time { color: var(--text3); font-size: 0.75rem; margin-left: auto; }
+  .history-empty { color: var(--text3); font-size: 0.85rem; text-align: center; padding: 20px; }
+
+  /* Confetti */
+  .confetti-container {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 400;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: confettiFall 1.5s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+
+
+  /* ========== Timer Button ========== */
+  .btn-timer {
+    background: linear-gradient(135deg, #f97316, #ef4444);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 12px rgba(249,115,22,0.3);
+    animation: pulse-btn 2s infinite;
+  }
+  .btn-timer:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(249,115,22,0.45); }
+  .btn-timer.running { animation: none; background: #22c55e; box-shadow: 0 2px 12px rgba(34,197,94,0.3); }
+  @keyframes pulse-btn { 0%,100% { box-shadow: 0 2px 12px rgba(249,115,22,0.3); } 50% { box-shadow: 0 4px 20px rgba(249,115,22,0.55); } }
+
+  /* ========== Timer Modal ========== */
+  .timer-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.25);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 300;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .timer-modal {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 36px 28px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    min-width: 300px;
+    position: relative;
+  }
+  .timer-modal h3 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .timer-modal .subtitle {
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin-bottom: 20px;
+  }
+
+  /* Flame */
+  .flame-stage {
+    position: relative;
+    width: 140px; height: 170px;
+    margin: 0 auto 10px;
+  }
+  .flame-group {
+    position: absolute;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%);
+    transition: transform 0.8s ease, opacity 0.8s ease;
+  }
+  .flame-layer {
+    position: absolute;
+    border-radius: 50% 50% 50% 50% / 35% 35% 65% 65%;
+    left: 50%; bottom: 0;
+    transform: translateX(-50%);
+    filter: blur(6px);
+  }
+  .flame-outer {
+    width: 70px; height: 90px;
+    background: radial-gradient(ellipse at center bottom, #ff4500 0%, #ff7f00 40%, transparent 70%);
+    filter: blur(10px);
+    animation: flicker-outer 0.15s infinite alternate;
+  }
+  .flame-mid {
+    width: 50px; height: 65px;
+    background: radial-gradient(ellipse at center bottom, #ff8c00 0%, #ffb700 40%, transparent 70%);
+    filter: blur(6px);
+    animation: flicker-mid 0.12s infinite alternate;
+  }
+  .flame-inner {
+    width: 30px; height: 40px;
+    background: radial-gradient(ellipse at center bottom, #ffd700 0%, #fff8dc 50%, transparent 75%);
+    filter: blur(3px);
+    animation: flicker-inner 0.1s infinite alternate;
+  }
+  @keyframes flicker-outer {
+    0% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+    100% { transform: translateX(-50%) scaleX(0.9) scaleY(1.05); }
+  }
+  @keyframes flicker-mid {
+    0% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+    100% { transform: translateX(-50%) scaleX(1.05) scaleY(0.95); }
+  }
+  @keyframes flicker-inner {
+    0% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+    100% { transform: translateX(-50%) scaleX(0.95) scaleY(1.08); }
+  }
+
+  /* Logs */
+  .logs { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; }
+  .log {
+    width: 20px; height: 14px;
+    background: #5c3a1e;
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+
+  /* Countdown */
+  .countdown {
+    font-size: 2.8rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    margin: 8px 0;
+    letter-spacing: 0.04em;
+  }
+  .countdown.warning { color: #ef4444; animation: pulse-text 0.6s infinite; }
+  @keyframes pulse-text { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+  .timer-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+  .btn-timer-sm {
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .btn-timer-sm:hover { border-color: var(--accent); }
+  .btn-timer-sm.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-timer-sm.danger { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+
+  /* Extinguished state */
+  .flame-group.extinguished .flame-layer {
+    background: radial-gradient(ellipse at center bottom, #9ca3af 0%, #d1d5db 30%, transparent 60%) !important;
+    filter: blur(4px) !important;
+    animation: smoke 2s ease-out forwards !important;
+  }
+  @keyframes smoke {
+    0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-30px) scale(0.3); }
+  }
+  .extinguished-msg {
+    font-size: 0.95rem;
+    color: var(--text2);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+
+  
+/* ========== Question Cards ========== */
+  .question-list { display: flex; flex-direction: column; gap: 10px; }
+  .question-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .question-card:hover { border-color: var(--accent); transform: translateX(4px); box-shadow: var(--shadow-hover); }
+  .q-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+  .q-body { flex: 1; }
+  .q-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; color: var(--text); }
+  .q-meta { display: flex; gap: 10px; align-items: center; font-size: 0.78rem; }
+  .q-type { background: #eef2ff; color: var(--accent); padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+  .q-desc { color: var(--text2); }
+  .q-arrow { color: var(--text3); font-size: 1.2rem; flex-shrink: 0; }
+
+  /* ========== Responsive ========== */
+  @media (max-width: 768px) {
+    .header { padding: 12px 16px; }
+    .main-container { padding: 16px; }
+    .perspective-grid { grid-template-columns: 1fr; }
+    .video-grid { grid-template-columns: 1fr; }
+    .search-bar { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo"><span class="icon">⚡</span><span class="accent">涌现式</span>学习</div>
+  <div class="header-actions">
+    <span class="proxy-status" id="proxy-status" title="本地代理状态">
+      <span class="dot offline" id="proxy-dot"></span>
+      <span id="proxy-label">代理未启动</span>
+    </span>
+    <button class="btn btn-timer" id="btn-start-learn" onclick="toggleTimer()">🔥 开始学习</button>
+      <button class="btn" onclick="toggleSettings()">⚙️ 设置</button>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main-container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('perspective')" id="tab-perspective">🔭 系统视角</button>
+    <button class="tab-btn" onclick="switchTab('video')" id="tab-video">🎬 视频探索</button>
+    <button class="tab-btn" onclick="switchTab('checkin')" id="tab-checkin">✅ 学习打卡</button>
+  </div>
+
+  <!-- Tab: System Perspective -->
+  <div id="panel-perspective">
+    <div class="search-section">
+      <div class="search-bar">
+        <input type="text" class="search-input" id="keyword-input-p"
+               placeholder="输入任意关键词，看见它的系统全貌… 例如：笔、咖啡、芯片、吉他"
+               onkeydown="if(event.key==='Enter') searchPerspective()">
+        <button class="btn btn-primary" onclick="searchPerspective()">🔍 涌现</button>
+      </div>
+    </div>
+    <div id="perspective-result"></div>
+  </div>
+
+  <!-- Tab: Video Explorer -->
+  <div id="panel-video" class="hidden">
+    <div class="search-section">
+      <div class="search-bar">
+        <input type="text" class="search-input" id="keyword-input-v"
+               placeholder="输入关键词，探索B站视频… 例如：机器学习入门、木工DIY"
+               onkeydown="if(event.key==='Enter') searchVideo()">
+        <button class="btn btn-primary" onclick="searchVideo()">🔍 探索</button>
+      </div>
+    </div>
+    <div id="video-result"></div>
+    <div id="recommend-result"></div>
+  </div>
+
+</div>
+
+
+<!-- Timer Modal -->
+<div id="timer-overlay" class="timer-overlay hidden" onclick="if(event.target===this && !timerRunning) toggleTimer()">
+  <div class="timer-modal">
+    <h3>🔥 三分钟热度学习法</h3>
+    <div class="subtitle">10分钟，够不够爱上它？</div>
+    <div class="flame-stage">
+      <div class="flame-group" id="flame-group">
+        <div class="flame-layer flame-outer"></div>
+        <div class="flame-layer flame-mid"></div>
+        <div class="flame-layer flame-inner"></div>
+      </div>
+      <div class="logs">
+        <div class="log"></div>
+        <div class="log"></div>
+      </div>
+    </div>
+    <div class="countdown" id="countdown-display">10:00</div>
+    <div id="timer-after" class="hidden">
+      <div class="extinguished-msg">
+        10分钟到了 🔥➡️💨<br>是继续深挖，还是潇洒放弃？
+      </div>
+    </div>
+    <div class="timer-actions" id="timer-actions">
+      <button class="btn-timer-sm" onclick="toggleTimer()" id="timer-close-btn">✕ 关闭</button>
+      <button class="btn-timer-sm primary" onclick="startTimer()" id="timer-start-btn">▶ 开始计时</button>
+    </div>
+    <div class="timer-actions hidden" id="timer-after-actions">
+      <button class="btn-timer-sm danger" onclick="giveUp()">👋 放弃</button>
+      <button class="btn-timer-sm primary" onclick="keepLearning()">🔥 继续学习</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Settings
+
+  <!-- Tab: Check-in -->
+  <div id="panel-checkin" class="hidden">
+    <div class="checkin-layout">
+      <div class="checkin-main">
+        <div class="streak-card">
+          <div class="streak-badge" id="streak-badge">🌱</div>
+          <div class="streak-days" id="streak-days">0</div>
+          <div class="streak-label">连续打卡天数</div>
+          <div class="streak-title" id="streak-title">今天还没打卡哦</div>
+          <button class="btn-checkin" id="btn-checkin" onclick="doCheckin()">✅ 今日打卡</button>
+        </div>
+      </div>
+      <div class="checkin-side">
+        <div class="calendar-card">
+          <h4>📅 <span id="calendar-month"></span></h4>
+          <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+        <div class="history-card">
+          <h4>📋 最近记录</h4>
+          <div id="history-list"><div class="history-empty">暂无打卡记录</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="modal-overlay hidden" onclick="if(event.target===this) toggleSettings()">
+  <div class="modal">
+    <h3>⚙️ API 设置</h3>
+
+    <label>快速选择</label>
+    <div class="provider-presets" id="provider-presets">
+      <button class="provider-preset" data-provider="openai" onclick="selectProvider('openai')">OpenAI</button>
+      <button class="provider-preset selected" data-provider="deepseek" onclick="selectProvider('deepseek')">DeepSeek（推荐）</button>
+      <button class="provider-preset" data-provider="custom" onclick="selectProvider('custom')">自定义</button>
+    </div>
+
+        <div class="toggle-row">
+      <label style="margin-bottom:0;">🤖 AI 涌现模式</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="ai-enabled" onchange="onAiToggle()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text2);margin-bottom:14px;margin-top:-8px;">
+      <span id="ai-mode-desc">关闭：使用模板展示7维度系统视角<br>开启：AI 生成10个高质量探索问题</span>
+    </p>
+
+    <label>API 地址</label>
+    <input type="text" id="api-base" placeholder="https://api.deepseek.com/v1">
+
+    <label>API Key</label>
+    <input type="password" id="api-key" placeholder="sk-...">
+
+    <label>模型名称</label><input type="text" id="api-model" placeholder="例如：deepseek-chat">
+
+    <p style="font-size:0.8rem;color:var(--text2);margin-bottom:16px;line-height:1.5;">
+      💡 不配置 API 将使用内置模板展示系统框架。<br>
+      🔑 DeepSeek 注册即送额度，<a href="https://platform.deepseek.com" target="_blank" style="color:var(--accent);">去获取 Key →</a>
+    </p>
+    <div class="modal-actions">
+      <button class="btn" onclick="toggleSettings()">取消</button>
+      <button class="btn btn-primary" onclick="saveSettings()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== Constants ====================
+const PROXY_URL = 'http://127.0.0.1:8765/proxy';
+const PROVIDER_PRESETS = {
+  openai:    { base: 'https://api.openai.com/v1',     model: 'gpt-4o-mini' },
+  deepseek:  { base: 'https://api.deepseek.com/v1',    model: 'deepseek-chat' },
+  custom:    { base: '',                                model: '' }
+};
+
+// ==================== State ====================
+let currentTab = 'perspective';
+let settings = {
+  apiBase: 'https://api.deepseek.com/v1',
+  apiKey: '',
+  model: 'deepseek-chat',
+  provider: 'deepseek',
+  aiEnabled: false
+};
+let proxyOnline = false;
+
+// ==================== Init ====================
+function init() {
+  const saved = localStorage.getItem('emergent-learning-settings');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      settings = { ...settings, ...parsed };
+    } catch(e) {}
+  }
+  applySettingsToForm();
+  checkProxy();
+  // Poll proxy status
+  setInterval(checkProxy, 15000);
+}
+
+function applySettingsToForm() {
+  document.getElementById('api-base').value = settings.apiBase || '';
+  document.getElementById('api-key').value = settings.apiKey || '';
+  document.getElementById('api-model').value = settings.model || '';
+  document.getElementById('ai-enabled').checked = settings.aiEnabled || false;
+  onAiToggle();
+  // Update provider preset buttons
+  document.querySelectorAll('.provider-preset').forEach(b => {
+    b.classList.toggle('selected', b.dataset.provider === settings.provider);
+  });
+}
+
+// ==================== Tabs ====================
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-perspective').classList.toggle('hidden', tab !== 'perspective');
+  document.getElementById('panel-video').classList.toggle('hidden', tab !== 'video');
+  document.getElementById('panel-checkin').classList.toggle('hidden', tab !== 'checkin');
+  if (tab === 'checkin') renderCheckin();
+}
+
+// ==================== Settings ====================
+function selectProvider(provider) {
+  settings.provider = provider;
+  const preset = PROVIDER_PRESETS[provider];
+  if (preset.base) document.getElementById('api-base').value = preset.base;
+  if (preset.model) document.getElementById('api-model').value = preset.model;
+  document.querySelectorAll('.provider-preset').forEach(b => {
+    b.classList.toggle('selected', b.dataset.provider === provider);
+  });
+}
+
+function onAiToggle() {
+  var on = document.getElementById('ai-enabled').checked;
+  var desc = document.getElementById('ai-mode-desc');
+  if (on) { desc.innerHTML = '<span style="color:var(--accent);">已开启：AI 生成10个高质量探索问题</span>'; }
+  else { desc.innerHTML = '关闭：使用模板展示7维度系统视角<br>开启：AI 生成10个高质量探索问题'; }
+}
+
+function toggleSettings() {
+  const modal = document.getElementById('settings-modal');
+  const isOpen = !modal.classList.contains('hidden');
+  if (isOpen) {
+    modal.classList.add('hidden');
+  } else {
+    applySettingsToForm();
+    modal.classList.remove('hidden');
+  }
+}
+
+function saveSettings() {
+  settings.apiBase = document.getElementById('api-base').value.trim();
+  settings.apiKey = document.getElementById('api-key').value.trim();
+  settings.model = document.getElementById('api-model').value.trim();
+  // Detect provider from form state
+  const baseVal = settings.apiBase;
+  if (baseVal.includes('deepseek')) settings.provider = 'deepseek';
+  else if (baseVal.includes('openai')) settings.provider = 'openai';
+  else settings.provider = 'custom';
+  settings.aiEnabled = document.getElementById('ai-enabled').checked;
+  localStorage.setItem('emergent-learning-settings', JSON.stringify(settings));
+  toggleSettings();
+}
+
+// ==================== Proxy Check ====================
+async function checkProxy() {
+  try {
+    const resp = await fetch(PROXY_URL + '?url=' + encodeURIComponent('https://api.bilibili.com/x/web-interface/search/type?search_type=video&keyword=test&page_size=1'), {
+      signal: createTimeoutSignal(3000)
+    });
+    proxyOnline = resp.ok;
+  } catch (e) {
+    proxyOnline = false;
+  }
+  updateProxyUI();
+}
+
+function updateProxyUI() {
+  const dot = document.getElementById('proxy-dot');
+  const label = document.getElementById('proxy-label');
+  if (proxyOnline) {
+    dot.className = 'dot online';
+    label.textContent = '代理已连接';
+  } else {
+    dot.className = 'dot offline';
+    label.textContent = '代理未启动';
+  }
+}
+
+// ==================== System Perspective ====================
+async function searchPerspective() {
+  const keyword = document.getElementById('keyword-input-p').value.trim();
+  if (!keyword) return;
+
+  const container = document.getElementById('perspective-result');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在涌现「' + keyword + '」的系统视角…</p></div>';
+
+  try {
+    let data;
+    if (settings.aiEnabled && settings.apiKey) {
+      data = await fetchFromAI(keyword);
+    } else {
+      data = generateTemplate(keyword);
+    }
+    renderPerspective(keyword, data);
+  } catch (e) {
+    console.error('AI fetch failed, using template:', e);
+    const data = generateTemplate(keyword);
+    renderPerspective(keyword, data);
+  }
+}
+
+async function fetchFromAI(keyword) {
+  const baseUrl = settings.apiBase || 'https://api.deepseek.com/v1';
+  const endpoint = baseUrl.replace(/\/$/, '') + '/chat/completions';
+
+  const prompt = `你是一个知识系统化专家。用户输入一个关键词，你需要以结构化的方式展示与该关键词相关的系统视角。
+
+请严格按以下 JSON 格式输出（不要输出其他内容）：
+
+{
+  "keyword": "关键词",
+  "industry": ["相关行业1", "相关行业2", "相关行业3", "相关行业4", "相关行业5", "相关行业6"],
+  "technology": ["相关技术1", "相关技术2", "相关技术3", "相关技术4", "相关技术5"],
+  "subject": ["相关学科1", "相关学科2", "相关学科3", "相关学科4"],
+  "history": [
+    {"era": "古代/近代/现代/未来", "events": ["事件1", "事件2"], "figures": ["人物1", "人物2"]}
+  ]
+}
+
+用户输入的关键词是：${keyword}
+
+请生成10个与关键词相关的高质量问题，用于激发深度探索。要求：
+- 问题类型多样化：新闻情景、实操案例、思想实验、跨学科连接、反常识冷知识
+- 每个问题都要让人产生"有意思！我想知道答案"的冲动
+- 格式：{"keyword": "xxx", "questions": [{"title": "问题标题", "type": "新闻/实操/思辨/跨界/冷知识", "desc": "一句话补充说明"}]}
+- 严格JSON，不要输出其他内容`;
+
+  const resp = await fetch(endpoint, {
+      signal: createTimeoutSignal(15000),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + settings.apiKey,
+    },
+    body: JSON.stringify({
+      model: settings.model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      response_format: { type: 'json_object' }
+    })
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error('API error ' + resp.status + ': ' + errText);
+  }
+  const json = await resp.json();
+  const content = json.choices[0].message.content;
+  return JSON.parse(content);
+}
+
+function generateTemplate(keyword) {
+  return {
+    keyword: keyword,
+    industry: [
+      keyword + '原材料供应',
+      keyword + '生产制造',
+      keyword + '品牌与设计',
+      keyword + '销售与渠道',
+      keyword + '终端消费市场',
+      keyword + '售后与服务'
+    ],
+    technology: [
+      keyword + '传统工艺',
+      keyword + '数字化技术',
+      keyword + '智能化升级',
+      keyword + '新材料应用',
+      keyword + '可持续发展技术'
+    ],
+    subject: [
+      '物理学',
+      '化学与材料',
+      '经济学',
+      '设计学',
+      '计算机科学'
+    ],
+    history: [
+      { era: '起源', events: [keyword + '的早期雏形出现', '基本原理被发现'], figures: ['先驱者'] },
+      { era: '发展', events: [keyword + '的工业化进程', '关键技术突破'], figures: ['推动者'] },
+      { era: '现在', events: [keyword + '的普及与多样化', '跨界融合创新'], figures: ['当代代表人物'] },
+      { era: '未来', events: ['智能化趋势', '可持续发展方向'], figures: ['前沿探索者'] }
+    ],
+    applications: [
+      keyword + '的日常应用',
+      keyword + '在工业领域的实践',
+      keyword + '的创意跨界用法',
+      keyword + '的实验验证方法'
+    ],
+    concepts: [
+      keyword + '核心原理',
+      keyword + '关键指标',
+      '相关标准与规范',
+      '常见误区与纠正'
+    ],
+    key_figures: [
+      '该领域奠基人',
+      '当代推动者',
+      '中国代表人物',
+      '值得关注的创新者'
+    ]
+  };
+}
+
+function renderQuestionCards(keyword, data) {
+  var container = document.getElementById('perspective-result');
+  var questions = data.questions || [];
+  var types = {'新闻': '📰', '实操': '🔧', '思辨': '💭', '跨界': '🔗', '冷知识': '❄️'};
+  
+  var cards = questions.map(function(q, i) {
+    var emoji = types[q.type] || '💡';
+    var safeTitle = q.title.replace(/'/g, "\'").replace(/"/g, '&quot;');
+    return '<div class="question-card" onclick="searchThis(\'' + safeTitle + '\')">' +
+      '<div class="q-num">' + (i + 1) + '</div>' +
+      '<div class="q-body">' +
+        '<div class="q-title">' + emoji + ' ' + q.title + '</div>' +
+        '<div class="q-meta"><span class="q-type">' + q.type + '</span>' +
+        (q.desc ? '<span class="q-desc">' + q.desc + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="q-arrow">→</div>' +
+    '</div>';
+  }).join('');
+  
+  container.innerHTML = 
+    '<p style="margin-bottom:16px;color:var(--text2);font-size:0.9rem;">关键词「<strong style="color:var(--accent);">' + data.keyword + '</strong>」 · AI 涌现的10个问题 <span style="font-size:0.78rem;color:var(--accent2);">（点击问题直接搜索视频）</span></p>' +
+    '<div class="question-list">' + cards + '</div>';
+}
+function searchThis(text) {
+  switchTab('video');
+  document.getElementById('keyword-input-v').value = text;
+  searchVideo();
+}
+
+function renderPerspective(keyword, data) {
+  // AI question mode
+  if (data.questions) {
+    renderQuestionCards(keyword, data);
+    return;
+  }
+  const container = document.getElementById('perspective-result');
+  const iconMap = {
+    industry: { cls: 'industry', icon: '🏭' },
+    technology: { cls: 'tech', icon: '🔬' },
+    subject: { cls: 'subject', icon: '📚' },
+    history: { cls: 'history', icon: '⏳' },
+    applications: { cls: 'applications', icon: '🎯' },
+    concepts: { cls: 'concepts', icon: '💡' },
+    key_figures: { cls: 'figures', icon: '👥' }
+  };
+  const titleMap = {
+    industry: '行业链路', technology: '技术栈',
+    subject: '关联学科', history: '发展脉络',
+    applications: '应用场景', concepts: '关键概念',
+    key_figures: '代表人物'
+  };
+
+  let cards = '';
+  cards += buildTagCard('industry', titleMap.industry, iconMap.industry, data.industry);
+  cards += buildTagCard('technology', titleMap.technology, iconMap.technology, data.technology);
+  cards += buildTagCard('subject', titleMap.subject, iconMap.subject, data.subject);
+  cards += buildTagCard('applications', titleMap.applications, iconMap.applications, data.applications);
+  cards += buildTagCard('concepts', titleMap.concepts, iconMap.concepts, data.concepts);
+  cards += buildTagCard('key_figures', titleMap.key_figures, iconMap.key_figures, data.key_figures);
+  cards += buildHistoryCard(data.history);
+
+  const modeLabel = settings.aiEnabled && settings.apiKey
+    ? '<span style="font-size:0.78rem;color:var(--accent2);">（AI 生成）</span>'
+    : '<span style="font-size:0.78rem;color:var(--text3);">（模板模式 · 配置 API 获得 AI 生成内容）</span>';
+
+  container.innerHTML = `
+    <p style="margin-bottom:16px;color:var(--text2);font-size:0.9rem;">
+      关键词「<strong style="color:var(--accent);">${data.keyword}</strong>」的系统涌现 ${modeLabel}
+    </p>
+    <div class="perspective-grid">${cards}</div>
+  `;
+}
+
+function buildTagCard(key, title, icon, items) {
+  if (!items || items.length === 0) return '';
+  return `
+    <div class="perspective-card">
+      <div class="card-header">
+        <div class="card-icon ${icon.cls}">${icon.icon}</div>
+        <h3>${title}</h3>
+      </div>
+      <div class="tag-list">
+        ${items.map(i => `<span class="tag" onclick="copyTag(this)" data-text="${i.replace(/"/g, "&quot;")}">${i}</span>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function buildHistoryCard(history) {
+  if (!history || history.length === 0) return '';
+  let items = '';
+  history.forEach(h => {
+    items += `
+      <div class="sub-section">
+        <div class="sub-title">${h.era}</div>
+        ${(h.events || []).map(e => `<div class="timeline-item"><span class="year">◆</span> ${e}</div>`).join('')}
+        ${(h.figures || []).map(f => `<div class="timeline-item"><span class="person">👤 ${f}</span></div>`).join('')}
+      </div>
+    `;
+  });
+  return `
+    <div class="perspective-card">
+      <div class="card-header">
+        <div class="card-icon history">⏳</div>
+        <h3>发展脉络</h3>
+      </div>
+      ${items}
+    </div>
+  `;
+}
+
+// ==================== Video Explorer ====================
+async function searchVideo() {
+  const keyword = document.getElementById('keyword-input-v').value.trim();
+  if (!keyword) return;
+
+  const videoContainer = document.getElementById('video-result');
+  const recContainer = document.getElementById('recommend-result');
+  videoContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在B站搜索「' + keyword + '」…</p></div>';
+  recContainer.innerHTML = '';
+
+  let videos = [];
+  let usedProxy = false;
+
+  // Try proxy first (no CORS issues), fallback to direct
+  try {
+    videos = await fetchBilibiliViaProxy(keyword);
+    usedProxy = true;
+  } catch (e1) {
+    console.log('Proxy failed, trying direct...', e1.message);
+    try {
+      videos = await fetchBilibiliDirect(keyword);
+    } catch (e2) {
+      console.error('Direct fetch also failed:', e2.message);
+      videoContainer.innerHTML = `
+        <div class="error-msg">
+          ⚠️ B站搜索暂时不可用。<br><br>
+          请先运行本地代理：<code style="background:#fee2e2;padding:2px 6px;border-radius:4px;">python proxy.py</code><br>
+          然后刷新页面重试。
+        </div>
+      `;
+    }
+  }
+
+  if (videos.length > 0) {
+    renderVideos(videos, usedProxy);
+  }
+
+  // Always show recommendations
+  const recs = generateRecommendations(keyword);
+  renderRecommendations(keyword, recs);
+}
+
+async function fetchBilibiliDirect(keyword) {
+  const url = 'https://api.bilibili.com/x/web-interface/search/type?search_type=video&keyword='
+    + encodeURIComponent(keyword) + '&page=1&page_size=12';
+
+  const resp = await fetch(url, {
+    headers: { 'Referer': 'https://www.bilibili.com', 'Origin': 'https://www.bilibili.com' },
+    signal: createTimeoutSignal(8000)
+  });
+
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  const json = await resp.json();
+  if (json.code !== 0) throw new Error(json.message);
+  return formatVideos(json.data?.result || []);
+}
+
+async function fetchBilibiliViaProxy(keyword) {
+  const targetUrl = 'https://api.bilibili.com/x/web-interface/search/type?search_type=video&keyword='
+    + encodeURIComponent(keyword) + '&page=1&page_size=12';
+
+  const resp = await fetch(PROXY_URL + '?url=' + encodeURIComponent(targetUrl), {
+    signal: createTimeoutSignal(10000)
+  });
+
+  if (!resp.ok) throw new Error('Proxy HTTP ' + resp.status);
+  const json = await resp.json();
+  if (json.code !== 0) throw new Error(json.message);
+  return formatVideos(json.data?.result || []);
+}
+
+function formatVideos(results) {
+  return (results || []).map(v => ({
+    bvid: v.bvid,
+    title: v.title.replace(/<[^>]+>/g, ''),
+    author: v.author,
+    play: formatCount(v.play),
+    duration: v.duration,
+    pic: (v.pic || '').startsWith('http') ? v.pic : 'https:' + (v.pic || ''),
+    url: 'https://www.bilibili.com/video/' + v.bvid
+  }));
+}
+
+
+
+function renderVideos(videos, usedProxy) {
+  const container = document.getElementById('video-result');
+  const cards = videos.map(v => `
+    <a class="video-card" href="${v.url}" target="_blank" rel="noopener">
+      <img class="thumb" src="${v.pic}" alt="${v.title}" loading="lazy"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="thumb-placeholder" style="display:none;">🎬</div>
+      <div class="video-info">
+        <div class="video-title">${v.title}</div>
+        <div class="video-meta">
+          <span>👤 ${v.author}</span>
+          <span>▶ ${v.play}</span>
+        </div>
+      </div>
+    </a>
+  `).join('');
+
+  const proxyNote = usedProxy ? ' <span style="font-size:0.75rem;color:var(--accent2);">（通过代理）</span>' : '';
+  container.innerHTML = '<h3 style="margin-bottom:14px;font-size:1rem;font-weight:600;">📺 B站搜索结果（' + videos.length + ' 个）' + proxyNote + '</h3><div class="video-grid">' + cards + '</div>';
+}
+
+function generateRecommendations(keyword) {
+  const encoded = encodeURIComponent(keyword);
+  return [
+    { type: 'bilibili', icon: '📺', title: '在B站查看「' + keyword + '」的更多内容', desc: 'B站综合搜索 — 视频、专栏、直播', url: 'https://search.bilibili.com/all?keyword=' + encoded },
+    { type: 'baike', icon: '📖', title: '百度百科：「' + keyword + '」', desc: '国内可访问，快速获取百科知识', url: 'https://baike.baidu.com/item/' + encoded },
+    { type: 'book', icon: '📚', title: '豆瓣读书搜索：「' + keyword + '」', desc: '找到相关经典书籍，深度学习', url: 'https://search.douban.com/book/subject_search?search_text=' + encoded }
+  ];
+}
+function formatCount(n) {
+  if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+  return String(n);
+}
+function renderRecommendations(keyword, recs) {
+  const container = document.getElementById('recommend-result');
+  const iconClsMap = { bilibili: 'bilibili', baike: 'baike', book: 'book' };
+
+
+
+  const items = recs.map(r => `
+    <a class="recommend-item" href="${r.url}" target="_blank" rel="noopener">
+      <div class="rec-icon ${iconClsMap[r.type] || ''}">${r.icon}</div>
+      <div class="rec-body">
+        <div class="rec-title">${r.title}</div>
+        <div class="rec-desc">${r.desc}</div>
+      </div>
+      <span class="rec-arrow">→</span>
+    </a>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="recommend-section">
+      <h3>💡 推荐探索</h3>
+      <div class="recommend-list">${items}</div>
+    </div>
+  `;
+}
+
+
+
+
+// ==================== Notification ====================
+function requestNotifyPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    // 在用户首次点击开始学习时请求
+  }
+}
+function showTimerNotification() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    new Notification('🔥 10分钟到了！', {
+      body: '火苗已熄灭。是继续深挖，还是潇洒放弃？',
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔥</text></svg>',
+      requireInteraction: true,
+      silent: true,
+    });
+  } else if (Notification.permission === 'default') {
+    Notification.requestPermission().then(p => {
+      if (p === 'granted') showTimerNotification();
+    });
+  }
+}
+
+// ==================== Timer Sound ====================
+
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+    // 重复3遍，中间间隔1.2秒
+    for (let repeat = 0; repeat < 3; repeat++) {
+      const offset = repeat * 1.3;
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const t = ctx.currentTime + offset + i * 0.18;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.25, t + 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.0);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 1.0);
+      });
+    }
+    // 最后加一个低音C4收尾
+    setTimeout(() => {
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.value = 261.63; // C4
+      const t2 = ctx.currentTime;
+      gain2.gain.setValueAtTime(0, t2);
+      gain2.gain.linearRampToValueAtTime(0.2, t2 + 0.05);
+      gain2.gain.exponentialRampToValueAtTime(0.001, t2 + 1.5);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(t2);
+      osc2.stop(t2 + 1.5);
+    }, 3900);
+  } catch(e) {}
+}
+
+
+
+// ==================== Check-in ====================
+const CHECKIN_KEY = 'emergent-checkins';
+
+function getCheckins() {
+  try {
+    return JSON.parse(localStorage.getItem(CHECKIN_KEY) || '{}');
+  } catch(e) { return {}; }
+}
+function saveCheckins(data) {
+  localStorage.setItem(CHECKIN_KEY, JSON.stringify(data));
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function calcStreak(checkins) {
+  let streak = 0;
+  const d = new Date();
+  // 检查今天
+  const today = todayStr();
+  if (checkins[today]) {
+    streak = 1;
+    d.setDate(d.getDate() - 1);
+    while (true) {
+      const s = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      if (checkins[s]) { streak++; d.setDate(d.getDate() - 1); }
+      else break;
+    }
+    return streak;
+  }
+  // 今天没打卡，检查昨天
+  d.setDate(d.getDate() - 1);
+  const yesterday = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  if (checkins[yesterday]) {
+    streak = 1;
+    d.setDate(d.getDate() - 1);
+    while (true) {
+      const s = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      if (checkins[s]) { streak++; d.setDate(d.getDate() - 1); }
+      else break;
+    }
+  }
+  return streak;
+}
+
+function getStreakBadge(streak) {
+  if (streak >= 100) return { emoji: '🐉', title: '传说级学习者' };
+  if (streak >= 30) return { emoji: '👑', title: '月度王者' };
+  if (streak >= 14) return { emoji: '⭐', title: '闪耀之星' };
+  if (streak >= 7)  return { emoji: '🔥', title: '燃烧吧小宇宙' };
+  if (streak >= 3)  return { emoji: '🌿', title: '茁壮生长中' };
+  if (streak >= 1)  return { emoji: '🌱', title: '萌芽初现' };
+  return { emoji: '🌱', title: '今天还没打卡哦' };
+}
+
+function renderCheckin() {
+  const checkins = getCheckins();
+  const today = todayStr();
+  const streak = calcStreak(checkins);
+  const badge = getStreakBadge(streak);
+  const todayChecked = !!checkins[today];
+
+  // Streak card
+  document.getElementById('streak-days').textContent = streak;
+  document.getElementById('streak-badge').textContent = badge.emoji;
+  document.getElementById('streak-title').textContent = badge.title;
+
+  const btn = document.getElementById('btn-checkin');
+  if (todayChecked) {
+    btn.textContent = '✅ 今日已打卡';
+    btn.classList.add('done');
+  } else {
+    btn.textContent = '✅ 今日打卡';
+    btn.classList.remove('done');
+  }
+
+  // Calendar
+  renderCalendar(checkins);
+
+  // History
+  renderHistory(checkins);
+}
+
+function renderCalendar(checkins) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  document.getElementById('calendar-month').textContent = year + '年' + (month + 1) + '月';
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+
+  const headers = ['日', '一', '二', '三', '四', '五', '六'];
+  let html = headers.map(h => `<div class="day-header">${h}</div>`).join('');
+
+  const today = todayStr();
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="day-cell empty"></div>';
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    let cls = 'day-cell';
+    if (checkins[dateStr]) cls += ' checked';
+    if (dateStr === today) cls += ' today';
+    html += `<div class="${cls}">${d}</div>`;
+  }
+
+  document.getElementById('calendar-grid').innerHTML = html;
+}
+
+function renderHistory(checkins) {
+  const entries = Object.entries(checkins)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .slice(0, 14);
+
+  if (entries.length === 0) {
+    document.getElementById('history-list').innerHTML = '<div class="history-empty">暂无打卡记录</div>';
+    return;
+  }
+
+  const html = entries.map(([date, info]) => {
+    const kw = info.keyword || '自由学习';
+    const time = info.time || '';
+    const [y, m, d] = date.split('-');
+    const dateLabel = m + '/' + d;
+    const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
+    const dayName = dayNames[new Date(date).getDay()];
+    return `
+      <div class="history-item">
+        <span class="h-date">${dateLabel} 周${dayName}</span>
+        <span class="h-keyword">${kw}</span>
+        <span class="h-time">${time}</span>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('history-list').innerHTML = html;
+}
+
+function doCheckin() {
+  const checkins = getCheckins();
+  const today = todayStr();
+
+  if (checkins[today]) {
+    showToast('今天已经打过卡啦～明天再来！');
+    return;
+  }
+
+  const now = new Date();
+  checkins[today] = {
+    keyword: document.getElementById('keyword-input-p').value.trim() || document.getElementById('keyword-input-v').value.trim() || '自由学习',
+    time: String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0'),
+    timestamp: now.getTime()
+  };
+
+  saveCheckins(checkins);
+  spawnConfetti();
+  renderCheckin();
+
+  // Animate badge
+  const badge = document.getElementById('streak-badge');
+  badge.classList.add('pulse');
+  setTimeout(() => badge.classList.remove('pulse'), 500);
+
+  const streak = calcStreak(checkins);
+  const msgs = {
+    1: '好的开始！🌱',
+    3: '连续3天！渐入佳境 🌿',
+    7: '一周了！小火苗在燃烧 🔥',
+    14: '两周王者！⭐',
+    30: '一个月！你是认真的 👑',
+    100: '百天传说！🐉'
+  };
+  const msg = msgs[streak] || '打卡成功！继续加油～';
+  showToast(msg);
+}
+
+function spawnConfetti() {
+  const colors = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#22c55e','#0ea5a9','#ef4444'];
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = -(Math.random() * 200) + 'px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    piece.style.animationDuration = (1 + Math.random() * 1.5) + 's';
+    container.appendChild(piece);
+  }
+
+  setTimeout(() => container.remove(), 2500);
+}
+
+
+// ==================== Copy Tag ====================
+async function copyTag(el) {
+  const text = el.getAttribute('data-text') || el.textContent.trim();
+  try {
+    await navigator.clipboard.writeText(text);
+    el.classList.add('copied');
+    showToast('已复制：' + text);
+    setTimeout(() => el.classList.remove('copied'), 1500);
+  } catch(e) {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    el.classList.add('copied');
+    showToast('已复制：' + text);
+    setTimeout(() => el.classList.remove('copied'), 1500);
+  }
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1600);
+}
+
+
+// ==================== Timer ====================
+const TOTAL_SECONDS = 600; // 10 minutes
+let timerSeconds = TOTAL_SECONDS;
+let timerInterval = null;
+let timerRunning = false;
+let timerStartTime = 0;
+
+function toggleTimer() {
+  const overlay = document.getElementById('timer-overlay');
+  if (overlay.classList.contains('hidden')) {
+    // Open
+    resetTimerUI();
+    overlay.classList.remove('hidden');
+  } else {
+    // Close
+    if (timerRunning) {
+      if (!confirm('计时还在进行中，确定关闭吗？')) return;
+      stopTimer();
+    }
+    overlay.classList.add('hidden');
+  }
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  if ('Notification' in window && Notification.permission === 'default') { Notification.requestPermission(); }
+  timerRunning = true;
+  timerStartTime = Date.now();
+  timerSeconds = TOTAL_SECONDS;
+
+  document.getElementById('timer-start-btn').classList.add('hidden');
+  document.getElementById('timer-close-btn').textContent = '⏸ 暂停';
+  document.getElementById('btn-start-learn').classList.add('running');
+  document.getElementById('btn-start-learn').textContent = '⏱ 学习中…';
+  document.getElementById('timer-after').classList.add('hidden');
+  document.getElementById('timer-after-actions').classList.add('hidden');
+  document.getElementById('flame-group').classList.remove('extinguished');
+
+  updateFlameScale();
+  updateCountdown();
+
+    timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+    timerSeconds = TOTAL_SECONDS - elapsed;
+    updateFlameScale();
+    updateCountdown();
+
+    if (timerSeconds <= 0) {
+      timerComplete();
+    }
+  }, 250); // 高频检查，靠绝对时间保证精度
+}
+
+function updateFlameScale() {
+  const scale = timerSeconds / TOTAL_SECONDS;
+  const group = document.getElementById('flame-group');
+  group.style.transform = `translateX(-50%) scale(${Math.max(scale, 0.05)})`;
+  group.style.opacity = Math.max(scale, 0.1);
+}
+
+function updateCountdown() {
+  const mins = Math.floor(timerSeconds / 60);
+  const secs = timerSeconds % 60;
+  const display = document.getElementById('countdown-display');
+  display.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+  if (timerSeconds <= 60) {
+    display.classList.add('warning');
+  } else {
+    display.classList.remove('warning');
+  }
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+  timerRunning = false;
+}
+
+function timerComplete() {
+  stopTimer();
+  playChime();
+  showTimerNotification();
+  try { window.focus(); } catch(e) {}
+document.getElementById('flame-group').classList.add('extinguished');
+  document.getElementById('countdown-display').textContent = '00:00';
+  document.getElementById('countdown-display').classList.add('warning');
+  document.getElementById('timer-after').classList.remove('hidden');
+  document.getElementById('timer-actions').classList.add('hidden');
+  document.getElementById('timer-after-actions').classList.remove('hidden');
+  document.getElementById('btn-start-learn').textContent = '🔥 开始学习';
+  document.getElementById('btn-start-learn').classList.remove('running');
+}
+
+function giveUp() {
+  document.getElementById('timer-overlay').classList.add('hidden');
+  resetTimerUI();
+  showToast('👋 潇洒放弃！下一个关键词会更好～');
+  switchTab('checkin');
+}
+
+function keepLearning() {
+  // Reset and start another 10 minutes
+  resetTimerUI();
+  document.getElementById('timer-after').classList.add('hidden');
+  document.getElementById('timer-after-actions').classList.add('hidden');
+  document.getElementById('timer-actions').classList.remove('hidden');
+  startTimer();
+  showToast('🔥 很好！再来10分钟～');
+  switchTab('checkin');
+}
+
+function resetTimerUI() {
+  stopTimer();
+  timerSeconds = TOTAL_SECONDS;
+  const group = document.getElementById('flame-group');
+  group.classList.remove('extinguished');
+  group.style.transform = 'translateX(-50%) scale(1)';
+  group.style.opacity = '1';
+  document.getElementById('countdown-display').textContent = '10:00';
+  document.getElementById('countdown-display').classList.remove('warning');
+  document.getElementById('timer-start-btn').classList.remove('hidden');
+  document.getElementById('timer-close-btn').textContent = '✕ 关闭';
+  document.getElementById('timer-after').classList.add('hidden');
+  document.getElementById('timer-after-actions').classList.add('hidden');
+  document.getElementById('timer-actions').classList.remove('hidden');
+  document.getElementById('btn-start-learn').textContent = '🔥 开始学习';
+  document.getElementById('btn-start-learn').classList.remove('running');
+}
+
+
+// ==================== Helpers ====================
+function createTimeoutSignal(ms) {
+  const ctrl = new AbortController();
+  setTimeout(function() { ctrl.abort(); }, ms);
+  return ctrl.signal;
+}
+
+// ==================== Startup ====================
+init();
+</script>
+
+</body>
+</html>
