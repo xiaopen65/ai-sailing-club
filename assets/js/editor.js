@@ -151,6 +151,7 @@
 
   function saveNow() {
     clearTimeout(saveTimer);
+    if (!allowed) return Promise.resolve(false);
     var now = Date.now();
     saveLocal(now);
 
@@ -430,7 +431,7 @@
     apply();
 
     /* 浏览器里有比文件更新的修改：自动写回 edits.js，避免只留在本地缓存 */
-    if (isHttp && localNewer && Object.keys(EDITS).length) {
+    if (allowed && isHttp && localNewer && Object.keys(EDITS).length) {
       setTimeout(function () {
         saveNow().then(function (ok) {
           if (ok) showToast('已把浏览器里的修改同步到文件');
