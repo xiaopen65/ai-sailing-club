@@ -1,4 +1,4 @@
-/* 由 2026-11-14 19:26 的内容备份生成：只补空，不覆盖本机已有内容 */
+/* 由 2026-11-14 22:39 的最新内容备份生成：只补空，不覆盖本机已有内容 */
 (function () {
   var seed = {
   "study-map-courses-v1": {
@@ -325,6 +325,9 @@
       "examples": [],
       "url": "https://wgd91.xetlk.com/s/dQdYe"
     }
+  },
+  "case-course-links-v1": {
+    "learning": "https://wgd91.xetlk.com/s/2hb3f6"
   }
 };
   Object.keys(seed).forEach(function (key) {

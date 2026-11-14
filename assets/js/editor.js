@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    网页内文字编辑
    - 点「编辑文案」即可直接改文字
    - 自动保存到 assets/js/edits.js（需用「编辑文案.bat」启动）
@@ -89,20 +89,6 @@
         }
       }
     });
-
-    /* 一次性把旧的案例标题覆盖成新的功能性标题；之后用户再编辑不会被重置 */
-    var titlesMigrated = false;
-    try { titlesMigrated = localStorage.getItem(CASE_TITLE_MARKER) === '1'; } catch (e) {}
-    if (!titlesMigrated) {
-      Object.keys(EDITS).forEach(function (k) {
-        var match = /^case\.([^.]+)\.title$/.exec(k);
-        if (match && CASE_TITLES[match[1]] && EDITS[k] !== CASE_TITLES[match[1]]) {
-          EDITS[k] = CASE_TITLES[match[1]];
-          migrated = true;
-        }
-      });
-      try { localStorage.setItem(CASE_TITLE_MARKER, '1'); } catch (e) {}
-    }
 
     if (migrated) {
       localNewer = true;
