@@ -80,7 +80,7 @@
       id: 'result', num: '03', title: '结果', sub: '场景 · 业务 · 决策',
       layers: [
         {
-          title: '日常聊天、问题咨询、基础办公、日常创作',
+          title: '日常聊天、问题咨询、基础办公、创作',
           desc: '先用 AI 解决每天最具体的小事。',
           courses: [
             'AI学习第一步：设计你的行动地图',
@@ -298,7 +298,9 @@
     return '<article class="sm-layer" data-col="' + col.num + '" data-layer="' + layerIndex + '">' +
       '<div class="sm-layer-head">' +
         '<span class="sm-step" aria-hidden="true">' + String(layerIndex + 1).padStart(2, '0') + '</span>' +
-        '<div><b data-ekey="' + esc(layerKey + '.title') + '"' + (isGoal ? ' data-result-layer="' + esc(layer.id) + '" data-result-field="title"' : '') + '>' + esc(layer.title) + '</b><p data-ekey="' + esc(layerKey + '.desc') + '"' + (isGoal ? ' data-result-layer="' + esc(layer.id) + '" data-result-field="desc"' : '') + '>' + esc(layer.desc) + '</p></div>' +
+        '<div><b data-ekey="' + esc(layerKey + '.title') + '"' + (isGoal ? ' data-result-layer="' + esc(layer.id) + '" data-result-field="title"' : '') + '>' + esc(layer.title) + '</b><p data-ekey="' + esc(layerKey + '.desc') + '"' + (isGoal ? ' data-result-layer="' + esc(layer.id) + '" data-result-field="desc"' : '') + '>' + esc(layer.desc) + '</p>' +
+          (isGoal && layerIndex === 0 ? '<a class="sm-tool-btn" href="demo/100-things.html">使用AI的100件小事 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>' : '') +
+        '</div>' +
         '<div class="map-layer-actions map-edit-only">' +
           '<button class="map-add-course" type="button" data-map-add-course="' + esc(col.id) + '" data-layer-index="' + layerIndex + '">+ 课程</button>' +
         '</div>' +

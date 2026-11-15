@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用 AI 的 100 件小事</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafaf9;
+  --card: #ffffff;
+  --text: #1c1917;
+  --text2: #57534e;
+  --text3: #a8a29e;
+  --border: #e7e5e4;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --accent-strong: #1d4ed8;
+  --selected: #fef3c7;
+  --selected-border: #f59e0b;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* Header */
+.header { text-align: center; padding: 32px 0 24px; }
+.header h1 { font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
+.header p { color: var(--text2); font-size: 15px; margin-top: 6px; }
+
+/* Random Picker */
+.picker { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 16px 0; }
+.picker-inner {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px 24px; display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap;
+}
+.picker-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: #fff; border: none; border-radius: 8px;
+  padding: 12px 24px; font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: background .15s; white-space: nowrap;
+}
+.picker-btn:hover { background: var(--accent-strong); }
+.picker-btn:active { transform: scale(.98); }
+.picker-result {
+  flex: 1; min-width: 200px; font-size: 15px; color: var(--text2);
+  padding: 10px 14px; border-radius: 8px; transition: background .2s;
+}
+.picker-result.active {
+  background: var(--selected); border: 1px solid var(--selected-border);
+  color: var(--text);
+}
+.picker-result .action { font-weight: 600; color: var(--text); display: block; margin-bottom: 4px; }
+.picker-result .desc { font-size: 14px; color: var(--text2); }
+.picker-result .cat { font-size: 12px; color: var(--text3); margin-bottom: 2px; }
+
+/* Category sections */
+.categories { margin-top: 8px; }
+.cat-section { margin-bottom: 24px; }
+.cat-title {
+  font-size: 17px; font-weight: 700; color: var(--text);
+  padding: 10px 0 8px; border-bottom: 2px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.cat-title .cat-num { color: var(--text3); font-weight: 500; font-size: 13px; }
+.cat-items { display: grid; gap: 2px; padding-top: 4px; }
+.task-row {
+  display: grid; grid-template-columns: 36px 1fr; gap: 6px;
+  padding: 8px 10px; border-radius: 6px; cursor: pointer;
+  transition: background .12s; align-items: start;
+}
+.task-row:hover { background: var(--accent-light); }
+.task-row.highlight { background: var(--selected); outline: 2px solid var(--selected-border); outline-offset: -1px; border-radius: 8px; }
+.task-num { font-size: 12px; color: var(--text3); text-align: right; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.task-action { font-weight: 600; font-size: 14px; color: var(--text); }
+.task-desc { font-size: 13px; color: var(--text2); margin-top: 1px; line-height: 1.5; }
+
+/* Footer */
+.footer { text-align: center; color: var(--text3); font-size: 13px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+@media (max-width: 640px) {
+  .container { padding: 12px 12px 40px; }
+  .header h1 { font-size: 22px; }
+  .picker-inner { padding: 14px 16px; gap: 10px; }
+  .picker-btn { width: 100%; justify-content: center; }
+  .task-row { padding: 10px 8px; }
+}
+</style>
+
+<style>
+/* 从学习地图进入时的返回入口 */
+.ai100-back{
+  position: fixed; top: 14px; left: 14px; z-index: 10000;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 13px; border-radius: 999px;
+  background: #1c1917; color: #fafaf9; border: 1px solid rgba(250,250,249,.18);
+  box-shadow: 0 8px 24px rgba(28,25,23,.18);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 12px; line-height: 1; text-decoration: none;
+  transition: background .2s, transform .2s;
+}
+.ai100-back:hover{ background: #2563eb; transform: translateY(-1px); }
+@media (max-width: 600px){
+  .ai100-back{ top: 8px; left: 8px; padding: 7px 10px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<a class="ai100-back" href="../route.html#studyMap" aria-label="返回学习地图">← 返回学习地图</a>
+
+<div class="container">
+
+<div class="header">
+  <h1>用 AI 的 100 件小事</h1>
+  <p>随机选一件，马上开始。不用多想，先做起来。</p>
+</div>
+
+<div class="picker">
+  <div class="picker-inner">
+    <button class="picker-btn" onclick="pickRandom()">
+      <i data-lucide="shuffle" style="width:18px;height:18px"></i>
+      随机选一件
+    </button>
+    <div class="picker-result" id="result">
+      <span style="color:var(--text3)">点击按钮，AI 帮你在 100 件事里选一件</span>
+    </div>
+  </div>
+</div>
+
+<div class="categories" id="categories"></div>
+
+<div class="footer">
+  目标：先把 AI 用起来 &mdash; 日期｜我让 AI 帮我________。
+</div>
+
+</div>
+
+<script>
+var tasks = {"整理和复盘":[{"n":1,"t":"让 AI 帮你复盘今天","d":"把今天做了什么、卡在哪里、有什么情绪发给 AI，让它整理成 3 条收获和 1 个明天行动。"},{"n":2,"t":"让 AI 帮你复盘一件事","d":"把刚完成的一件事发给 AI，让它帮你总结做得好、没做好、下次怎么改。"},{"n":3,"t":"让 AI 帮你整理一团想法","d":"随便写下脑子里的想法，让 AI 帮你分组、提炼重点。"},{"n":4,"t":"让 AI 帮你整理一个烦恼","d":"把烦恼讲给 AI，让它帮你拆成事实、感受、需求、下一步。"},{"n":5,"t":"让 AI 帮你整理一次聊天","d":"把一段聊天内容或聊天后的感受发给 AI，让它帮你提炼重点。"},{"n":6,"t":"让 AI 帮你整理一段笔记","d":"把课程笔记、会议记录、阅读摘录发给 AI，让它整理成结构化笔记。"},{"n":7,"t":"让 AI 帮你整理待办","d":"把最近要做的事全部列出来，让 AI 帮你分成今天、本周、以后。"},{"n":8,"t":"让 AI 帮你整理问题清单","d":"把你现在遇到的问题发给 AI，让它帮你按重要程度排序。"},{"n":9,"t":"让 AI 帮你整理情绪","d":"把你现在的感受写下来，让 AI 帮你翻译成更具体的情绪和原因。"},{"n":10,"t":"让 AI 帮你整理收获","d":"把最近学到的东西发给 AI，让它帮你提炼 3 个最有用的收获。"}],"拆解和启动":[{"n":11,"t":"让 AI 帮你拆一件拖延的事","d":"写下你拖了很久的一件事，让 AI 拆成 10 个很小的下一步动作。"},{"n":12,"t":"让 AI 帮你拆一个目标","d":"告诉 AI 你想完成什么，让它帮你拆成条件、步骤和关键点。"},{"n":13,"t":"让 AI 帮你拆今天的第一步","d":"把一个任务发给 AI，只让它给你一个最小下一步。"},{"n":14,"t":"让 AI 帮你拆 15 分钟行动","d":"告诉 AI 你只有 15 分钟，让它帮你设计一个能马上做的小动作。"},{"n":15,"t":"让 AI 帮你拆 7 天小计划","d":"选一个小目标，让 AI 拆成 7 天行动表，每天只做 20-30 分钟。"},{"n":16,"t":"让 AI 帮你拆一个流程","d":"把你平时做某件事的过程讲给 AI，让它整理成步骤。"},{"n":17,"t":"让 AI 帮你拆一个卡点","d":"告诉 AI 你卡在哪里，让它帮你分析可能原因和下一步。"},{"n":18,"t":"让 AI 帮你拆一个复杂任务","d":"把复杂任务发给 AI，让它拆成准备、执行、检查、收尾。"},{"n":19,"t":"让 AI 帮你拆一个学习任务","d":"告诉 AI 你要学什么，让它帮你拆成今天能开始的第一步。"},{"n":20,"t":"让 AI 帮你拆一个生活安排","d":"把生活里要处理的一件事发给 AI，让它拆成轻一点的行动清单。"}],"改写和表达":[{"n":21,"t":"让 AI 帮你改一段消息","d":"找一段不好意思发、怕冒犯、表达不清的消息，让 AI 改得更真诚、清楚、礼貌。"},{"n":22,"t":"让 AI 帮你把话说短","d":"把一段很长的话发给 AI，让它压缩成 3 句话。"},{"n":23,"t":"让 AI 帮你把话说清楚","d":"把一段绕来绕去的话发给 AI，让它改成更直接易懂。"},{"n":24,"t":"让 AI 帮你把话说温和","d":"把一段太硬的话发给 AI，让它改得更温和。"},{"n":25,"t":"让 AI 帮你把话说坚定","d":"把一段太委婉的话发给 AI，让它改得更有边界。"},{"n":26,"t":"让 AI 帮你把口语变书面","d":"把随手写的一段话发给 AI，让它整理成正式表达。"},{"n":27,"t":"让 AI 帮你把书面变口语","d":"把一段太正式的话发给 AI，让它改得更自然。"},{"n":28,"t":"让 AI 帮你换一种语气","d":"把一段话发给 AI，让它分别改成真诚版、简洁版、专业版。"},{"n":29,"t":"让 AI 帮你准备一个开场","d":"告诉 AI 你要讲什么，让它帮你写一个自然开场。"},{"n":30,"t":"让 AI 帮你准备一个结尾","d":"告诉 AI 你要表达什么，让它帮你写一个有收束感的结尾。"}],"生成初稿":[{"n":31,"t":"让 AI 帮你写一个初稿","d":"告诉 AI 主题、对象、用途，让它先帮你写一版粗稿。"},{"n":32,"t":"让 AI 帮你写一个标题","d":"把内容主题发给 AI，让它给你 10 个标题。"},{"n":33,"t":"让 AI 帮你写一个提纲","d":"告诉 AI 你要写什么，让它先帮你列结构。"},{"n":34,"t":"让 AI 帮你写一段说明","d":"告诉 AI 你要解释什么，让它帮你写一段大白话说明。"},{"n":35,"t":"让 AI 帮你写一段介绍","d":"把人、项目、活动或作品的信息发给 AI，让它帮你写介绍。"},{"n":36,"t":"让 AI 帮你写一段总结","d":"把一堆材料发给 AI，让它帮你写成简短总结。"},{"n":37,"t":"让 AI 帮你写一段汇报","d":"把进展、结果、问题发给 AI，让它帮你整理成汇报。"},{"n":38,"t":"让 AI 帮你写一段分享","d":"把你的经历和感受发给 AI，让它帮你整理成 3-5 分钟分享稿。"},{"n":39,"t":"让 AI 帮你写一段文案","d":"告诉 AI 你想表达什么，让它给你一版文案初稿。"},{"n":40,"t":"让 AI 帮你写一个清单","d":"告诉 AI 你要准备什么，让它帮你列清单。"}],"学习和理解":[{"n":41,"t":"让 AI 帮你学懂一个概念","d":"把听不懂的词丢给 AI，让它用&#34;小学生版、职场版、案例版&#34;各解释一遍。"},{"n":42,"t":"让 AI 帮你看懂一段话","d":"把难懂的一段话发给 AI，让它翻译成大白话。"},{"n":43,"t":"让 AI 帮你举 3 个例子","d":"把一个概念发给 AI，让它用 3 个生活例子说明。"},{"n":44,"t":"让 AI 帮你做一张记忆卡","d":"把知识点发给 AI，让它整理成概念、例子、易错点。"},{"n":45,"t":"让 AI 问你几个问题","d":"学完一个内容后，让 AI 用 5 个问题检查你是否理解。"},{"n":46,"t":"让 AI 帮你找盲区","d":"把你的理解发给 AI，让它指出哪里可能不完整。"},{"n":47,"t":"让 AI 帮你制作学习计划","d":"告诉 AI 你想学什么、每天多久，让它做一个轻量计划。"},{"n":48,"t":"让 AI 帮你做练习题","d":"告诉 AI 你刚学了什么，让它出 5 道练习题。"},{"n":49,"t":"让 AI 帮你讲给不同人听","d":"让 AI 把同一个概念改成讲给小孩、朋友、老板听的版本。"},{"n":50,"t":"让 AI 帮你复述后纠错","d":"你先复述一个知识点，再让 AI 帮你指出哪里不清楚。"}],"计划和管理":[{"n":51,"t":"让 AI 帮你安排今天","d":"把今天要做的事发给 AI，让它帮你排一个简单时间表。"},{"n":52,"t":"让 AI 帮你安排明天","d":"告诉 AI 明天有什么事，让它帮你设计一个不拥挤的安排。"},{"n":53,"t":"让 AI 帮你规划一周","d":"把这周要做的事发给 AI，让它分配到每天。"},{"n":54,"t":"让 AI 帮你设计一个习惯","d":"告诉 AI 你想养成什么习惯，让它帮你设计低门槛开始方式。"},{"n":55,"t":"让 AI 帮你设计一个睡前流程","d":"告诉 AI 你睡前容易拖延什么，让它帮你设计 15 分钟收尾流程。"},{"n":56,"t":"让 AI 帮你设计一个早晨流程","d":"告诉 AI 你早上容易混乱什么，让它帮你设计轻量启动流程。"},{"n":57,"t":"让 AI 帮你设计一个工作前流程","d":"告诉 AI 你进入工作慢，让它帮你设计 10 分钟进入状态流程。"},{"n":58,"t":"让 AI 帮你设计一个休息流程","d":"告诉 AI 你休息后更累，让它帮你设计真正放松的休息方式。"},{"n":59,"t":"让 AI 帮你整理一周菜单","d":"告诉 AI 你的口味、预算和时间，让它帮你安排简单菜单。"},{"n":60,"t":"让 AI 帮你做出门准备","d":"告诉 AI 你要去哪、做什么，让它帮你列准备清单。"}],"决策和判断":[{"n":61,"t":"让 AI 帮你做一个小决定","d":"把纠结的问题告诉 AI，让它列出选项、利弊、风险和建议。"},{"n":62,"t":"让 AI 帮你做选择对比","d":"把两个或多个选项发给 AI，让它帮你做对比表。"},{"n":63,"t":"让 AI 帮你找判断标准","d":"告诉 AI 你要做选择，让它先帮你整理判断标准。"},{"n":64,"t":"让 AI 帮你做风险预案","d":"把计划发给 AI，让它帮你写&#34;可能出什么问题、怎么提前准备&#34;。"},{"n":65,"t":"让 AI 帮你找最低成本试错","d":"告诉 AI 你想尝试什么，让它帮你设计一个最低成本实验。"},{"n":66,"t":"让 AI 帮你模拟未来结果","d":"告诉 AI 一个选择，让它帮你想象 1 周后、1 个月后、3 个月后可能怎样。"},{"n":67,"t":"让 AI 帮你找反方意见","d":"把你的想法发给 AI，让它从反方角度挑战你。"},{"n":68,"t":"让 AI 帮你找更稳妥方案","d":"把一个激进计划发给 AI，让它帮你改成更稳妥版本。"},{"n":69,"t":"让 AI 帮你找更大胆方案","d":"把一个保守计划发给 AI，让它帮你提出更大胆版本。"},{"n":70,"t":"让 AI 帮你做行动优先级","d":"把一堆想做的事发给 AI，让它帮你选现在最值得做的 3 件。"}],"陪练和模拟":[{"n":71,"t":"让 AI 陪你练一个表达","d":"告诉 AI 一个你要说明的观点，让它扮演听众追问你，帮你把表达练顺。"},{"n":72,"t":"让 AI 陪你做一次角色模拟","d":"让 AI 扮演客户、老板、同学、面试官、用户，和你模拟一次真实对话。"},{"n":73,"t":"让 AI 陪你练一次汇报","d":"把你要汇报的内容发给 AI，让它扮演听众提问。"},{"n":74,"t":"让 AI 陪你练一次面试","d":"告诉 AI 岗位或场景，让它问你 5 个面试问题。"},{"n":75,"t":"让 AI 帮你练一次自我介绍","d":"把你的经历发给 AI，让它帮你打磨 30 秒自我介绍。"},{"n":76,"t":"让 AI 帮你练一次提问","d":"告诉 AI 你想请教谁什么问题，让它帮你把问题问清楚。"},{"n":77,"t":"让 AI 陪你练一次解释","d":"把你要解释的概念发给 AI，让它扮演不懂的人追问。"},{"n":78,"t":"让 AI 陪你练一次谈判","d":"告诉 AI 你想争取什么，让它扮演对方和你模拟。"},{"n":79,"t":"让 AI 陪你练一次表达边界","d":"告诉 AI 你想表达什么边界，让它陪你练几种说法。"},{"n":80,"t":"让 AI 陪你练一次讲故事","d":"把一段经历发给 AI，让它帮你追问细节，练成一个故事。"}],"检查和优化":[{"n":81,"t":"让 AI 帮你检查一段文字","d":"把文字发给 AI，让它帮你找不清楚、不顺、不必要的地方。"},{"n":82,"t":"让 AI 帮你检查一个计划","d":"把计划发给 AI，让它帮你找漏洞。"},{"n":83,"t":"让 AI 帮你检查一个流程","d":"把流程发给 AI，让它帮你找缺失步骤。"},{"n":84,"t":"让 AI 帮你检查一个目标","d":"把目标发给 AI，让它判断是否具体、可观测、能启动。"},{"n":85,"t":"让 AI 帮你检查一个提问","d":"把你准备问 AI 或问别人的问题发给 AI，让它帮你改清楚。"},{"n":86,"t":"让 AI 帮你优化一份清单","d":"把清单发给 AI，让它帮你删掉重复、补上遗漏。"},{"n":87,"t":"让 AI 帮你优化一个表述","d":"把一句话发给 AI，让它给你 3 个更好的版本。"},{"n":88,"t":"让 AI 帮你优化一个标题","d":"把标题发给 AI，让它给你更清楚、更吸引人的版本。"},{"n":89,"t":"让 AI 帮你优化一个安排","d":"把时间安排发给 AI，让它帮你减负、调整顺序。"},{"n":90,"t":"让 AI 帮你优化一个方案","d":"把方案发给 AI，让它帮你提出 3 个改进点。"}],"创意和探索":[{"n":91,"t":"让 AI 帮你想 20 个点子","d":"告诉 AI 一个主题，让它给你 20 个点子。"},{"n":92,"t":"让 AI 帮你找 5 个角度","d":"把一个普通主题发给 AI，让它给你 5 个不同切入角度。"},{"n":93,"t":"让 AI 帮你起一个名字","d":"告诉 AI 你要给项目、活动、账号、作品取名，让它给你 20 个名字。"},{"n":94,"t":"让 AI 帮你设计一个小实验","d":"告诉 AI 你想探索什么，让它设计一个 30 分钟内能完成的小实验。"},{"n":95,"t":"让 AI 帮你设计一个小作品","d":"告诉 AI 你想做什么，让它帮你设计一个最小作品版本。"},{"n":96,"t":"让 AI 帮你做一个灵感清单","d":"告诉 AI 你最近关注什么，让它帮你列灵感清单。"},{"n":97,"t":"让 AI 帮你发散一个主题","d":"把一个主题发给 AI，让它从生活、工作、学习、关系、创作五个角度发散。"},{"n":98,"t":"让 AI 帮你组合两个想法","d":"把两个不相关的想法发给 AI，让它帮你找可能的结合方式。"},{"n":99,"t":"让 AI 帮你设计一个玩法","d":"告诉 AI 一个活动或练习目标，让它帮你设计一个简单玩法。"},{"n":100,"t":"让 AI 帮你找一个今天能试的行动","d":"直接问 AI：根据我今天的状态，帮我选一个 10 分钟内能完成的 AI 小行动。"}]};
+
+var flat = [];
+Object.keys(tasks).forEach(function(cat) {
+  tasks[cat].forEach(function(t) { flat.push({cat:cat, n:t.n, t:t.t, d:t.d}); });
+});
+
+function renderCategories() {
+  var html = '';
+  var catNums = {'整理和复盘':'一','拆解和启动':'二','改写和表达':'三','生成初稿':'四','学习和理解':'五','计划和管理':'六','决策和判断':'七','陪练和模拟':'八','检查和优化':'九','创意和探索':'十'};
+  Object.keys(tasks).forEach(function(cat) {
+    html += '<div class="cat-section"><div class="cat-title"><span>' + catNums[cat] + '、' + cat + '</span><span class="cat-num">' + tasks[cat].length + ' 件</span></div><div class="cat-items">';
+    tasks[cat].forEach(function(t) {
+      html += '<div class="task-row" id="task-' + t.n + '" onclick="selectTask(' + t.n + ')"><div class="task-num">' + t.n + '</div><div><div class="task-action">' + t.t + '</div><div class="task-desc">' + t.d + '</div></div></div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('categories').innerHTML = html;
+}
+
+var current = -1;
+function pickRandom() {
+  var idx = Math.floor(Math.random() * flat.length);
+  selectTask(flat[idx].n);
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function selectTask(n) {
+  if (current >= 0) {
+    var old = document.getElementById('task-' + current);
+    if (old) old.classList.remove('highlight');
+  }
+  current = n;
+  var el = document.getElementById('task-' + n);
+  if (el) { el.classList.add('highlight'); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+  var t = flat.find(function(x){return x.n===n;});
+  if (t) {
+    var res = document.getElementById('result');
+    res.className = 'picker-result active';
+    res.innerHTML = '<div class="cat">' + t.cat + ' · 第 ' + t.n + ' 件</div><div class="action">' + t.t + '</div><div class="desc">' + t.d + '</div>';
+  }
+}
+
+renderCategories();
+lucide.createIcons();
+</script>
+
+</body>
+</html>
