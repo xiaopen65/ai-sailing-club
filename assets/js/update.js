@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '20261106-111';
+  var BUILD = '20261106-112';
   var VERSION_URL = 'version.json';
 
   function setVersion() {

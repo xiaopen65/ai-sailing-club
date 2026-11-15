@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    学习路线 / 深度交流 共用样式
    ============================================================ */
 
@@ -2416,10 +2416,11 @@ body.editing .help-del{ display: grid; }
 
 /* 结果卡：100 件小事入口 */
 .sm-tool-btn{
-  display: inline-flex; align-items: center; gap: 6px; margin-top: 9px;
+  display: none; align-items: center; gap: 6px; margin-top: 9px;
   padding: 6px 10px; border: 1px solid rgba(201,241,79,.45); border-radius: 999px;
   color: var(--lime); font-size: 9px; line-height: 1; text-decoration: none;
   transition: background .2s, color .2s, border-color .2s;
 }
 .sm-tool-btn svg{ width: 10px; height: 10px; }
+.sm-layer.open .sm-tool-btn{ display: inline-flex; }
 .sm-tool-btn:hover{ background: var(--lime); border-color: var(--lime); color: #101208; }
