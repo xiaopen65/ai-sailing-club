@@ -2424,3 +2424,8 @@ body.editing .help-del{ display: grid; }
 .sm-tool-btn svg{ width: 10px; height: 10px; }
 .sm-layer.open .sm-tool-btn{ display: inline-flex; }
 .sm-tool-btn:hover{ background: var(--lime); border-color: var(--lime); color: #101208; }
+
+.rp-gaps li.is-done{ border-color: rgba(201,241,79,.65); background: rgba(201,241,79,.1); }
+.rp-gaps li.is-done em{ color: #51760a; font-size: 12px; }
+.rp-gaps li.is-done b{ font-size: 12px; }
+.rp-gaps li.is-done span{ color: var(--ink-2); }

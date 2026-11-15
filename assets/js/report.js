@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    能力报告：三条线 + 学习地图结果层级
    ========================================================= */
 (function () {
@@ -72,23 +72,51 @@
     result: '在结果板块选一个 Level ' + r.startLevel + ' 的目标，做出一个最小交付'
   };
 
-  var gaps = r.gaps.map(function (gap, i) {
-    return '<li><em>0' + (i + 1) + '</em><div><b>' + gap.name + ' · ' + gap.score + '</b><span>' + (gapActions[gap.key] || '先补这一块。') + '</span></div></li>';
-  }).join('');
+  var missing = (Array.isArray(r.missing) ? r.missing : Object.keys(target.requirements).map(function (key) {
+    return { key: key, name: A.domains[key], score: r.domains[key], need: target.requirements[key] };
+  }).filter(function (item) { return item.score < item.need; })).slice().sort(function (a, b) {
+    return a.score - b.score;
+  });
+  var hasGaps = missing.length > 0;
+  var firstGap = hasGaps ? missing[0] : null;
+  var gapHeading = hasGaps
+    ? (missing.length === 1 ? '先补这一块' : missing.length === 2 ? '先补这两块' : missing.length === 3 ? '先补这三块' : '先补这几块')
+    : '能力门槛已达标';
 
-  var firstGap = r.gaps[0];
-  var gapNeed = target.requirements[firstGap.key] || 50;
-  var nextSteps = [
+  var gaps = hasGaps
+    ? missing.map(function (gap, i) {
+        return '<li><em>0' + (i + 1) + '</em><div><b>' + gap.name + ' · ' + gap.score + ' / ' + gap.need + '</b><span>' + (gapActions[gap.key] || '先补这一块。') + '</span></div></li>';
+      }).join('')
+    : '<li class="is-done"><em>✓</em><div><b>目标层级能力已达标</b><span>你的技能、思维和结果准备度已经覆盖 Level ' + r.targetLevel + ' 的门槛。下一步不是继续补基础，而是做真实交付。</span></div></li>';
+
+  var summaryThird = hasGaps
+    ? '<div><span>先补</span><b>' + firstGap.name + '</b><em>' + firstGap.score + ' / ' + firstGap.need + '</em></div>'
+    : '<div><span>状态</span><b>已达标</b><em>直接做结果</em></div>';
+
+  var nextSteps = (hasGaps ? [
     '先在结果板块完成一个 Level ' + r.startLevel + ' 的小结果：' + start.title + '。',
-    '把「' + firstGap.name + '」从 ' + firstGap.score + ' 补到至少 ' + gapNeed + '，只练这一个短板。',
+    '把「' + firstGap.name + '」从 ' + firstGap.score + ' 补到至少 ' + firstGap.need + '，只练这一个短板。',
     '24 小时内真实用一次，把过程记录到结果板块；下一次再来复测。'
-  ].map(function (text, i) {
+  ] : [
+    '在结果板块完成一个 Level ' + r.targetLevel + ' 的真实交付：' + target.title + '。',
+    r.targetLevel < 3
+      ? '能力已经达标，直接挑战 Level ' + (r.targetLevel + 1) + ' 的结果，不要停在课程里。'
+      : '选一个最能代表你的结果，做成别人能看、能用、能复用的版本。',
+    r.targetLevel < 3
+      ? '14 天后复测；如果新结果做出来了，再往上走一层。'
+      : '把作品放进真实场景，收集 3 个反馈后再复测。'
+  ]).map(function (text, i) {
     return '<li><b>0' + (i + 1) + '</b><span>' + text + '</span></li>';
   }).join('');
 
-  var targetNote = r.startLevel < r.targetLevel
-    ? '<p class="rp-target-note">你的目标是 Level ' + r.targetLevel + '，但建议先从 Level ' + r.startLevel + ' 开始，把基础能力和结果交付补齐，再往上走。</p>'
-    : '<p class="rp-target-note is-ready">你的能力准备度和目标层级匹配，可以直接从 Level ' + r.startLevel + ' 开始。</p>';
+  var targetNote;
+  if (hasGaps) {
+    targetNote = r.startLevel < r.targetLevel
+      ? '<p class="rp-target-note">你的目标是 Level ' + r.targetLevel + '，但建议先从 Level ' + r.startLevel + ' 开始，把基础能力和结果交付补齐，再往上走。</p>'
+      : '<p class="rp-target-note">你的目标层级还有 ' + missing.length + ' 项能力没有到门槛，先补齐再交付。</p>';
+  } else {
+    targetNote = '<p class="rp-target-note is-ready">你已经达到 ' + target.name + '（Level ' + r.targetLevel + '）的能力门槛，接下来用真实结果验证。</p>';
+  }
 
   root.innerHTML =
     '<section class="rp-hero">' +
@@ -100,7 +128,7 @@
         '<div class="rp-summary">' +
           '<div><span>目标结果</span><b>Level ' + r.targetLevel + '</b><em>' + target.name + '</em></div>' +
           '<div><span>建议起点</span><b>Level ' + r.startLevel + '</b><em>' + start.name + '</em></div>' +
-          '<div><span>先补</span><b>' + firstGap.name + '</b><em>' + firstGap.score + ' 分</em></div>' +
+          summaryThird +
         '</div>' +
       '</div>' +
     '</section>' +
@@ -112,7 +140,7 @@
       '<div class="rp-levels">' + levelCards + '</div>' +
     '</section>' +
     '<section class="rp-section rp-two-col">' +
-      '<div><div class="rp-section-head"><p class="rp-kicker">GAPS</p><h2>先补这三块</h2></div><ol class="rp-gaps">' + gaps + '</ol></div>' +
+      '<div><div class="rp-section-head"><p class="rp-kicker">' + (hasGaps ? 'GAPS' : 'READY') + '</p><h2>' + gapHeading + '</h2></div><ol class="rp-gaps' + (hasGaps ? '' : ' rp-gaps-done') + '">' + gaps + '</ol></div>' +
       '<div><div class="rp-section-head"><p class="rp-kicker">NEXT</p><h2>接下来怎么做</h2></div><ol class="rp-next">' + nextSteps + '</ol></div>' +
     '</section>' +
     '<div class="rp-actions">' +
